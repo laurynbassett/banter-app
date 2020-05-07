@@ -1,4 +1,7 @@
-import * as firebase from "firebase";
+import firebase from "firebase/app";
+// import "firebase/analytics";
+import "firebase/auth";
+import "firebase/database";
 
 import {
   FIREBASE_API_KEY,
@@ -24,13 +27,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-// if (!firebase.apps.length) {
-//   firebase.initializeApp(firebaseConfig);
-// }
-
-// firebase.initializeApp(firebaseConfig);
-
 export const Firebase = firebase.initializeApp(firebaseConfig);
+// export const analytics = firebase.analytics();
 
 export const db = firebase.database();
 export const auth = firebase.auth();
