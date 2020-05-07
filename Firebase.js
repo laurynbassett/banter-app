@@ -24,8 +24,13 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+// if (!firebase.apps.length) {
+//   firebase.initializeApp(firebaseConfig);
+// }
+
+// firebase.initializeApp(firebaseConfig);
+
 export const Firebase = firebase.initializeApp(firebaseConfig);
-firebase.analytics();
 
 export const db = firebase.database();
 export const auth = firebase.auth();

@@ -12,7 +12,7 @@ import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import LoginScreen from "./screens/LoginScreen";
 import DoneScreen from "./screens/DoneScreen";
 import LoadingScreen from "./screens/LoadingScreen";
-
+import { Firebase } from "./Firebase";
 // const Stack = createStackNavigator();
 
 export default function App(props) {
