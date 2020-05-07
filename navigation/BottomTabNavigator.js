@@ -4,7 +4,7 @@ import * as React from "react";
 import TabBarIcon from "../components/TabBarIcon";
 import HomeScreen from "../screens/HomeScreen";
 import LinksScreen from "../screens/LinksScreen";
-import ChatList from "../screens/ChatList";
+import ChatListScreen from "../screens/ChatListScreen";
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = "Home";
@@ -39,7 +39,7 @@ export default function BottomTabNavigator({ navigation, route }) {
       />
       <BottomTab.Screen
         name="Chats"
-        component={ChatList}
+        component={ChatListScreen}
         options={{
           title: "Chats",
           tabBarIcon: ({ focused }) => (

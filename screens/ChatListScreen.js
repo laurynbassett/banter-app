@@ -1,6 +1,6 @@
 import React from "react";
 
-import ChatListItem from "./ChatListItem";
+import ChatListItem from "../components/ChatListItem";
 
 import {
   Image,
