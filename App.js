@@ -5,11 +5,14 @@ import * as React from "react";
 // import { Ionicons } from "@expo/vector-icons";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
-// import { createStackNavigator } from "@react-navigation/stack";
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
 // import BottomTabNavigator from "./navigation/BottomTabNavigator";
 // import useLinking from "./navigation/useLinking";
 import LoginScreen from "./screens/LoginScreen";
+import DoneScreen from "./screens/DoneScreen";
+import LoadingScreen from "./screens/LoadingScreen";
+
 // const Stack = createStackNavigator();
 
 export default function App(props) {
@@ -62,8 +65,16 @@ export default function App(props) {
   // );
   // }
 
-  return <LoginScreen />;
+  return <AppNavigator />;
 }
+
+const AppSwithcNavigator = createSwitchNavigator({
+  LoadingSreen: LoadingScreen,
+  LoginScreen: LoginScreen,
+  HomeScreen: DoneScreen,
+});
+
+const AppNavigator = createAppContainer(AppSwithcNavigator);
 
 // const styles = StyleSheet.create({
 //   container: {

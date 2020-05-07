@@ -20,6 +20,11 @@ class LoginScreen extends React.Component {
           title="Login"
           onPress={() => Alert.alert("Button with adjusted color pressed")}
         />
+        <Button
+          style={styles.button}
+          title="Sign in with Google"
+          onPress={() => Alert.alert("Button with adjusted color pressed")}
+        />
       </View>
     );
   }
