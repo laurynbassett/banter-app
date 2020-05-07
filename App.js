@@ -52,7 +52,7 @@ export default function App(props) {
 				<NavigationContainer ref={containerRef} initialState={initialNavigationState}>
 					<Stack.Navigator>
 						<Stack.Screen name='Root' component={BottomTabNavigator} />
-						<Stack.Screen name='ChatList' component={HomeScreen} />
+						<Stack.Screen name='ChatList' component={ChatListScreen} />
 						<Stack.Screen name='SingleChat' component={SingleChatScreen} />
 					</Stack.Navigator>
 				</NavigationContainer>
