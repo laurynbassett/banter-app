@@ -1,8 +1,9 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as React from 'react';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import * as React from "react";
 
 import LinksScreen from '../screens/LinksScreen';
 import { HomeScreen, SingleChatScreen } from '../screens';
+import ChatListScreen from "../screens/ChatListScreen";
 import { TabBarIcon } from '../components';
 
 const BottomTab = createBottomTabNavigator();
@@ -14,10 +15,10 @@ export default function BottomTabNavigator({ navigation, route }) {
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
       <BottomTab.Screen
-        name="ChatList"
-        component={HomeScreen}
+        name="Chats"
+        component={ChatListScreen}
         options={{
-          title: 'ChatList',
+          title: 'Chats',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-chatbubbles" />,
         }}
       />
@@ -42,11 +43,12 @@ export default function BottomTabNavigator({ navigation, route }) {
 }
 
 function getHeaderTitle(route) {
-  const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
+  const routeName =
+    route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
 
   switch (routeName) {
     case 'Chats':
-      return 'Chats'
+      return 'All Chats'
     case 'Contacts':
       return 'Contacts';
     case 'Settings':
