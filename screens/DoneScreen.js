@@ -1,26 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
-import { auth } from "../Firebase";
+import firebase from "firebase/app";
 
 class DoneScreen extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.logout = this.logout.bind(this);
-  }
-
-  async logout() {
-    try {
-      const loggedOut = await auth.signOut();
-      if (loggedOut) {
-        console.log("user logged out");
-        this.setState({ loading: false });
-      }
-    } catch (err) {
-      console.log("Error", err);
-    }
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -28,7 +10,7 @@ class DoneScreen extends React.Component {
         <Button
           style={styles.button}
           title="Log Out"
-          onPress={() => this.logout()}
+          onPress={() => firebase.auth().signOut()}
         />
       </View>
     );
