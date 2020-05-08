@@ -7,7 +7,7 @@ import {
   View,
   Dimensions,
 } from "react-native";
-import { auth } from "../Firebase";
+import { auth, db } from "../Firebase";
 
 class Signup extends Component {
   constructor(props) {
@@ -22,14 +22,30 @@ class Signup extends Component {
     };
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.signup = this.signup.bind(this);
   }
 
-  async signup(email, password) {
+  async signup(email, password, firstName, lastName, language) {
     try {
       this.setState({ loading: true });
       const user = await auth.createUserWithEmailAndPassword(email, password);
       if (user) {
         console.log("user", user);
+
+        if (user.additionalUserInfo.isNewUser) {
+          db.ref("/users/").push({
+            email: email,
+            name: `${firstName} ${lastName}`,
+            language: language,
+            created_at: Date.now(),
+          });
+        } else {
+          //TODO: Figure out how to store last logged in date
+          // db.ref("/users/" + user.uid).update({
+          //   last_logged_in: Date.now(),
+          // });
+        }
+
         await auth.signInWithEmailAndPassword(email, password);
         this.props.navigation.navigate("Home");
         this.setState({ loading: false });
@@ -91,7 +107,9 @@ class Signup extends Component {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={() => this.signup(email, password)}
+          onPress={() =>
+            this.signup(email, password, firstName, lastName, language)
+          }
         >
           <Text style={styles.buttonText}>Signup</Text>
         </TouchableOpacity>
