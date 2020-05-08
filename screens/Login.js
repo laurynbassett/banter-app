@@ -1,13 +1,5 @@
 import React, { Component } from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  View,
-  Button,
-} from "react-native";
+import { StyleSheet, TextInput, View, Button } from "react-native";
 
 // import {
 //   login as userLogin,

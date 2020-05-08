@@ -4,12 +4,11 @@ import * as React from "react";
 // import * as Font from "expo-font";
 // import { Ionicons } from "@expo/vector-icons";
 import "react-native-gesture-handler";
-import { NavigationContainer } from "@react-navigation/native";
+// import { NavigationContainer } from "@react-navigation/native";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
 // import BottomTabNavigator from "./navigation/BottomTabNavigator";
 // import useLinking from "./navigation/useLinking";
-import LoginScreen from "./screens/LoginScreen";
 import SignUp from "./screens/SignUp";
 import Login from "./screens/Login";
 
