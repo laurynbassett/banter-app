@@ -9,7 +9,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 
-class Login extends Component {
+class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -199,7 +199,7 @@ class Login extends Component {
         <TouchableOpacity
           style={styles.button}
           title="Sign Up"
-          onPress={() => this.props.navigation.navigate("SignUp")}
+          onPress={() => this.props.navigation.navigate("SignUpScreen")}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
@@ -241,4 +241,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default LoginScreen;

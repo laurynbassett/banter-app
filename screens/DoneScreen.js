@@ -1,31 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import firebase from "firebase/app";
-import { translateText } from "../utils/translate";
 
 class DoneScreen extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      welcome: "Welcome to our application",
-    };
-  }
-
-  async componentDidMount() {
-    const data = await translateText(
-      this.state.welcome,
-      // this.props.navigation.getParam("language")
-      "no"
-    );
-    const string = data.translations[0].translatedText;
-
-    this.setState({ welcome: string });
-  }
-
   render() {
     return (
       <View style={styles.container}>
-        <Text>{this.state.welcome}</Text>
+        <Text>Welcome</Text>
         <Button
           style={styles.button}
           title="Log Out"

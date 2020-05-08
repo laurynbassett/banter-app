@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { auth, db } from "../Firebase";
 
-class Signup extends Component {
+class SignupScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -47,7 +47,7 @@ class Signup extends Component {
         }
 
         await auth.signInWithEmailAndPassword(email, password);
-        this.props.navigation.navigate("Home");
+        this.props.navigation.navigate("HomeScreen", { language });
         this.setState({ loading: false });
       }
     } catch (err) {
@@ -158,4 +158,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Signup;
+export default SignupScreen;
