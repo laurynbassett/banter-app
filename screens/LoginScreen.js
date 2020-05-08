@@ -90,7 +90,8 @@ class LoginScreen extends Component {
               var email = error.email;
               // The firebase.auth.AuthCredential type that was used.
               var credential = error.credential;
-              // ...
+              console.log(errorCode, ": ", errorMessage);
+              console.log("email: ", email, "credential: ", credential);
             });
         } else {
           console.log("User already signed-in Firebase.");
