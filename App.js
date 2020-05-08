@@ -7,12 +7,13 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import { BottomTabNavigator, useLinking } from "./navigation";
-import { HomeScreen, SingleChatScreen } from "./screens";
-
-import DoneScreen from "./screens/DoneScreen";
-import LoadingScreen from "./screens/LoadingScreen";
-import SignUpScreen from "./screens/SignUpScreen";
-import LoginScreen from "./screens/LoginScreen";
+import {
+  HomeScreen,
+  SingleChatScreen,
+  LoadingScreen,
+  SignUpScreen,
+  LoginScreen,
+} from "./screens";
 
 const Stack = createStackNavigator();
 
@@ -69,6 +70,9 @@ export default function App(props) {
           initialState={initialNavigationState}
         >
           <Stack.Navigator>
+            <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
+            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+            <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
             <Stack.Screen name="Root" component={BottomTabNavigator} />
             <Stack.Screen name="ChatList" component={HomeScreen} />
             <Stack.Screen name="SingleChat" component={SingleChatScreen} />

@@ -15,7 +15,7 @@ class LoadingScreen extends React.Component {
   checkIfLoggedIn() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        this.props.navigation.navigate("HomeScreen");
+        this.props.navigation.navigate("Root");
       } else {
         this.props.navigation.navigate("LoginScreen");
       }

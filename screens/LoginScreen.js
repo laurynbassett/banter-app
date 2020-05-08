@@ -124,7 +124,7 @@ class LoginScreen extends Component {
       if (result.type === "success") {
         console.log("LoginScreen.js.js 21 | ", result.user.givenName);
         this.onSignIn(result);
-        this.props.navigation.navigate("HomeScreen", {
+        this.props.navigation.navigate("Root", {
           accessToken: result.accessToken,
         }); //after Google login redirect to HomeScreen
         return result.accessToken;

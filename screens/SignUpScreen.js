@@ -47,7 +47,7 @@ class SignupScreen extends Component {
         }
 
         await auth.signInWithEmailAndPassword(email, password);
-        this.props.navigation.navigate("HomeScreen", { language });
+        this.props.navigation.navigate("Root", { language });
         this.setState({ loading: false });
       }
     } catch (err) {
