@@ -7,7 +7,13 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import { BottomTabNavigator, useLinking } from "./navigation";
-import { HomeScreen, SingleChatScreen } from "./screens";
+import {
+  HomeScreen,
+  SingleChatScreen,
+  LoadingScreen,
+  SignUpScreen,
+  LoginScreen,
+} from "./screens";
 
 const Stack = createStackNavigator();
 
@@ -23,8 +29,19 @@ export default function App(props) {
       try {
         SplashScreen.preventAutoHide();
 
-        // Load our initial navigation state
-        setInitialNavigationState(await getInitialState());
+        //       // Load fonts
+        //       await Font.loadAsync({
+        //         ...Ionicons.font,
+        //         "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf"),
+        //       });
+        //     } catch (e) {
+        //       // We might want to provide this error information to an error reporting service
+        //       console.warn(e);
+        //     } finally {
+        //       setLoadingComplete(true);
+        //       SplashScreen.hide();
+        //     }
+        //   }
 
         // Load fonts
         // 	await Font.loadAsync({
@@ -39,7 +56,6 @@ export default function App(props) {
         SplashScreen.hide();
       }
     }
-
     loadResourcesAndDataAsync();
   }, []);
 
@@ -54,6 +70,9 @@ export default function App(props) {
           initialState={initialNavigationState}
         >
           <Stack.Navigator>
+            <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
+            <Stack.Screen name="LoginScreen" component={LoginScreen} />
+            <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
             <Stack.Screen name="Root" component={BottomTabNavigator} />
             <Stack.Screen name="ChatList" component={HomeScreen} />
             <Stack.Screen name="SingleChat" component={SingleChatScreen} />
@@ -70,3 +89,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 });
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#fff",
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+// })
