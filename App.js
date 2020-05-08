@@ -71,8 +71,16 @@ export default function App(props) {
         >
           <Stack.Navigator>
             <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
-            <Stack.Screen name="LoginScreen" component={LoginScreen} />
-            <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+            <Stack.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+              options={{ title: "Login" }}
+            />
+            <Stack.Screen
+              name="SignUpScreen"
+              component={SignUpScreen}
+              options={{ title: "Sign Up" }}
+            />
             <Stack.Screen name="Root" component={BottomTabNavigator} />
             <Stack.Screen name="ChatList" component={HomeScreen} />
             <Stack.Screen name="SingleChat" component={SingleChatScreen} />

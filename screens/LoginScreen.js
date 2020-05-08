@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, TextInput, View, Text, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  Text,
+  Dimensions,
+  Image,
+} from "react-native";
 import { auth } from "../Firebase";
 import * as Google from "expo-google-app-auth";
 import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
@@ -189,6 +196,7 @@ class LoginScreen extends Component {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
 
+        {/* TODO: Replace with google button https://stackoverflow.com/questions/46654248/how-to-display-google-sign-in-button-using-html */}
         <TouchableOpacity
           style={styles.button}
           title="Login with Google"
