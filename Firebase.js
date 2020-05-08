@@ -1,32 +1,34 @@
-import fBaseCreds from './.firebase';
-import * as firebase from 'firebase';
+// import fBaseCreds from './.firebase';
+// import * as firebase from 'firebase';
 
-import {
-	FIREBASE_API_KEY,
-	FIREBASE_AUTH_DOMAIN,
-	FIREBASE_DATABASE_URL,
-	FIREBASE_PROJECT_ID,
-	FIREBASE_STORAGE_BUCKET,
-	FIREBASE_MESSAGING_SENDER_ID,
-	FIREBASE_APP_ID,
-	FIREBASE_MEASUREMENT_ID
-} from 'react-native-dotenv';
+// import {
+// 	FIREBASE_API_KEY,
+// 	FIREBASE_AUTH_DOMAIN,
+// 	FIREBASE_DATABASE_URL,
+// 	FIREBASE_PROJECT_ID,
+// 	FIREBASE_STORAGE_BUCKET,
+// 	FIREBASE_MESSAGING_SENDER_ID,
+// 	FIREBASE_APP_ID,
+// 	FIREBASE_MEASUREMENT_ID
+// } from 'react-native-dotenv';
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-	apiKey: FIREBASE_API_KEY,
-	authDomain: FIREBASE_AUTH_DOMAIN,
-	databaseURL: FIREBASE_DATABASE_URL,
-	projectId: FIREBASE_PROJECT_ID,
-	storageBucket: FIREBASE_STORAGE_BUCKET,
-	messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
-	appId: FIREBASE_APP_ID,
-	measurementId: FIREBASE_MEASUREMENT_ID
-};
+// // Your web app's Firebase configuration
+// const firebaseConfig = {
+// 	apiKey: FIREBASE_API_KEY,
+// 	authDomain: FIREBASE_AUTH_DOMAIN,
+// 	databaseURL: FIREBASE_DATABASE_URL,
+// 	projectId: FIREBASE_PROJECT_ID,
+// 	storageBucket: FIREBASE_STORAGE_BUCKET,
+// 	messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+// 	appId: FIREBASE_APP_ID,
+// 	measurementId: FIREBASE_MEASUREMENT_ID
+// };
 
-// Initialize Firebase
-export const Firebase = firebase.initializeApp(firebaseConfig);
-firebase.analytics();
+// // Initialize Firebase
+// export const Firebase = firebase.initializeApp(firebaseConfig);
+// firebase.analytics();
 
-export const db = firebase.database();
-export const auth = firebase.auth();
+// export const db = firebase.database();
+// export const auth = firebase.auth();
+
+import firebase from "react-native-firebase";
