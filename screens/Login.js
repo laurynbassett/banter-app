@@ -1,9 +1,10 @@
 import React, { Component } from "react";
-import { StyleSheet, TextInput, View, Button } from "react-native";
+import { StyleSheet, TextInput, View, Text, Dimensions } from "react-native";
 import { auth } from "../Firebase";
 import * as Google from "expo-google-app-auth";
 import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
 import firebase from "firebase/app";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
@@ -40,6 +41,7 @@ class Login extends Component {
     }
     return false;
   };
+
   onSignIn = (googleUser) => {
     console.log("Google Auth Response", googleUser);
     // We need to register an Observer on Firebase Auth to make sure auth is initialized.
@@ -178,27 +180,35 @@ class Login extends Component {
           placeholder="Password"
         />
 
-        <Button
+        <TouchableOpacity
           style={styles.button}
           title="Login"
           onPress={() => this.loginWithEmail(email, password)}
-        />
+        >
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
 
-        <Button
+        <TouchableOpacity
           style={styles.button}
           title="Login with Google"
           onPress={() => this.loginWithGoogle()}
-        />
+        >
+          <Text style={styles.buttonText}>Login with Google</Text>
+        </TouchableOpacity>
 
-        <Button
+        <TouchableOpacity
           style={styles.button}
           title="Sign Up"
           onPress={() => this.props.navigation.navigate("SignUp")}
-        />
+        >
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 }
+
+const { width: WIDTH } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
@@ -217,7 +227,17 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   button: {
-    borderColor: "blue",
+    width: WIDTH - 55,
+    height: 45,
+    backgroundColor: "#0D9BFE",
+    borderRadius: 25,
+    marginTop: 20,
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
 

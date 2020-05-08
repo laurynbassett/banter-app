@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   TextInput,
   View,
+  Dimensions,
 } from "react-native";
 import { auth } from "../Firebase";
 
@@ -14,6 +15,9 @@ class Signup extends Component {
     this.state = {
       email: "",
       password: "",
+      firstName: "",
+      lastName: "",
+      language: "",
       loading: false,
     };
     this.handleEmailChange = this.handleEmailChange.bind(this);
@@ -44,9 +48,33 @@ class Signup extends Component {
   }
 
   render() {
-    const { email, password } = this.state;
+    const { email, password, firstName, lastName, language } = this.state;
     return (
       <View style={styles.container}>
+        <TextInput
+          style={styles.inputBox}
+          type="First Name"
+          value={firstName}
+          placeholder="First Name"
+          onChangeText={(firstName) => this.setState({ firstName })}
+        />
+
+        <TextInput
+          style={styles.inputBox}
+          type="Last Name"
+          value={lastName}
+          placeholder="Last Name"
+          onChangeText={(lastName) => this.setState({ lastName })}
+        />
+
+        <TextInput
+          style={styles.inputBox}
+          type="Language"
+          value={language}
+          placeholder="Language"
+          onChangeText={(language) => this.setState({ language })}
+        />
+
         <TextInput
           style={styles.inputBox}
           type="email"
@@ -61,13 +89,25 @@ class Signup extends Component {
           placeholder="Password"
           onChangeText={(password) => this.setState({ password })}
         />
-        <TouchableOpacity onPress={() => this.signup(email, password)}>
-          <Text>Signup</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.signup(email, password)}
+        >
+          <Text style={styles.buttonText}>Signup</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.props.navigation.navigate("LoginScreen")}
+        >
+          <Text style={styles.buttonText}>Login with existing account</Text>
         </TouchableOpacity>
       </View>
     );
   }
 }
+
+const { width: WIDTH } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
@@ -86,7 +126,17 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   button: {
-    borderColor: "blue",
+    width: WIDTH - 55,
+    height: 45,
+    backgroundColor: "#0D9BFE",
+    borderRadius: 25,
+    marginTop: 20,
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
 
