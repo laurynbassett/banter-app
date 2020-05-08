@@ -10,6 +10,8 @@ import { createAppContainer, createSwitchNavigator } from "react-navigation";
 // import BottomTabNavigator from "./navigation/BottomTabNavigator";
 // import useLinking from "./navigation/useLinking";
 import LoginScreen from "./screens/LoginScreen";
+import SignUp from "./screens/SignUp";
+import Login from "./screens/Login";
 
 import DoneScreen from "./screens/DoneScreen";
 import LoadingScreen from "./screens/LoadingScreen";
@@ -71,7 +73,8 @@ export default function App(props) {
 
 const AppSwithcNavigator = createSwitchNavigator({
   LoadingSreen: LoadingScreen,
-  LoginScreen: LoginScreen,
+  LoginScreen: Login,
+  SignUp: SignUp,
   HomeScreen: DoneScreen,
 });
 
