@@ -28,10 +28,7 @@ export default function HomeScreen(props) {
 					<Text style={styles.getStartedText}>Open up the code for this screen:</Text>
 
 					<View style={[ styles.codeHighlightContainer, styles.homeScreenFilename ]}>
-						<Button
-							title='SingleChat'
-							onPress={() => props.navigation.navigate('SingleChat', { screen: 'SingleChatScreen' })}
-						/>
+						<Button title='SingleChat' onPress={() => props.navigation.navigate('SingleChat')} />
 					</View>
 
 					<Text style={styles.getStartedText}>

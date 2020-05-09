@@ -1,43 +1,21 @@
 import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
+import { connect } from 'react-redux';
 
-import { auth } from '../Firebase';
+// import { auth, db } from '../Firebase';
 import { SingleChatHeaderLeft, SingleChatHeaderCenter } from '.';
+import { sendMessage } from '../store/messages';
+import Fire from '../Firebase';
 
-const dummyUserGrace = {
-	name: 'Grace Hopper',
-	language: 'english',
-	username: 'ghopper',
-	email: 'ghopper@gmail.com',
-	photoURL: 'https://gravatar.com/avatar/6b48cda542ae00a2eac4268528733ae8?s=200&d=mp&r=x',
-	_id: '1'
-};
-
-const dummyUserAda = {
-	name: 'Ada Lovelace',
-	language: 'english',
-	username: 'alovelace',
-	email: 'alovelace@gmail.com',
-	photoURL: 'https://gravatar.com/avatar/6b48cda542ae00a2eac4268528733ae8?s=200&d=mp&r=x',
-	_id: '2'
-};
-
-const dummyMessages = [
-	{ text: 'Hey', sender: 'ghopper', timestamp: 1459361875337, user: dummyUserGrace },
-	{ text: 'Hi', sender: 'alovelace', timestamp: 1459361875666, user: dummyUserAda },
-	{ text: 'How are you?', sender: 'ghopper', timestamp: 1459361875777, user: dummyUserGrace },
-	{ text: 'I am well. How are you?', sender: 'alovelace', timestamp: 1459361875888, user: dummyUserAda },
-	{ text: 'Great, thanks.', sender: 'ghopper', timestamp: 1459361875999, user: dummyUserGrace }
-];
-
-export default class SingleChat extends Component {
+class SingleChat extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			user: {},
 			messages: []
 		};
+		this.sendMessage = this.sendMessage.bind(this);
 	}
 
 	static navigationOptions = ({ navigation }) => ({
@@ -47,41 +25,89 @@ export default class SingleChat extends Component {
 	});
 
 	componentDidMount() {
-		// const user = auth.currentUser;
-		// if (user != null) {
-		// 	this.setState({ user });
-		// }
-		// Fire.shared.on(message =>
-		//   this.setState(previousState => ({
-		//     messages: GiftedChat.append(previousState.messages, message),
-		//   }))
-		// );
-		this.setState({ user: dummyUserGrace, messages: dummyMessages });
+		Fire.shared.on(message =>
+			this.setState(previousState => ({
+				messages: GiftedChat.append(previousState.messages, message)
+			}))
+		);
+	}
+	componentWillUnmount() {
+		Fire.shared.off();
 	}
 
-	// componentWillUnmount() {
-	//   Fire.shared.off()
+	// componentDidMount() {
+	// 	const user = this.user();
+	// 	console.log('PROPS', this.props);
+	// 	if (user != null) {
+	// 		const messagesRef = db.ref(`messages/${user.id}`);
+	// 		this.setState({ user, messagesRef });
+	// 	}
+	// 	if (this.state.messages.length) {
+	// 		this.state.messagesRef.on(message =>
+	// 			this.setState(previousState => ({
+	// 				messages: GiftedChat.append(previousState.messages, message)
+	// 			}))
+	// 		);
+	// 	}
 	// }
 
-	// get user() {
-	//   return {
-	//     name: this.props.navigation.state.params.name,
-	//     _id: Fire.shared.uid,
-	//   };
+	// componentWillUnmount() {
+	// 	if (this.state.messages.length) {
+	// 		this.state.messagesRef.off();
+	// 	}
 	// }
+
+	get user() {
+		return {
+			// name: auth.currentUser.displayName,
+			// _id: (auth.currentUser || {}).uid
+			name: Fire.shared.user.displayName,
+			_id: Fire.shared.uid
+		};
+	}
+
+	sendMessage(messages) {
+		console.log('messages***********', messages);
+		this.setState(previousState => ({
+			messages: GiftedChat.append(previousState.messages, messages)
+		}));
+		const message = messages[messages.length - 1].text;
+		const uid = this.state.user._id;
+		const sender = Fire.shared.user.displayName;
+		const timestamp = Date.now();
+		this.props.postMessage({ uid, sender, message, timestamp });
+		Fire.shared.send(messages);
+	}
 
 	render() {
 		console.log('MESSAGES', this.state.messages);
+		console.log('USER', Fire.shared.user);
 		if (this.state.messages.length) {
 			return (
 				<View style={styles.container} contentContainerStyle={styles.contentContainer}>
-					<GiftedChat messages={this.state.messages} user={this.state.user} alignTop={true} />
-					{/* <GiftedChat messages={this.state.messages} user={this.user} onSend={Fire.shared.send} alignTop={true} /> */}
+					<Text>Hello</Text>
+					<GiftedChat
+						messages={this.state.messages}
+						user={this.state.user}
+						onSend={this.sendMessage}
+						alignTop={true}
+						placeholder='type a message...'
+					/>
 				</View>
 			);
 		} else return null;
 	}
 }
+
+const mapState = state => ({
+	messages: state.messages.messages
+});
+
+const mapDispatch = dispatch => ({
+	postMessage: message => dispatch(sendMessage(message))
+});
+
+export default connect(mapState, mapDispatch)(SingleChat);
 
 const styles = StyleSheet.create({
 	container: {

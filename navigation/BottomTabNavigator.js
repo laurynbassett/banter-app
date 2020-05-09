@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
+import { Platform } from 'react-native';
 
 import LinksScreen from '../screens/LinksScreen';
 import { HomeScreen, SingleChatScreen } from '../screens';
@@ -19,7 +20,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={ChatListScreen}
         options={{
           title: 'Chats',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-chatbubbles" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-chatbubbles' : 'md-chatbubbles'} />,
         }}
       />
       <BottomTab.Screen
@@ -27,7 +28,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={LinksScreen}
         options={{
           title: 'Contacts',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-contact" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-contact': 'md-contact'} />,
         }}
       />
        <BottomTab.Screen
@@ -35,7 +36,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={LinksScreen}
         options={{
           title: 'Settings',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="ios-settings" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-settings': 'md-settings'} />,
         }}
       />
     </BottomTab.Navigator>
