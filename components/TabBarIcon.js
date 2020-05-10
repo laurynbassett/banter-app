@@ -1,4 +1,3 @@
-import Icon from 'react-native-vector-icons/Ionicons';
 import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
 

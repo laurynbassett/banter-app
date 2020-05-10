@@ -3,9 +3,9 @@ import { StyleSheet, TextInput, View, Text, Dimensions } from 'react-native';
 import { auth } from '../Firebase';
 import * as Google from 'expo-google-app-auth';
 import { GOOGLE_IOS_CLIENT_ID, GOOGLE_CLIENT_ID } from 'react-native-dotenv';
-import firebase from 'firebase/app';
+// import firebase from 'firebase/app';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
+import firebase from 'firebase';
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 
@@ -115,7 +115,6 @@ class LoginScreen extends Component {
 			const result = await Google.logInAsync({
 				iosClientId: GOOGLE_IOS_CLIENT_ID,
 				// androidClientId: ANDROID_CLIENT_ID,
-				clientId: GOOGLE_CLIENT_ID,
 				scopes: [ 'profile', 'email' ]
 			});
 
@@ -161,6 +160,7 @@ class LoginScreen extends Component {
 
 	render() {
 		console.log('GOOGLE_IOS_CLIENT_ID', GOOGLE_IOS_CLIENT_ID);
+		console.log('THIS.STATE', this.state);
 		const { email, password } = this.state;
 		return (
 			<View style={styles.container}>

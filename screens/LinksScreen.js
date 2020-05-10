@@ -1,27 +1,61 @@
-// import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import firebase from 'firebase/app';
+import { connect } from 'react-redux';
 
-export default function LinksScreen(props) {
+import firebase, { auth } from '../Firebase';
+import { fetchChatrooms } from '../store/chatrooms';
+import { fetchAllChats } from '../store/chats';
+
+const LinksScreen = props => {
+	const fetchChatData = async () => {
+		const uid = auth.currentUser.uid;
+		await props.fetchChatrooms(uid);
+		console.log('FETCHED CHATROOMS - uid: ', uid);
+		await props.fetchAllChats();
+		console.log('FETCHED CHATS');
+	};
+
+	useEffect(() => {
+		fetchChatData();
+	}, []);
+
+	const signOut = () => {
+		firebase.auth().signOut();
+		props.navigation.navigate('LoginScreen');
+	};
+
 	return (
 		<ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-			<Button title='SingleChat' onPress={() => props.navigation.navigate('SingleChat')} />
+			<Button
+				title='SingleChat'
+				onPress={() =>
+					props.navigation.navigate('SingleChat', {
+						contactId: 'Xr067E9MvdVlMPB3k2fXO7EfFgZ2',
+						contactName: 'Isra Khan',
+						contactEmail: 'israkhan2@gmail.com'
+					})}
+			/>
+			<Button style={styles.button} title='Log Out' onPress={signOut} />
 
-			<Button style={styles.button} title='Log Out' onPress={() => firebase.auth().signOut()} />
+			{/* <Button style={styles.button} title='Log Out' onPress={() => firebase.auth().signOut()} /> */}
 		</ScrollView>
 	);
-}
+};
+
+const mapDispatch = dispatch => ({
+	fetchChatrooms: uid => dispatch(fetchChatrooms(uid)),
+	fetchAllChats: () => dispatch(fetchAllChats())
+});
+
+export default connect(null, mapDispatch)(LinksScreen);
 
 function OptionButton({ label, onPress, isLastOption }) {
 	return (
 		<RectButton style={[ styles.option, isLastOption && styles.lastOption ]} onPress={onPress}>
 			<View style={{ flexDirection: 'row' }}>
-				<View style={styles.optionIconContainer}>
-					{/* <Ionicons name={icon} size={22} color="rgba(0,0,0,0.35)" /> */}
-				</View>
+				<View style={styles.optionIconContainer} />
 				<View style={styles.optionTextContainer}>
 					<Text style={styles.optionText}>{label}</Text>
 				</View>

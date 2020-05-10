@@ -35,8 +35,7 @@ export default function App(props) {
 
 				// Load fonts
 				await Font.loadAsync({
-					'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
-					...Ionicons.font
+					'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf')
 				});
 			} catch (e) {
 				// We might want to provide this error information to an error reporting service

@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { connect } from 'react-redux';
 
-// import { auth, db } from '../Firebase';
 import { SingleChatHeaderLeft, SingleChatHeaderCenter } from '.';
-import { sendMessage } from '../store/messages';
-import Fire from '../Firebase';
-
+import { fetchCurrentChatMessages, postMessage, subscribeToMessages } from '../store/messages';
+import Fire, { auth, db } from '../Firebase';
+import Layout from '../constants/Layout';
+import { fetchCurrentChatId } from '../store/chats';
 class SingleChat extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			messages: [],
 			user: {},
-			messages: []
+			chatId: ''
 		};
-		this.sendMessage = this.sendMessage.bind(this);
+		this.handleSendMessage = this.handleSendMessage.bind(this);
 	}
 
 	static navigationOptions = ({ navigation }) => ({
@@ -24,102 +25,87 @@ class SingleChat extends Component {
 		headerLeft: SingleChatHeaderLeft
 	});
 
-	componentDidMount() {
-		Fire.shared.on(message =>
-			this.setState(previousState => ({
-				messages: GiftedChat.append(previousState.messages, message)
-			}))
-		);
-	}
-	componentWillUnmount() {
-		Fire.shared.off();
-	}
-
-	// componentDidMount() {
-	// 	const user = this.user();
-	// 	console.log('PROPS', this.props);
-	// 	if (user != null) {
-	// 		const messagesRef = db.ref(`messages/${user.id}`);
-	// 		this.setState({ user, messagesRef });
-	// 	}
-	// 	if (this.state.messages.length) {
-	// 		this.state.messagesRef.on(message =>
-	// 			this.setState(previousState => ({
-	// 				messages: GiftedChat.append(previousState.messages, message)
-	// 			}))
-	// 		);
-	// 	}
+	// componentWillMount() {
+	// 	this.props.subscribeToMessages();
 	// }
 
+	async componentDidMount() {
+		const user = auth.currentUser;
+		const { contactId } = this.props.route.params;
+		await this.props.getCurrentChatId(contactId);
+		await this.props.getMessages(user.uid, contactId);
+		// Fire.shared.on(message =>
+		// 	this.setState(previousState => ({
+		// 		messages: GiftedChat.append(previousState.messages, message)
+		// 	}))
+		// );
+		console.log('currentChatId', this.props.currentChat);
+		const chatId = this.props.currentChat ? this.props.currentChat.currentChatId : '';
+		this.setState({
+			chatId,
+			messages: this.props.messages,
+			user: { _id: user.uid, name: user.displayName }
+		});
+	}
 	// componentWillUnmount() {
-	// 	if (this.state.messages.length) {
-	// 		this.state.messagesRef.off();
-	// 	}
+	// 	Fire.shared.off();
 	// }
 
-	get user() {
-		return {
-			// name: auth.currentUser.displayName,
-			// _id: (auth.currentUser || {}).uid
-			name: Fire.shared.user.displayName,
-			_id: Fire.shared.uid
-		};
-	}
-
-	sendMessage(messages) {
-		console.log('messages***********', messages);
+	handleSendMessage(messages) {
+		console.log('HANDLE SEND MSG: ', messages);
 		this.setState(previousState => ({
 			messages: GiftedChat.append(previousState.messages, messages)
 		}));
+		const { uid } = auth.currentUser;
+		const { contactId } = this.props.route.params;
 		const message = messages[messages.length - 1].text;
-		const uid = this.state.user._id;
-		const sender = Fire.shared.user.displayName;
 		const timestamp = Date.now();
-		this.props.postMessage({ uid, sender, message, timestamp });
-		Fire.shared.send(messages);
+		this.props.sendMessage({ uid, contactId, message, timestamp });
+		// Fire.shared.send(messages);
 	}
 
 	render() {
-		console.log('MESSAGES', this.state.messages);
-		console.log('USER', Fire.shared.user);
-		if (this.state.messages.length) {
-			return (
-				<View style={styles.container} contentContainerStyle={styles.contentContainer}>
-					<Text>Hello</Text>
-					<GiftedChat
-						messages={this.state.messages}
-						user={this.state.user}
-						onSend={this.sendMessage}
-						alignTop={true}
-						placeholder='type a message...'
-					/>
-				</View>
-			);
-		} else return null;
+		console.log('*******THIS STATE*******', this.state);
+
+		return (
+			<View style={styles.container}>
+				<GiftedChat
+					messages={this.state.messages}
+					user={this.state.user}
+					onSend={this.handleSendMessage}
+					alignTop={true}
+					isTyping={true}
+					// alwaysShowSend={true}
+					showUserAvatar={true}
+					showAvatarForEveryMessage={true}
+					placeholder='Type a message...'
+				/>
+			</View>
+		);
 	}
 }
 
 const mapState = state => ({
+	currentChat: state.chats.currentChat,
 	messages: state.messages.messages
 });
 
 const mapDispatch = dispatch => ({
-	postMessage: message => dispatch(sendMessage(message))
+	getCurrentChatId: contactId => dispatch(fetchCurrentChatId(contactId)),
+	getMessages: () => dispatch(fetchCurrentChatMessages()),
+	sendMessage: msg => dispatch(postMessage(msg))
+	// subscribeToMessages: () => dispatch(subscribeToMessages())
 });
 
 export default connect(mapState, mapDispatch)(SingleChat);
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
 		backgroundColor: '#fafafa',
-		marginTop: 10
-	},
-	contentContainer: {
-		paddingTop: 15
+		width: Layout.window.width,
+		height: Layout.window.height * 0.9
 	},
 	headerContainer: {
-		flex: 1,
 		flexDirection: 'row',
 		backgroundColor: '#fafafa',
 		paddingLeft: 16,
