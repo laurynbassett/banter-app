@@ -14,11 +14,11 @@ import {
   FlatList,
 } from "react-native";
 
-db.ref("users/" + userId).set({
-  username: name,
-  email: email,
-  profile_picture: imageUrl,
-});
+// db.ref("users/" + userId).set({
+//   username: name,
+//   email: email,
+//   profile_picture: imageUrl,
+// });
 
 const dummyData = [
   {
