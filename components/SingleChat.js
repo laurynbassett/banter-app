@@ -30,17 +30,20 @@ class SingleChat extends Component {
 	// }
 
 	async componentDidMount() {
+		console.log('THIS.PROPS START SINGLECHAT', this.props);
 		const user = auth.currentUser;
 		const { contactId } = this.props.route.params;
 		await this.props.getCurrentChatId(contactId);
+		console.log('THIS.PROPS AFTER FETCHCHATID', this.props);
 		await this.props.getMessages(user.uid, contactId);
+		console.log('THIS.PROPS AFTER FETCHMSGS', this.props);
 		// Fire.shared.on(message =>
 		// 	this.setState(previousState => ({
 		// 		messages: GiftedChat.append(previousState.messages, message)
 		// 	}))
 		// );
-		console.log('currentChatId', this.props.currentChat);
-		const chatId = this.props.currentChat ? this.props.currentChat.currentChatId : '';
+		console.log('SINGLE CHAT currentChatId: ', this.props.currentChat);
+		const chatId = this.props.currentChat.currentChatId;
 		this.setState({
 			chatId,
 			messages: this.props.messages,
@@ -86,6 +89,7 @@ class SingleChat extends Component {
 }
 
 const mapState = state => ({
+	chatrooms: state.chatrooms,
 	currentChat: state.chats.currentChat,
 	messages: state.messages.messages
 });

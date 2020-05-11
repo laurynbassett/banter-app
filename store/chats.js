@@ -23,8 +23,12 @@ export const fetchAllChats = () => async (dispatch, getState) => {
 
 		let chats = [];
 		const uid = auth.currentUser.uid;
+		console.log('FETCH ALL CHATS UID', uid);
 		chatroomsRef.once('value', snapshot => {
+			console.log('*****snapshot.child(uid).exists', snapshot.child(uid).exists());
 			if (snapshot.child(uid).exists()) {
+				console.log('snapshot.child(uid)', snapshot.child(uid));
+				console.log('state.chatrooms', state.chatrooms);
 				state.chatrooms.forEach(chatrmId => {
 					const chatroomRef = db.ref(`chats/${chatrmId}`);
 					const chatroomId = chatroomRef.key;
@@ -51,11 +55,15 @@ export const fetchCurrentChatId = contactId => async (dispatch, getState) => {
 		let currChatId = '';
 
 		chatroomsRef.once('value', snapshot => {
+			console.log('******snapshot.child(contactId).exists', snapshot.child(contactId).exists());
 			if (snapshot.child(contactId).exists()) {
+				console.log('snapshot.child(contactId)', snapshot.child(contactId));
 				db.ref(`chatrooms/${contactId}`).on('value', contactChats => {
 					console.log('FETCH CURRENT CHAT - CONTACT CHATS: ', Object.keys(contactChats.val()));
 					const matchingChat = Object.keys(contactChats.val()).find(chatId => {
 						console.log('CHILD CHAT VAL: ', chatId);
+						console.log('STATE CHATS: ', state.chats.chats);
+						console.log('INCLUDES?: ', state.chats.chats.includes(String(chatId)));
 						state.chats.chats.includes(chatId);
 					});
 					currChatId = matchingChat ? matchingChat : '';
