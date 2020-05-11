@@ -7,7 +7,7 @@ const SET_USER = "SET_USER";
 const setUser = (user) => ({ type: SET_USER, user });
 
 // Auth Signup
-export const signup = async (
+export const signUpWithEP = async (
   email,
   password,
   firstName,
@@ -34,7 +34,7 @@ export const signup = async (
 };
 
 // Auth Login
-export const login = async (email, password) => {
+export const loginWithEP = async (email, password) => {
   try {
     const user = await auth.signInWithEmailAndPassword(email, password);
     console.log("USER LOGGED IN: ", user);
@@ -94,7 +94,7 @@ export const checkErrors = (email, password) => {
 //   return { deviceId, deviceName, platform };
 // };
 
-export default function (state = {}, action) {
+export default function authReducer(state = {}, action) {
   switch (action.type) {
     case SET_USER:
       return action.user;
