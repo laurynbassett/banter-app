@@ -21,11 +21,6 @@ const LinksScreen = props => {
 		fetchChatData();
 	}, []);
 
-	const signOut = () => {
-		firebase.auth().signOut();
-		props.navigation.navigate('LoginScreen');
-	};
-
 	return (
 		<ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 			<Button
@@ -37,9 +32,7 @@ const LinksScreen = props => {
 						contactEmail: 'israkhan2@gmail.com'
 					})}
 			/>
-			<Button style={styles.button} title='Log Out' onPress={signOut} />
-
-			{/* <Button style={styles.button} title='Log Out' onPress={() => firebase.auth().signOut()} /> */}
+			<Button style={styles.button} title='Log Out' onPress={() => firebase.auth().signOut()} />
 		</ScrollView>
 	);
 };

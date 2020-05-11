@@ -28,22 +28,23 @@ export const fetchCurrentChatMessages = () => async (dispatch, getState) => {
 		let messages = [];
 		const state = getState();
 		console.log('FETCH CURRCHAT MSGS STATE: ', state);
-		if (state.chats.currentChatId) {
-			db.ref(`messages/${state.chats.currentChatId}`).once('value', currentChatMessages => {
-				console.log('FETCH CURRENT MSGS - MSGS: ', currentChatMessages);
-				currentChatMessages.forEach(msg => {
-					const messageId = msg.key;
-					const message = messageId.child('message').val();
-					const senderId = messageId.child('sender').val();
-					const timestamp = messageId.child('timestamp').val();
-					msgObj = { id: messageId, message, senderId, timestamp };
-					console.log('MESSAGE OBJ: ', msgObj);
-					messages.push(msgObj);
+		const chatId = state.chats.currentChat.currentChatId;
+		if (chatId) {
+			db.ref(`messages/${chatId}`).on('value', currChatMsgs => {
+				console.log('FETCH CURRENT MSGS - MSGS: ', currChatMsgs);
+				currChatMsgs.forEach(currChatId => {
+					console.log('*******ID', currChatId);
+					const _id = currChatId.key;
+					const text = currChatId.child('message').val();
+					const createdAt = currChatId.child('timestamp').val();
+					const senderId = currChatId.child('senderId').val();
+					const name = currChatId.child('senderName').val();
+					messages.push({ _id, text, createdAt, user: { _id: senderId, name } });
 				});
+				console.log('*******MESSAGES FROM QUERY: ', messages);
+				dispatch(getCurrentChatMessages(messages));
 			});
 		}
-		console.log('MESSAGES FROM QUERY: ', messages);
-		dispatch(getCurrentChatMessages(messages));
 	} catch (err) {
 		console.error('Error getting current chat messages: ', err);
 	}
@@ -51,7 +52,7 @@ export const fetchCurrentChatMessages = () => async (dispatch, getState) => {
 
 export const postMessage = text => async (dispatch, getState) => {
 	try {
-		const { uid, contactId, message, timestamp } = text;
+		const { uid, displayName, contactId, message, timestamp } = text;
 		console.log('TEXT***', text);
 		const state = getState();
 		console.log('POST MESSAGE STATE: ', state);
@@ -61,23 +62,22 @@ export const postMessage = text => async (dispatch, getState) => {
 			console.log('POST MESSAGE STATE AFTER CREATE CHAT ID: ', state);
 			console.log('CHATID', chatId);
 			await dispatch(addNewChatroom(uid));
-			console.log('ADDED NEW USER CHATROOM');
 			await dispatch(addNewChatroom(contactId));
 			console.log('POST MESSAGE STATE AFTER CREATE CHATROOM: ', state);
 			await dispatch(addNewMembers([ uid, contactId ]));
-			console.log('ADDED NEW MEMBERS');
 		} else {
 			chatId = state.chats.currentChat.currentChatId;
 		}
 		const currChatRef = db.ref(`messages/${chatId}`);
 		chatsRef.child(chatId).set({
 			lastMessage: `${uid}: ${message}`,
-			sender: uid,
+			senderId: uid,
 			timestamp
 		});
 		currChatRef.push().set({
 			message,
-			sender: uid,
+			senderId: uid,
+			senderName: displayName,
 			timestamp
 		});
 		await dispatch(fetchCurrentChatMessages());

@@ -24,23 +24,16 @@ export const fetchAllChats = () => async (dispatch, getState) => {
 		let chats = [];
 		const uid = auth.currentUser.uid;
 		console.log('FETCH ALL CHATS UID', uid);
-		chatroomsRef.once('value', snapshot => {
-			console.log('*****snapshot.child(uid).exists', snapshot.child(uid).exists());
-			if (snapshot.child(uid).exists()) {
-				console.log('snapshot.child(uid)', snapshot.child(uid));
-				console.log('state.chatrooms', state.chatrooms);
-				state.chatrooms.forEach(chatrmId => {
-					const chatroomRef = db.ref(`chats/${chatrmId}`);
-					const chatroomId = chatroomRef.key;
-					const lastMessage = chatroomId.child('lastMessage').val();
-					const senderId = chatroomId.child('sender').val();
-					const timestamp = chatroomId.child('timestamp').val();
-					chatObj = { id: chatroomId, lastMessage, senderId, timestamp };
-					console.log('CHAT OBJ: ', chatObj);
-					chats.push(chatObj);
-				});
-			}
+		state.chatrooms.forEach(chatId => {
+			db.ref(`chats/${chatId}`).on('value', chatRef => {
+				const id = chatRef.key;
+				const lastMessage = chatRef.child('lastMessage').val();
+				const senderId = chatRef.child('senderId').val();
+				const timestamp = chatRef.child('timestamp').val();
+				chats.push({ id, lastMessage, senderId, timestamp });
+			});
 		});
+
 		console.log('FETCHED CHATS:', chats);
 		dispatch(getAllChats(chats));
 	} catch (err) {
@@ -54,24 +47,23 @@ export const fetchCurrentChatId = contactId => async (dispatch, getState) => {
 		console.log('FETCH CURR CHAT ID STATE: ', state);
 		let currChatId = '';
 
-		chatroomsRef.once('value', snapshot => {
-			console.log('******snapshot.child(contactId).exists', snapshot.child(contactId).exists());
+		chatroomsRef.on('value', snapshot => {
 			if (snapshot.child(contactId).exists()) {
-				console.log('snapshot.child(contactId)', snapshot.child(contactId));
 				db.ref(`chatrooms/${contactId}`).on('value', contactChats => {
 					console.log('FETCH CURRENT CHAT - CONTACT CHATS: ', Object.keys(contactChats.val()));
 					const matchingChat = Object.keys(contactChats.val()).find(chatId => {
 						console.log('CHILD CHAT VAL: ', chatId);
-						console.log('STATE CHATS: ', state.chats.chats);
-						console.log('INCLUDES?: ', state.chats.chats.includes(String(chatId)));
-						state.chats.chats.includes(chatId);
+						console.log('STATE CHATS: ', state.chatrooms);
+						console.log('INCLUDES?: ', state.chatrooms.includes(String(chatId)));
+						return state.chatrooms.includes(chatId);
 					});
+					console.log('****MATCHING CHAT: ', matchingChat);
 					currChatId = matchingChat ? matchingChat : '';
+					console.log('CURRENT CHAT: ', currChatId);
+					dispatch(getCurrentChat(currChatId));
 				});
 			}
 		});
-		console.log('CURRENT CHAT: ', currChatId);
-		dispatch(getCurrentChat(currChatId));
 	} catch (err) {
 		console.log('Error fetching current chat ID: ', err);
 	}

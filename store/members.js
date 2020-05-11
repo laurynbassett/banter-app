@@ -15,7 +15,7 @@ export const addNewMembers = members => async (dispatch, getState) => {
 		console.log('ADD NEW MEMBERS PROPS:', members, chatId);
 		let newMembers = members.map(memberId => ({ memberId: true }));
 		let newMemberChatRef = '';
-		membersRef.once('value', snapshot => {
+		membersRef.on('value', snapshot => {
 			if (snapshot.child(chatId).exists()) {
 				newMemberChatRef = db.ref(`members/${chatId}`);
 				members.forEach(memberId => {

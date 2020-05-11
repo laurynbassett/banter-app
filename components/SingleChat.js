@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { connect } from 'react-redux';
 
-import { SingleChatHeaderLeft, SingleChatHeaderCenter } from '.';
 import { fetchCurrentChatMessages, postMessage, subscribeToMessages } from '../store/messages';
 import Fire, { auth, db } from '../Firebase';
 import Layout from '../constants/Layout';
@@ -18,12 +17,6 @@ class SingleChat extends Component {
 		};
 		this.handleSendMessage = this.handleSendMessage.bind(this);
 	}
-
-	static navigationOptions = ({ navigation }) => ({
-		headerStyle: styles.headerContainer,
-		title: SingleChatHeaderCenter,
-		headerLeft: SingleChatHeaderLeft
-	});
 
 	// componentWillMount() {
 	// 	this.props.subscribeToMessages();
@@ -59,11 +52,11 @@ class SingleChat extends Component {
 		this.setState(previousState => ({
 			messages: GiftedChat.append(previousState.messages, messages)
 		}));
-		const { uid } = auth.currentUser;
+		const { uid, displayName } = auth.currentUser;
 		const { contactId } = this.props.route.params;
 		const message = messages[messages.length - 1].text;
 		const timestamp = Date.now();
-		this.props.sendMessage({ uid, contactId, message, timestamp });
+		this.props.sendMessage({ uid, displayName, contactId, message, timestamp });
 		// Fire.shared.send(messages);
 	}
 
@@ -91,7 +84,7 @@ class SingleChat extends Component {
 const mapState = state => ({
 	chatrooms: state.chatrooms,
 	currentChat: state.chats.currentChat,
-	messages: state.messages.messages
+	messages: state.messages.currentChatMessages
 });
 
 const mapDispatch = dispatch => ({

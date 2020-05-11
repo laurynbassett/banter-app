@@ -9,15 +9,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { BottomTabNavigator, useLinking } from './navigation';
-import {
-	ChatList as ChatListScreen,
-	HomeScreen,
-	LoadingScreen,
-	LoginScreen,
-	SingleChatScreen,
-	SignUpScreen
-} from './screens';
+import { ChatListScreen, HomeScreen, LoadingScreen, LoginScreen, SingleChatScreen, SignUpScreen } from './screens';
 import store from './store';
+import { SingleChatHeaderCenter, ChatListHeaderRight } from './components';
 
 const Stack = createStackNavigator();
 
@@ -63,7 +57,11 @@ export default function App(props) {
 							<Stack.Screen name='SignUpScreen' component={SignUpScreen} />
 							<Stack.Screen name='Root' component={BottomTabNavigator} />
 							<Stack.Screen name='ChatList' component={ChatListScreen} />
-							<Stack.Screen name='SingleChat' component={SingleChatScreen} />
+							<Stack.Screen
+								name='SingleChat'
+								component={SingleChatScreen}
+								options={{ headerTitle: SingleChatHeaderCenter }}
+							/>
 						</Stack.Navigator>
 					</NavigationContainer>
 				</View>
@@ -78,12 +76,3 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff'
 	}
 });
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// })

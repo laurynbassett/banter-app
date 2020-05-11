@@ -18,7 +18,7 @@ export const fetchChatrooms = uid => async (dispatch, getState) => {
 		const state = getState();
 		console.log('FETCH CHATROOMS STATE: ', state);
 
-		chatroomsRef.once('value', snapshot => {
+		chatroomsRef.on('value', snapshot => {
 			if (snapshot.child(uid).exists()) {
 				db.ref(`chatrooms/${uid}`).on('value', userChats => {
 					console.log('FETCH CHATROOMS: ', Object.keys(userChats.val()));
@@ -43,7 +43,7 @@ export const addNewChatroom = uid => async (dispatch, getState) => {
 		const chatId = state.chats.currentChat.currentChatId;
 		console.log('ADD NEW CHATROOM PROPS: ', uid, 'chatID: ', chatId);
 
-		chatroomsRef.once('value', snapshot => {
+		chatroomsRef.on('value', snapshot => {
 			if (snapshot.child(uid).exists()) {
 				const userChatroomsRef = db.ref(`chatrooms/${uid}`);
 				console.log('USER CHATROOM EXISTS: ', userChatroomsRef);
