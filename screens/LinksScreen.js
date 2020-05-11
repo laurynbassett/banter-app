@@ -1,8 +1,9 @@
 // import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
+import firebase from "firebase/app";
 
 export default function LinksScreen() {
   return (
@@ -11,13 +12,11 @@ export default function LinksScreen() {
       contentContainerStyle={styles.contentContainer}
     >
       <OptionButton
-        icon="md-school"
         label="Read the Expo documentation"
         onPress={() => WebBrowser.openBrowserAsync("https://docs.expo.io")}
       />
 
       <OptionButton
-        icon="md-compass"
         label="Read the React Navigation documentation"
         onPress={() =>
           WebBrowser.openBrowserAsync("https://reactnavigation.org")
@@ -25,16 +24,21 @@ export default function LinksScreen() {
       />
 
       <OptionButton
-        icon="ios-chatboxes"
         label="Ask a question on the forums"
         onPress={() => WebBrowser.openBrowserAsync("https://forums.expo.io")}
         isLastOption
+      />
+
+      <Button
+        style={styles.button}
+        title="Log Out"
+        onPress={() => firebase.auth().signOut()}
       />
     </ScrollView>
   );
 }
 
-function OptionButton({ icon, label, onPress, isLastOption }) {
+function OptionButton({ label, onPress, isLastOption }) {
   return (
     <RectButton
       style={[styles.option, isLastOption && styles.lastOption]}
