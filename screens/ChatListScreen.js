@@ -2,6 +2,8 @@ import React from "react";
 
 import ChatListItem from "../components/ChatListItem";
 
+import { db } from "../Firebase";
+
 import {
   Image,
   Platform,
@@ -11,6 +13,12 @@ import {
   View,
   FlatList,
 } from "react-native";
+
+db.ref("users/" + userId).set({
+  username: name,
+  email: email,
+  profile_picture: imageUrl,
+});
 
 const dummyData = [
   {

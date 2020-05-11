@@ -31,7 +31,7 @@ const firebaseConfig = {
 export const Firebase = firebase.initializeApp(firebaseConfig);
 // firebase.analytics();
 
-// export const db = firebase.database();
+export const db = firebase.database();
 // export const auth = firebase.auth();
 
-import firebase from "react-native-firebase";
+// import firebase from "react-native-firebase";
