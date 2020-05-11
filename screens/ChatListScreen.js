@@ -3,12 +3,12 @@ import React from "react";
 import ChatListItem from "../components/ChatListItem";
 
 import {
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+  // Image,
+  // Platform,
+  // StyleSheet,
+  // Text,
+  // TouchableOpacity,
+  // View,
   FlatList,
 } from "react-native";
 

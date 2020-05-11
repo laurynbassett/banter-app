@@ -6,7 +6,7 @@ import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
 import firebase from "firebase/app";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
-import { loginWithEP } from "../store/auth";
+import { loginWithEP, loginWithGoogle } from "../store/auth";
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 
@@ -19,8 +19,6 @@ class LoginScreen extends Component {
       loading: false,
       // isLoggedIn: false,
     };
-    // this.logout = this.logout.bind(this);
-    // this.isLoggedIn = this.isLoggedIn.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
@@ -104,7 +102,6 @@ class LoginScreen extends Component {
     try {
       const result = await Google.logInAsync({
         iosClientId: GOOGLE_IOS_CLIENT_ID,
-        // androidClientId: ANDROID_CLIENT_ID,
         scopes: ["profile", "email"],
       });
 
@@ -179,7 +176,7 @@ class LoginScreen extends Component {
         <TouchableOpacity
           style={styles.button}
           title="Login with Google"
-          onPress={() => this.loginWithGoogle()}
+          onPress={() => this.props.loginWithGoogle()}
         >
           <Text style={styles.buttonText}>Login with Google</Text>
         </TouchableOpacity>
@@ -241,6 +238,7 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
   loginWithEmail: (email, password) => dispatch(loginWithEP(email, password)),
+  loginWithGoogle: () => dispatch(loginWithGoogle()),
 });
 
 export default connect(mapState, mapDispatch)(LoginScreen);
