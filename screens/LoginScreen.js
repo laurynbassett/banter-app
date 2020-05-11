@@ -1,12 +1,5 @@
 import React, { Component } from "react";
-import {
-  StyleSheet,
-  TextInput,
-  View,
-  Text,
-  Dimensions,
-  Image,
-} from "react-native";
+import { StyleSheet, TextInput, View, Text, Dimensions } from "react-native";
 import { auth } from "../Firebase";
 import * as Google from "expo-google-app-auth";
 import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";

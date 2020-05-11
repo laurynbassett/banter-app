@@ -64,7 +64,14 @@ class SignupScreen extends Component {
   }
 
   render() {
-    const { email, password, firstName, lastName, language } = this.state;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      language,
+      loading,
+    } = this.state;
     return (
       <View style={styles.container}>
         <TextInput
@@ -108,7 +115,7 @@ class SignupScreen extends Component {
         <TouchableOpacity
           style={styles.button}
           onPress={() =>
-            this.signup(email, password, firstName, lastName, language)
+            this.signup(email, password, firstName, lastName, language, loading)
           }
         >
           <Text style={styles.buttonText}>Signup</Text>
