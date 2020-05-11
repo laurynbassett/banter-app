@@ -1,7 +1,6 @@
 import * as React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { SignUpScreen, LoginScreen } from "./../screens";
-
+import { LoginScreen, SignUpScreen } from "../screens";
 const Stack = createStackNavigator();
 
 export default function LoginNavigator() {
@@ -13,7 +12,7 @@ export default function LoginNavigator() {
         options={{ title: "Login" }}
       />
       <Stack.Screen
-        name="SignUpScreen"
+        name="SignUp"
         component={SignUpScreen}
         options={{ title: "Sign Up" }}
       />

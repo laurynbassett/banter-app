@@ -6,43 +6,47 @@ const SET_USER = "SET_USER";
 
 const setUser = (user) => ({ type: SET_USER, user });
 
-// Auth Signup
-export const signUpWithEP = async (
+export const signUpWithEP = (
   email,
   password,
   firstName,
   lastName,
   language
-) => async (dispatch) => {
-  try {
-    const user = await auth.createUserWithEmailAndPassword(email, password);
-    if (user) {
-      console.log("NEW USER CREATED: ", email, password, user);
-      await db.ref("/users/").push({
-        email: email,
-        name: `${firstName} ${lastName}`,
-        language: language,
-        created_at: Date.now(),
-      });
+) => {
+  return async (dispatch) => {
+    try {
+      const user = await auth.createUserWithEmailAndPassword(email, password);
+
+      if (user) {
+        // console.log("NEW USER CREATED: ", email, password, user);
+        await db.ref("/users/").push({
+          email: email,
+          name: `${firstName} ${lastName}`,
+          language: language,
+          created_at: Date.now(),
+        });
+      }
       await auth.signInWithEmailAndPassword(email, password);
+      // console.log("user object", user);
       dispatch(setUser(user));
+    } catch (err) {
+      const errMessage = err.message;
+      console.log("Signup Error: ", errMessage);
     }
-  } catch (err) {
-    const errMessage = err.message;
-    console.log("Signup Error: ", errMessage);
-  }
+  };
 };
 
-// Auth Login
-export const loginWithEP = async (email, password) => {
-  try {
-    const user = await auth.signInWithEmailAndPassword(email, password);
-    console.log("USER LOGGED IN: ", user);
-    return user;
-  } catch (err) {
-    const errMessage = err.message;
-    console.log("Login Error: ", errMessage);
-  }
+// Email Password Login
+export const loginWithEP = (email, password) => {
+  return async (dispatch) => {
+    try {
+      const user = await auth.signInWithEmailAndPassword(email, password);
+      dispatch(setUser(user));
+    } catch (err) {
+      const errMessage = err.message;
+      console.log("Login Error: ", errMessage);
+    }
+  };
 };
 
 // Auth Logout

@@ -202,6 +202,10 @@ class LoginScreen extends Component {
           style={styles.button}
           title="Sign Up"
           onPress={() => {
+            // this.props.navigation.navigate("LoginScreen", {
+            //   screen: "SignUp",
+            // });
+
             this.props.navigation.navigate("SignUp");
           }}
         >

@@ -25,10 +25,6 @@ class SignUpScreen extends Component {
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-  componentDidMount() {
-    console.log("done");
-  }
-
   handleEmailChange(evt) {
     this.setState({ email: evt.target.value });
   }
