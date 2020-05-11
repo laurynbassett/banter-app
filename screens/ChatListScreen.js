@@ -13,33 +13,77 @@ import {
   View,
   FlatList,
 } from "react-native";
-
-// db.ref("users/" + userId).set({
-//   username: name,
-//   email: email,
-//   profile_picture: imageUrl,
-// });
+import { GoogleAuthData } from "expo-google-sign-in";
 
 const dummyData = [
   {
+    id: "5",
     title: "Isra",
     lastMessage: "Jacob: yo whats up",
   },
   {
+    id: "4",
     title: "Group Chat",
-    lastMessage: "Jacob: hi whats good",
+    lastMessage: "Jacob: hello",
   },
   {
+    id: "3",
     title: "Lauryn",
     lastMessage: "Lauryn: Ok sounds great",
   },
 ];
 
-export default function ChatList() {
-  return (
-    <FlatList
-      data={dummyData}
-      renderItem={({ item }) => <ChatListItem key={item.title} item={item} />}
-    />
-  );
+// export default function ChatList({ navigation }) {
+//   console.log("CHAT LIST PROPS", navigation);
+
+//   function goToSingleChat() {
+//     console.log("yes");
+//     navigation.navigate("SingleChat", {
+//       contactId: "Xr067E9MvdVlMPB3k2fXO7EfFgZ2",
+//       contactName: "Isra Khan",
+//       contactEmail: "israkhan2@gmail.com",
+//     });
+//   }
+
+//   return (
+//     <View>
+//       <FlatList
+//         data={dummyData}
+//         renderItem={({ item }) => (
+//           <ChatListItem
+//             key={item.title}
+//             item={item}
+//             goToSingleChat={goToSingleChat}
+//           />
+//         )}
+//       />
+//     </View>
+//   );
+// }
+
+export default class ChatList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.goToSingleChat = this.goToSingleChat.bind(this);
+  }
+
+  goToSingleChat() {
+    console.log("yes", this.props);
+    this.props.navigation.navigate("SingleChat", {
+      contactId: "Xr067E9MvdVlMPB3k2fXO7EfFgZ2",
+      contactName: "Isra Khan",
+      contactEmail: "israkhan2@gmail.com",
+    });
+  }
+  render() {
+    return (
+      <FlatList
+        data={dummyData}
+        renderItem={({ item }) => (
+          <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    );
+  }
 }

@@ -12,7 +12,7 @@ import {
 
 export default function ChatListItem(props) {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => props.goToSingleChat()}>
       <View style={styles.itemView}>
         <Text style={styles.chatName}>{props.item.title}</Text>
         <Text style={styles.message}>{props.item.lastMessage}</Text>
