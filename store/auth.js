@@ -1,79 +1,104 @@
-import React from 'react';
+import React from "react";
 
-import { auth } from '../Firebase';
+import { auth, db } from "../Firebase";
+
+const SET_USER = "SET_USER";
+
+const setUser = (user) => ({ type: SET_USER, user });
 
 // Auth Signup
-export const signup = (email, password, loading) => {
-	try {
-		const user = auth.createUserWithEmailAndPassword(email, password);
-		if (user) {
-			console.log('NEW USER: ', email, password, user);
-			loading = false;
-			return user;
-		}
-	} catch (err) {
-		const errMessage = err.message;
-		console.log('Signup Error: ', errMessage);
-	}
+export const signup = async (
+  email,
+  password,
+  firstName,
+  lastName,
+  language
+) => async (dispatch) => {
+  try {
+    const user = await auth.createUserWithEmailAndPassword(email, password);
+    if (user) {
+      console.log("NEW USER CREATED: ", email, password, user);
+      await db.ref("/users/").push({
+        email: email,
+        name: `${firstName} ${lastName}`,
+        language: language,
+        created_at: Date.now(),
+      });
+      await auth.signInWithEmailAndPassword(email, password);
+      dispatch(setUser(user));
+    }
+  } catch (err) {
+    const errMessage = err.message;
+    console.log("Signup Error: ", errMessage);
+  }
 };
 
 // Auth Login
 export const login = async (email, password) => {
-	try {
-		const user = await auth.signInWithEmailAndPassword(email, password);
-		console.log('USER LOGGED IN: ', user);
-		return user;
-	} catch (err) {
-		const errMessage = err.message;
-		console.log('Login Error: ', errMessage);
-	}
+  try {
+    const user = await auth.signInWithEmailAndPassword(email, password);
+    console.log("USER LOGGED IN: ", user);
+    return user;
+  } catch (err) {
+    const errMessage = err.message;
+    console.log("Login Error: ", errMessage);
+  }
 };
 
 // Auth Logout
 export const logout = () => {
-	try {
-		auth.signOut();
-		console.log('USER LOGGED OUT');
-		return true;
-	} catch (err) {
-		const errMessage = err.message;
-		console.log('Logout Error: ', errMessage);
-	}
+  try {
+    auth.signOut();
+    console.log("USER LOGGED OUT");
+    return true;
+  } catch (err) {
+    const errMessage = err.message;
+    console.log("Logout Error: ", errMessage);
+  }
 };
 
 // Check Login
 export const checkLogin = () => {
-	try {
-		auth.onAuthStateChanged(user => {
-			if (user) {
-				console.log('USER IS LOGGED IN');
-				return true;
-			} else {
-				console.log('USER IS LOGGED OUT');
-				return false;
-			}
-		});
-	} catch (err) {
-		console.log('Login Check Error: ', err);
-	}
+  try {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("USER IS LOGGED IN");
+        return true;
+      } else {
+        console.log("USER IS LOGGED OUT");
+        return false;
+      }
+    });
+  } catch (err) {
+    console.log("Login Check Error: ", err);
+  }
 };
 
 // Check Errors
 export const checkErrors = (email, password) => {
-	switch ((email, password)) {
-		case email === '' && password === '':
-			return console.log('empty email and password');
-		case email !== '' && password === '':
-			return console.log('empty password');
-		case email === '' && password !== '':
-			return console.log('empty email');
-		default:
-			return console.log('no errors');
-	}
+  switch ((email, password)) {
+    case email === "" && password === "":
+      return console.log("empty email and password");
+    case email !== "" && password === "":
+      return console.log("empty password");
+    case email === "" && password !== "":
+      return console.log("empty email");
+    default:
+      return console.log("no errors");
+  }
 };
 
-// User Info
-export const getUser = () => {
-	const { deviceId, deviceName, platform } = Constants;
-	return { deviceId, deviceName, platform };
-};
+// // User Info
+// export const getUser = () => {
+//   const { deviceId, deviceName, platform } = Constants;
+//   return { deviceId, deviceName, platform };
+// };
+
+export default function (state = {}, action) {
+  switch (action.type) {
+    case SET_USER:
+      return action.user;
+    default:
+      return state;
+  }
+}
