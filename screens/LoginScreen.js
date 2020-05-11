@@ -5,7 +5,8 @@ import * as Google from "expo-google-app-auth";
 import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
 import firebase from "firebase/app";
 import { TouchableOpacity } from "react-native-gesture-handler";
-
+import { connect } from "react-redux";
+import { loginWithEP } from "../store/auth";
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 
@@ -18,7 +19,6 @@ class LoginScreen extends Component {
       loading: false,
       // isLoggedIn: false,
     };
-    this.loginWithEmail = this.loginWithEmail.bind(this);
     // this.logout = this.logout.bind(this);
     // this.isLoggedIn = this.isLoggedIn.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
@@ -100,20 +100,6 @@ class LoginScreen extends Component {
     );
   };
 
-  async loginWithEmail(email, password) {
-    try {
-      this.setState({ loading: true });
-      const user = await auth.signInWithEmailAndPassword(email, password);
-      if (user) {
-        console.log("user", user);
-        this.props.navigation.navigate("Home");
-        this.setState({ loading: false });
-      }
-    } catch (err) {
-      console.log("Error", err);
-    }
-  }
-
   loginWithGoogle = async () => {
     try {
       const result = await Google.logInAsync({
@@ -184,7 +170,7 @@ class LoginScreen extends Component {
         <TouchableOpacity
           style={styles.button}
           title="Login"
-          onPress={() => this.loginWithEmail(email, password)}
+          onPress={() => this.props.loginWithEmail(email, password)}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
@@ -249,4 +235,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+const mapState = (state) => ({
+  user: state.user,
+});
+
+const mapDispatch = (dispatch) => ({
+  loginWithEmail: (email, password) => dispatch(loginWithEP(email, password)),
+});
+
+export default connect(mapState, mapDispatch)(LoginScreen);
