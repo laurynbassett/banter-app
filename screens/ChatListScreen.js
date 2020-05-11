@@ -2,7 +2,11 @@ import React from "react";
 
 import ChatListItem from "../components/ChatListItem";
 
-import { db } from "../Firebase";
+import { connect } from "react-redux";
+
+import firebase, { auth } from "../Firebase";
+import { fetchChatrooms } from "../store/chatrooms";
+import { fetchAllChats } from "../store/chats";
 
 import {
   Image,
@@ -33,6 +37,53 @@ const dummyData = [
   },
 ];
 
+class ChatListScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.goToSingleChat = this.goToSingleChat.bind(this);
+  }
+
+  fetchChatData = async () => {
+    const uid = auth.currentUser.uid;
+    await this.props.fetchChatrooms(uid);
+    console.log("FETCHED CHATROOMS - uid: ", uid);
+    await this.props.fetchAllChats();
+    console.log("FETCHED CHATS");
+  };
+
+  componentDidMount() {
+    this.fetchChatData();
+  }
+
+  goToSingleChat() {
+    console.log("yes", this.props);
+    this.props.navigation.navigate("SingleChat", {
+      contactId: "Xr067E9MvdVlMPB3k2fXO7EfFgZ2",
+      contactName: "Isra Khan",
+      contactEmail: "israkhan2@gmail.com",
+    });
+  }
+
+  render() {
+    return (
+      <FlatList
+        data={dummyData}
+        renderItem={({ item }) => (
+          <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    );
+  }
+}
+
+const mapDispatch = (dispatch) => ({
+  fetchChatrooms: (uid) => dispatch(fetchChatrooms(uid)),
+  fetchAllChats: () => dispatch(fetchAllChats()),
+});
+
+export default connect(null, mapDispatch)(ChatList);
+
 // export default function ChatList({ navigation }) {
 //   console.log("CHAT LIST PROPS", navigation);
 
@@ -60,30 +111,3 @@ const dummyData = [
 //     </View>
 //   );
 // }
-
-export default class ChatList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.goToSingleChat = this.goToSingleChat.bind(this);
-  }
-
-  goToSingleChat() {
-    console.log("yes", this.props);
-    this.props.navigation.navigate("SingleChat", {
-      contactId: "Xr067E9MvdVlMPB3k2fXO7EfFgZ2",
-      contactName: "Isra Khan",
-      contactEmail: "israkhan2@gmail.com",
-    });
-  }
-  render() {
-    return (
-      <FlatList
-        data={dummyData}
-        renderItem={({ item }) => (
-          <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    );
-  }
-}
