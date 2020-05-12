@@ -24,7 +24,7 @@ export const ChatListHeaderRight = () => {
 		<View style={styles.left}>
 			// add onPress
 			<TouchableOpacity>
-				<Entypo name='new-message' size={30} style={styles.icon} />
+				<Entypo name='new-message' size={20} style={styles.icon} />
 			</TouchableOpacity>
 		</View>
 	);
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
 		marginLeft: Layout.window.width * 0.25,
 		marginRight: Layout.window.width * 0.25
 	},
-		right: {
+	right: {
 		alignContent: 'flex-end',
 		alignSelf: 'flex-end'
 	},

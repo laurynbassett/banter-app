@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
-
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import store from './store';
+import AppNavigation from './navigation';
+import firebase from 'firebase/app';
+import { ReactReduxFirebaseProvider } from 'react-redux-firebase';
 
-import { BottomTabNavigator, useLinking } from './navigation';
+import useLinking from './navigation/useLinking';
 import {
 	ChatListScreen,
 	ContactsScreen,
@@ -18,11 +20,19 @@ import {
 	SingleChatScreen,
 	SignUpScreen
 } from './screens';
-import store from './store';
 
-import { SingleChatHeader, AddContact, AddContactButton } from './components';
+import { SingleChatHeaderLeft, SingleChatHeaderCenter } from './components';
+// react-redux-firebase config
+const rrfConfig = {
+	userProfile: 'users'
+};
 
-const Stack = createStackNavigator();
+const rrfProps = {
+	firebase,
+	config: rrfConfig,
+	dispatch: store.dispatch
+	// createFirestoreInstance // <- needed if using firestore
+};
 
 export default function App(props) {
 	const [ isLoadingComplete, setLoadingComplete ] = useState(false);
@@ -35,7 +45,6 @@ export default function App(props) {
 		const loadResourcesAndDataAsync = async () => {
 			try {
 				SplashScreen.preventAutoHide();
-
 				// Load fonts
 				await Font.loadAsync({
 					...Ionicons.font,
@@ -57,32 +66,14 @@ export default function App(props) {
 	} else {
 		return (
 			<Provider store={store}>
-				<View style={styles.container}>
-					{Platform.OS === 'ios' && <StatusBar barStyle='default' />}
-					<NavigationContainer ref={containerRef} initialState={initialNavigationState}>
-						<Stack.Navigator>
-							<Stack.Screen name='LoadingScreen' component={LoadingScreen} />
-							<Stack.Screen name='LoginScreen' component={LoginScreen} />
-							<Stack.Screen name='SignUpScreen' component={SignUpScreen} />
-							<Stack.Screen name='Root' component={BottomTabNavigator} />
-							<Stack.Screen name='ChatList' component={ChatListScreen} />
-							<Stack.Screen
-								name='SingleChat'
-								component={SingleChatScreen}
-								options={{
-									headerTitle: SingleChatHeader
-								}}
-							/>
-							<Stack.Screen
-								name='AddContact'
-								component={AddContact}
-								options={{
-									headerTitle: 'New Contact'
-								}}
-							/>
-						</Stack.Navigator>
-					</NavigationContainer>
-				</View>
+				<ReactReduxFirebaseProvider {...rrfProps}>
+					<View style={styles.container}>
+						{Platform.OS === 'ios' && <StatusBar barStyle='default' />}
+						<NavigationContainer ref={containerRef} initialState={initialNavigationState}>
+							<AppNavigation />
+						</NavigationContainer>
+					</View>
+				</ReactReduxFirebaseProvider>
 			</Provider>
 		);
 	}

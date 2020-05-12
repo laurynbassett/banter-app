@@ -57,7 +57,6 @@ class SingleChat extends Component {
 
 	render() {
 		console.log('*******THIS STATE*******', this.state);
-
 		return (
 			<View style={styles.container}>
 				<GiftedChat

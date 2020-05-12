@@ -1,7 +1,7 @@
 import React from 'react';
 import base64 from 'base-64';
 
-import { db } from '../Firebase';
+import firebase, { auth, db } from '../Firebase';
 import { createCurrentChatId, addNewMember } from './chats';
 import { addNewChatroom } from './user';
 
@@ -20,6 +20,7 @@ const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
 const receiveMessage = message => ({ type: RECEIVE_MESSAGE, message });
 
 // ---------- THUNK CREATORS ---------- //
+
 // for current chat
 export const fetchMessages = () => async (dispatch, getState) => {
 	try {
@@ -94,6 +95,7 @@ export const subscribeToMessages = () => async dispatch => {
 };
 
 // ---------- INITIAL STATE ---------- //
+
 const defaultMessages = [];
 
 // ---------- REDUCER ---------- //

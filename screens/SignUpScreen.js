@@ -1,51 +1,29 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, TouchableOpacity, TextInput, View, Dimensions } from 'react-native';
-import { auth, db } from '../Firebase';
-class SignupScreen extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			email: '',
-			password: '',
-			firstName: '',
-			lastName: '',
-			language: '',
-			loading: false
-		};
-		this.handleEmailChange = this.handleEmailChange.bind(this);
-		this.handlePasswordChange = this.handlePasswordChange.bind(this);
-		this.signup = this.signup.bind(this);
-	}
+import React, { Component } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  View,
+  Dimensions,
+} from "react-native";
+import { connect } from "react-redux";
+import { signUpWithEP } from "../store/auth";
 
-	async signup(email, password, firstName, lastName, language) {
-		try {
-			this.setState({ loading: true });
-			const user = await auth.createUserWithEmailAndPassword(email, password);
-			if (user) {
-				console.log('user', user);
-
-				if (user.additionalUserInfo.isNewUser) {
-					db.ref('/users/').push({
-						email: email,
-						name: `${firstName} ${lastName}`,
-						language: language,
-						created_at: Date.now()
-					});
-				} else {
-					//TODO: Figure out how to store last logged in date
-					// db.ref("/users/" + user.uid).update({
-					//   last_logged_in: Date.now(),
-					// });
-				}
-
-				await auth.signInWithEmailAndPassword(email, password);
-				this.props.navigation.navigate('Root', { language });
-				this.setState({ loading: false });
-			}
-		} catch (err) {
-			console.log('Error', err);
-		}
-	}
+class SignUpScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      language: "",
+      loading: false,
+    };
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
+  }
 
 	handleEmailChange(evt) {
 		this.setState({ email: evt.target.value });
@@ -55,17 +33,24 @@ class SignupScreen extends Component {
 		this.setState({ password: evt.target.value });
 	}
 
-	render() {
-		const { email, password, firstName, lastName, language } = this.state;
-		return (
-			<View style={styles.container}>
-				<TextInput
-					style={styles.inputBox}
-					type='First Name'
-					value={firstName}
-					placeholder='First Name'
-					onChangeText={firstName => this.setState({ firstName })}
-				/>
+  render() {
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      language,
+      loading,
+    } = this.state;
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={styles.inputBox}
+          type="First Name"
+          value={firstName}
+          placeholder="First Name"
+          onChangeText={(firstName) => this.setState({ firstName })}
+        />
 
 				<TextInput
 					style={styles.inputBox}
@@ -83,26 +68,35 @@ class SignupScreen extends Component {
 					onChangeText={language => this.setState({ language })}
 				/>
 
-				<TextInput
-					style={styles.inputBox}
-					type='email'
-					value={email}
-					placeholder='Email'
-					onChangeText={email => this.setState({ email })}
-				/>
-				<TextInput
-					style={styles.inputBox}
-					type='password'
-					value={password}
-					placeholder='Password'
-					onChangeText={password => this.setState({ password })}
-				/>
-				<TouchableOpacity
-					style={styles.button}
-					onPress={() => this.signup(email, password, firstName, lastName, language)}
-				>
-					<Text style={styles.buttonText}>Signup</Text>
-				</TouchableOpacity>
+        <TextInput
+          style={styles.inputBox}
+          type="email"
+          value={email}
+          placeholder="Email"
+          onChangeText={(email) => this.setState({ email })}
+        />
+        <TextInput
+          style={styles.inputBox}
+          type="password"
+          value={password}
+          placeholder="Password"
+          onChangeText={(password) => this.setState({ password })}
+        />
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            this.props.signup(
+              email,
+              password,
+              firstName,
+              lastName,
+              language,
+              loading
+            )
+          }
+        >
+          <Text style={styles.buttonText}>Signup</Text>
+        </TouchableOpacity>
 
 				<TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('LoginScreen')}>
 					<Text style={styles.buttonText}>Login with existing account</Text>
@@ -145,4 +139,13 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default SignupScreen;
+const mapState = (state) => ({
+  user: state.user,
+});
+
+const mapDispatch = (dispatch) => ({
+  signup: (email, password, firstName, lastName, language) =>
+    dispatch(signUpWithEP(email, password, firstName, lastName, language)),
+});
+
+export default connect(mapState, mapDispatch)(SignUpScreen);

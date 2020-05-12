@@ -2,21 +2,20 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import { Text, Platform } from 'react-native';
 
-import LinksScreen from '../screens/LinksScreen';
-import { 	ChatListScreen, ContactsScreen, HomeScreen, SingleChatScreen } from '../screens';
-import { ContactsHeader,ChatListHeader, TabBarIcon } from '../components';
+import { ChatListScreen, ContactsScreen, HomeScreen, SingleChatScreen } from '../screens';
+import { ContactsHeader, ChatListHeader, TabBarIcon } from '../components';
+import SettingsNavigator from './SettingsNavigator';
+import ChatNavigator from './ChatNavigator';
+import ContactNavigator from './ContactNavigator';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Chats';
 
-export default function BottomTabNavigator({ navigation, route }) {
-	navigation.setOptions({ headerTitle: getHeaderTitle(navigation, route)});
-
+export default function BottomTabNavigator() {
 	return (
-		<BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
+		<BottomTab.Navigator initialRouteName={'Chats'}>
 			<BottomTab.Screen
 				name='Chats'
-				component={ChatListScreen}
+				component={ChatNavigator}
 				options={{
 					title: 'Chats',
 					tabBarIcon: ({ focused }) => (
@@ -29,18 +28,18 @@ export default function BottomTabNavigator({ navigation, route }) {
 			/>
 			<BottomTab.Screen
 				name='Contacts'
-				component={ContactsScreen}
+				component={ContactNavigator}
 				options={{
 					title: 'Contacts',
 					tabBarIcon: ({ focused }) => (
 						<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-contact' : 'md-contact'} />
-					),
+					)
 					// headerTitle: ({ navigation }) => <AddContactButton nav={navigation} />
 				}}
 			/>
 			<BottomTab.Screen
 				name='Settings'
-				component={LinksScreen}
+				component={SettingsNavigator}
 				options={{
 					title: 'Settings',
 					tabBarIcon: ({ focused }) => (
@@ -50,18 +49,4 @@ export default function BottomTabNavigator({ navigation, route }) {
 			/>
 		</BottomTab.Navigator>
 	);
-}
-
-function getHeaderTitle(navigation, route) {
-  const routeName =
-    route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
-
-  switch (routeName) {
-    case 'Chats':
-			return (<ChatListHeader nav={navigation} />)
-    case 'Contacts':
-      return (<ContactsHeader nav={navigation} />)
-    case 'Settings':
-      return 'Settings';
-  }
 }

@@ -1,11 +1,10 @@
 import React from 'react';
-import firebase, { auth } from '../Firebase';
+import { connect } from 'react-redux';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
 import { GoogleAuthData } from 'expo-google-sign-in';
-import { connect } from 'react-redux';
 
+import firebase, { auth, db } from '../Firebase';
 import ChatListItem from '../components/ChatListItem';
-import { fetchChatrooms } from '../store/user';
 import { fetchAllChats, setCurrentChat } from '../store/chats';
 
 const dummyData = [
@@ -33,17 +32,18 @@ class ChatListScreen extends React.Component {
 	}
 
 	componentDidMount() {
-		this.props.fetchChatrooms();
+		this.props.fetchAllChats();
 	}
 
-	goToSingleChat(item) {
-		this.props.setCurrentChat(item.id);
+	goToSingleChat(chatRoomId) {
 		console.log('yes', this.props);
-		this.props.navigation.navigate('SingleChat');
+		this.props.navigation.navigate('SingleChat', {
+			chatRoomId: chatRoomId
+		});
 	}
 
 	render() {
-		console.log(this.props.chatrooms);
+		console.log('RENDER', this.props.chatrooms);
 		return (
 			<FlatList
 				data={this.props.chatrooms}
@@ -59,7 +59,6 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-	fetchChatrooms: () => dispatch(fetchChatrooms()),
 	fetchAllChats: () => dispatch(fetchAllChats())
 });
 

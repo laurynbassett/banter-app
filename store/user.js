@@ -28,7 +28,6 @@ const addContactError = message => ({ type: ADD_CONTACT, message });
 // 				snap
 // 			}
 // 		})
-
 // 	} catch (err) {
 // 		console.log('Error adding new contact: ', err)
 // 	}
@@ -133,5 +132,4 @@ const userReducer = (state = defaultUser, action) => {
 			return state;
 	}
 };
-
 export default userReducer;
