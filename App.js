@@ -43,7 +43,6 @@ export default function App(props) {
 
 		loadResourcesAndDataAsync();
 	}, []);
-	console.log('STORE', store);
 	if (!isLoadingComplete && !props.skipLoadingScreen) {
 		return null;
 	} else {
@@ -57,11 +56,13 @@ export default function App(props) {
 							<Stack.Screen name='LoginScreen' component={LoginScreen} />
 							<Stack.Screen name='SignUpScreen' component={SignUpScreen} />
 							<Stack.Screen name='Root' component={BottomTabNavigator} />
-							<Stack.Screen name='Chats' component={ChatListScreen} />
+							<Stack.Screen name='ChatList' component={ChatListScreen} />
 							<Stack.Screen
 								name='SingleChat'
 								component={SingleChatScreen}
-								options={{ headerTitle: SingleChatHeaderCenter }}
+								options={{
+									headerTitle: SingleChatHeaderCenter
+								}}
 							/>
 						</Stack.Navigator>
 					</NavigationContainer>

@@ -1,20 +1,14 @@
 import firebase, { auth, db } from '../Firebase';
-import { fetchChatrooms } from './chatrooms';
 
 const chatsRef = db.ref('chats');
 
 // ---------- ACTION TYPES ---------- //
 const GET_ALL_CHATS = 'GET_ALL_CHATS';
-// const GET_CURRENT_CHAT = 'GET_CURRENT_CHAT';
 const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
 const ADD_MEMBER = 'ADD_MEMBER';
 
 // ---------- ACTION CREATORS ---------- //
 const getAllChats = chats => ({ type: GET_ALL_CHATS, chats });
-// const getCurrentChat = chatId => ({
-// 	type: GET_CURRENT_CHAT,
-// 	chatId
-// });
 export const setCurrentChat = chatId => ({ type: SET_CURRENT_CHAT, chatId });
 const addMember = member => ({ type: ADD_MEMBERS, member });
 
@@ -127,8 +121,6 @@ const chatsReducer = (state = defaultChats, action) => {
 	switch (action.type) {
 		case GET_ALL_CHATS:
 			return { ...state, chats: action.chats };
-		// case GET_CURRENT_CHAT:
-		// 	return { ...state, currentChat: { ...state.currentChat, currentChatId: action.chatId } };
 		case SET_CURRENT_CHAT:
 			return { ...state, currentChat: state.chats.find(chat => chat.id === action.chatId) };
 		case ADD_MEMBER:

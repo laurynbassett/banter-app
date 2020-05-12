@@ -1,12 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
 import firebase, { auth } from '../Firebase';
-import { fetchChatrooms } from '../store/user';
-import { ChatListItem } from '../components';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
 import { GoogleAuthData } from 'expo-google-sign-in';
-import { setCurrentChat } from '../store/chats';
+import { connect } from 'react-redux';
+
+import ChatListItem from '../components/ChatListItem';
+import { fetchChatrooms } from '../store/user';
+import { fetchAllChats, setCurrentChat } from '../store/chats';
 
 const dummyData = [
 	{
@@ -32,14 +32,8 @@ class ChatListScreen extends React.Component {
 		this.goToSingleChat = this.goToSingleChat.bind(this);
 	}
 
-	fetchChatData = async () => {
-		const uid = auth.currentUser.uid;
-		await this.props.fetchChatrooms();
-		console.log('FETCHED CHATROOMS/CHATS');
-	};
-
 	componentDidMount() {
-		this.fetchChatData();
+		this.props.fetchChatrooms();
 	}
 
 	goToSingleChat(item) {
@@ -50,49 +44,24 @@ class ChatListScreen extends React.Component {
 	}
 
 	render() {
+		console.log(this.props.chatrooms);
 		return (
 			<FlatList
-				data={dummyData}
-				renderItem={({ item }) => (
-					<ChatListItem item={item} goToSingleChat={item => this.goToSingleChat(item)} />
-				)}
+				data={this.props.chatrooms}
+				renderItem={({ item }) => <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />}
 				keyExtractor={(item, index) => index.toString()}
 			/>
 		);
 	}
 }
 
-const mapDispatch = dispatch => ({
-	setCurrentChat: () => dispatch(setCurrentChat()),
-	fetchChatrooms: () => dispatch(fetchChatrooms())
+const mapState = state => ({
+	chatrooms: state.user.chatrooms
 });
 
-export default connect(null, mapDispatch)(ChatListScreen);
+const mapDispatch = dispatch => ({
+	fetchChatrooms: () => dispatch(fetchChatrooms()),
+	fetchAllChats: () => dispatch(fetchAllChats())
+});
 
-// export default function ChatListScreen({ navigation }) {
-//   console.log("CHAT LIST PROPS", navigation);
-
-//   function goToSingleChat() {
-//     console.log("yes");
-//     navigation.navigate("SingleChat", {
-//       contactId: "Xr067E9MvdVlMPB3k2fXO7EfFgZ2",
-//       contactName: "Isra Khan",
-//       contactEmail: "israkhan2@gmail.com",
-//     });
-//   }
-
-//   return (
-//     <View>
-//       <FlatList
-//         data={dummyData}
-//         renderItem={({ item }) => (
-//           <ChatListItem
-//             key={item.title}
-//             item={item}
-//             goToSingleChat={goToSingleChat}
-//           />
-//         )}
-//       />
-//     </View>
-//   );
-// }
+export default connect(mapState, mapDispatch)(ChatListScreen);

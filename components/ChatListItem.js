@@ -1,20 +1,13 @@
 import React from "react";
 
-import {
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ChatListItem(props) {
+  console.log("rendering chatlistitem");
   return (
     <TouchableOpacity onPress={() => props.goToSingleChat()}>
       <View style={styles.itemView}>
-        <Text style={styles.chatName}>{props.item.title}</Text>
+        {/* <Text style={styles.chatName}>{props.item.title}</Text> */}
         <Text style={styles.message}>{props.item.lastMessage}</Text>
       </View>
     </TouchableOpacity>

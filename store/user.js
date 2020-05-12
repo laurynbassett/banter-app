@@ -6,7 +6,7 @@ const users = db.ref('users');
 
 // ---------- ACTION TYPES ---------- //
 const GET_USER = 'GET_USER';
-const GET_USER_CHATROOMS = 'GET_USER_CHATROOMS';
+const GET_CHATROOMS = 'GET_CHATROOMS';
 const ADD_CONTACT = 'ADD_CONTACT';
 const ADD_CHATROOM = 'ADD_CHATROOM';
 
@@ -41,13 +41,15 @@ export const fetchChatrooms = () => async (dispatch, getState) => {
 		const state = getState();
 		console.log('FETCH USER CHATROOMS STATE: ', state);
 
-		db.ref(`users/${uid}/chatrooms`).on('value', chatrooms => {
-			const chatroomIds = Object.keys(chatrooms.val());
-			console.log('FETCH USER CHATROOMS: ', chatroomIds);
-			chatroomIds.forEach(chatroomId => {
-				console.log('USER CHATROOM CHILD: ', chatroomId);
-				chatrooms.push(chatroomId);
-			});
+		db.ref(`users/${uid}`).on('value', user => {
+			if (user.child('chatrooms').exists()) {
+				const chatroomIds = Object.keys(chatrooms.val());
+				console.log('FETCH USER CHATROOMS: ', chatroomIds);
+				chatroomIds.forEach(chatroomId => {
+					console.log('USER CHATROOM CHILD: ', chatroomId);
+					chatrooms.push(chatroomId);
+				});
+			}
 		});
 
 		console.log('FETCHED CHATROOMS: ', chatrooms);
