@@ -31,7 +31,7 @@ export const signUpWithEP = (
         });
       }
       await auth.signInWithEmailAndPassword(email, password);
-      // console.log("user object", user);
+
       dispatch(setUserLogin(true));
     } catch (err) {
       const errMessage = err.message;
@@ -65,10 +65,7 @@ export const loginWithGoogle = () => {
         console.log("LoginScreen.js.js 21 | ", result.user.givenName);
         const user = onSignIn(result);
         console.log("what is being returned from onSignIn", user);
-        // this.props.navigation.navigate("Root", {
-        //   accessToken: result.accessToken,
-        // });
-        //after Google login redirect to HomeScreen
+
         dispatch(setUserLogin({ isLoggedIn: true }));
       }
     } catch (e) {
