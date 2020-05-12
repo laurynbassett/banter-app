@@ -50,7 +50,6 @@ export default function App(props) {
 
     loadResourcesAndDataAsync();
   }, []);
-  console.log("STORE", store);
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return null;
   } else {

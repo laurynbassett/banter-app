@@ -4,7 +4,7 @@ import ChatListItem from "../components/ChatListItem";
 
 import { connect } from "react-redux";
 
-import firebase, { auth } from "../Firebase";
+import firebase, { auth, db } from "../Firebase";
 import { fetchChatrooms } from "../store/chatrooms";
 import { fetchAllChats } from "../store/chats";
 
@@ -52,7 +52,7 @@ class ChatListScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.fetchChatData();
+    this.props.fetchChatrooms();
   }
 
   goToSingleChat() {
@@ -65,9 +65,10 @@ class ChatListScreen extends React.Component {
   }
 
   render() {
+    console.log(this.props.chatrooms);
     return (
       <FlatList
-        data={dummyData}
+        data={this.props.chatrooms}
         renderItem={({ item }) => (
           <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />
         )}
@@ -77,12 +78,16 @@ class ChatListScreen extends React.Component {
   }
 }
 
+const mapState = (state) => ({
+  chatrooms: state.chatrooms,
+});
+
 const mapDispatch = (dispatch) => ({
   fetchChatrooms: (uid) => dispatch(fetchChatrooms(uid)),
   fetchAllChats: () => dispatch(fetchAllChats()),
 });
 
-export default connect(null, mapDispatch)(ChatList);
+export default connect(mapState, mapDispatch)(ChatListScreen);
 
 // export default function ChatList({ navigation }) {
 //   console.log("CHAT LIST PROPS", navigation);
