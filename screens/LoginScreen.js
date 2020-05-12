@@ -1,14 +1,8 @@
 import React, { Component } from "react";
 import { StyleSheet, TextInput, View, Text, Dimensions } from "react-native";
-import { auth } from "../Firebase";
-import * as Google from "expo-google-app-auth";
-import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
-import firebase from "firebase/app";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { loginWithEP, loginWithGoogle } from "../store/auth";
-// Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
-// including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -17,125 +11,8 @@ class LoginScreen extends Component {
       email: "",
       password: "",
       loading: false,
-      // isLoggedIn: false,
     };
-    this.handleEmailChange = this.handleEmailChange.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
-
-  isUserEqual = (googleUser, firebaseUser) => {
-    if (firebaseUser) {
-      var providerData = firebaseUser.providerData;
-      for (var i = 0; i < providerData.length; i++) {
-        if (
-          providerData[i].providerId ===
-            firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
-          providerData[i].uid === googleUser.getBasicProfile().getId()
-        ) {
-          // We don't need to reauth the Firebase connection.
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  onSignIn = (googleUser) => {
-    console.log("Google Auth Response", googleUser);
-    // We need to register an Observer on Firebase Auth to make sure auth is initialized.
-    var unsubscribe = firebase.auth().onAuthStateChanged(
-      function (firebaseUser) {
-        unsubscribe();
-        // Check if we are already signed-in Firebase with the correct user.
-        if (!this.isUserEqual(googleUser, firebaseUser)) {
-          // Build Firebase credential with the Google ID token.
-          var credential = firebase.auth.GoogleAuthProvider.credential(
-            googleUser.idToken,
-            googleUser.accessToken
-          );
-          // Sign in with credential from the Google user.
-          firebase
-            .auth()
-            .signInWithCredential(credential)
-            .then(function (result) {
-              console.log("user signed in ");
-              if (result.additionalUserInfo.isNewUser) {
-                firebase
-                  .database()
-                  .ref("/users/" + result.user.uid)
-                  .set({
-                    email: result.user.email,
-                    name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
-                    created_at: Date.now(),
-                  })
-                  .then(function (snapshot) {
-                    console.log("Snapshot", snapshot);
-                  });
-              } else {
-                firebase
-                  .database()
-                  .ref("/users/" + result.user.uid)
-                  .update({
-                    last_logged_in: Date.now(),
-                  });
-              }
-            })
-            .catch(function (error) {
-              // Handle Errors here.
-              var errorCode = error.code;
-              var errorMessage = error.message;
-              // The email of the user's account used.
-              var email = error.email;
-              // The firebase.auth.AuthCredential type that was used.
-              var credential = error.credential;
-              console.log(errorCode, ": ", errorMessage);
-              console.log("email: ", email, "credential: ", credential);
-            });
-        } else {
-          console.log("User already signed-in Firebase.");
-        }
-      }.bind(this)
-    );
-  };
-
-  loginWithGoogle = async () => {
-    try {
-      const result = await Google.logInAsync({
-        iosClientId: GOOGLE_IOS_CLIENT_ID,
-        scopes: ["profile", "email"],
-      });
-
-      if (result.type === "success") {
-        console.log("LoginScreen.js.js 21 | ", result.user.givenName);
-        this.onSignIn(result);
-        this.props.navigation.navigate("Root", {
-          accessToken: result.accessToken,
-        }); //after Google login redirect to HomeScreen
-        return result.accessToken;
-      } else {
-        return { cancelled: true };
-      }
-    } catch (e) {
-      console.log("LoginScreen.js.js 30 | Error with login", e);
-      return { error: true };
-    }
-  };
-
-  // isLoggedIn() {
-  //   try {
-  //     this.setState({ loading: true });
-  //     const loggedIn = checkLogin();
-  //     if (loggedIn) {
-  //       console.log("logged in");
-  //       this.setState({ loading: false, isLoggedIn: true });
-  //     } else {
-  //       console.log("logged out");
-  //       this.setState({ loading: false, isLoggedIn: false });
-  //     }
-  //   } catch (err) {
-  //     console.log("Error", err);
-  //   }
-  // }
 
   handleEmailChange(evt) {
     this.setState({ email: evt.target.value });
@@ -234,6 +111,7 @@ const styles = StyleSheet.create({
 
 const mapState = (state) => ({
   user: state.user,
+  auth: state.firebase.auth,
 });
 
 const mapDispatch = (dispatch) => ({

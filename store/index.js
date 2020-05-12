@@ -2,11 +2,12 @@ import { applyMiddleware, combineReducers, createStore } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import loggerMiddleware from "redux-logger";
 import thunkMiddleware from "redux-thunk";
-
-import auth from "./auth";
+import { firebaseReducer } from "react-redux-firebase";
 
 // ---------- REDUCER---------- //
-const reducer = combineReducers({ user: auth });
+const reducer = combineReducers({
+  firebase: firebaseReducer,
+});
 
 // ---------- MIDDLEWARE ---------- //
 const middleware = composeWithDevTools(

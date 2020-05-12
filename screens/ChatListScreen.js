@@ -1,5 +1,5 @@
 import React from "react";
-
+import { connect } from "react-redux";
 import ChatListItem from "../components/ChatListItem";
 
 import {
@@ -27,7 +27,8 @@ const dummyData = [
   },
 ];
 
-export default function ChatList() {
+export function ChatList(props) {
+  console.log("PRINTING UID FROM REACT COMPONENT", props.auth.uid);
   return (
     <FlatList
       data={dummyData}
@@ -35,3 +36,10 @@ export default function ChatList() {
     />
   );
 }
+
+const mapState = (state) => ({
+  user: state.user,
+  auth: state.firebase.auth,
+});
+
+export default connect(mapState)(ChatList);
