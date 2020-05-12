@@ -3,10 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { connect } from 'react-redux';
 
-import { fetchCurrentChatMessages, postMessage, subscribeToMessages } from '../store/messages';
+import { fetchMessages, postMessage, subscribeToMessages } from '../store/messages';
 import Fire, { auth, db } from '../Firebase';
 import Layout from '../constants/Layout';
-import { fetchCurrentChatId } from '../store/chats';
 class SingleChat extends Component {
 	constructor(props) {
 		super(props);
@@ -26,9 +25,7 @@ class SingleChat extends Component {
 		console.log('THIS.PROPS START SINGLECHAT', this.props);
 		const user = auth.currentUser;
 		const { contactId } = this.props.route.params;
-		await this.props.getCurrentChatId(contactId);
-		console.log('THIS.PROPS AFTER FETCHCHATID', this.props);
-		await this.props.getMessages(user.uid, contactId);
+		await this.props.fetchMessages();
 		console.log('THIS.PROPS AFTER FETCHMSGS', this.props);
 		// Fire.shared.on(message =>
 		// 	this.setState(previousState => ({
@@ -82,14 +79,13 @@ class SingleChat extends Component {
 }
 
 const mapState = state => ({
-	chatrooms: state.chatrooms,
+	chatrooms: state.user.chatrooms,
 	currentChat: state.chats.currentChat,
 	messages: state.messages.currentChatMessages
 });
 
 const mapDispatch = dispatch => ({
-	getCurrentChatId: contactId => dispatch(fetchCurrentChatId(contactId)),
-	getMessages: () => dispatch(fetchCurrentChatMessages()),
+	fetchMessages: () => dispatch(fetchMessages()),
 	sendMessage: msg => dispatch(postMessage(msg))
 	// subscribeToMessages: () => dispatch(subscribeToMessages())
 });

@@ -5,7 +5,7 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { connect } from 'react-redux';
 
 import firebase, { auth } from '../Firebase';
-import { fetchChatrooms } from '../store/chatrooms';
+import { fetchChatrooms } from '../store/user';
 import { fetchAllChats } from '../store/chats';
 
 const LinksScreen = props => {

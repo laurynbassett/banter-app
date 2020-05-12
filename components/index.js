@@ -1,5 +1,6 @@
 export { default as AddContact } from './AddContact';
 export { ChatListHeaderRight } from './ChatListHeader';
+export { default as ChatListItem } from './ChatListItem';
 export { default as ContactListItem } from './ContactListItem';
 export { default as SingleChat } from './SingleChat';
 export { SingleChatHeaderLeft, SingleChatHeaderCenter } from './SingleChatHeader';

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+// import Icon from 'react-native-vector-icons/Ionicons';
 import * as React from 'react';
 
 import Colors from '../constants/Colors';

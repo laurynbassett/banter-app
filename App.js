@@ -4,14 +4,15 @@ import { Provider } from 'react-redux';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
-import { Ionicons } from '@expo/vector-icons';
+// import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { BottomTabNavigator, useLinking } from './navigation';
 import { ChatListScreen, HomeScreen, LoadingScreen, LoginScreen, SingleChatScreen, SignUpScreen } from './screens';
 import store from './store';
-import { SingleChatHeaderCenter, ChatListHeaderRight } from './components';
+
+import { SingleChatHeaderLeft, SingleChatHeaderCenter } from './components';
 
 const Stack = createStackNavigator();
 
@@ -56,7 +57,7 @@ export default function App(props) {
 							<Stack.Screen name='LoginScreen' component={LoginScreen} />
 							<Stack.Screen name='SignUpScreen' component={SignUpScreen} />
 							<Stack.Screen name='Root' component={BottomTabNavigator} />
-							<Stack.Screen name='ChatList' component={ChatListScreen} />
+							<Stack.Screen name='Chats' component={ChatListScreen} />
 							<Stack.Screen
 								name='SingleChat'
 								component={SingleChatScreen}

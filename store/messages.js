@@ -1,35 +1,34 @@
 import React from 'react';
 import base64 from 'base-64';
 
-import firebase, { auth, db } from '../Firebase';
-import { createCurrentChatId } from './chats';
-import { addNewChatroom } from './chatrooms';
-import { addNewMembers } from './members';
+import { db } from '../Firebase';
+import { createCurrentChatId, addNewMember } from './chats';
+import { addNewChatroom } from './user';
 
 const messagesRef = db.ref('messages');
 const chatsRef = db.ref('chats');
 
 // ---------- ACTION TYPES ---------- //
-export const GET_ALL_MESSAGES = 'GET_ALL_MESSAGES';
-export const GET_CURRENT_CHAT_MESSAGES = 'GET_CURRENT_CHAT_MESSAGES';
+export const GET_MESSAGES = 'GET_MESSAGES';
 export const SEND_MESSAGE = 'SEND_MESSAGE';
 export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
 
 // ---------- ACTION CREATORS ---------- //
 
-const getAllMessages = messages => ({ type: GET_ALL_MESSAGES, messages });
-const getCurrentChatMessages = messages => ({ type: GET_CURRENT_CHAT_MESSAGES, messages });
+const getMessages = messages => ({ type: GET_MESSAGES, messages });
 const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
 const receiveMessage = message => ({ type: RECEIVE_MESSAGE, message });
 
 // ---------- THUNK CREATORS ---------- //
-export const fetchCurrentChatMessages = () => async (dispatch, getState) => {
+// for current chat
+export const fetchMessages = () => async (dispatch, getState) => {
 	try {
 		let messages = [];
 		const state = getState();
 		console.log('FETCH CURRCHAT MSGS STATE: ', state);
 		const chatId = state.chats.currentChat.currentChatId;
 		if (chatId) {
+			// later add .limitToLast
 			db.ref(`messages/${chatId}`).on('value', currChatMsgs => {
 				console.log('FETCH CURRENT MSGS - MSGS: ', currChatMsgs);
 				currChatMsgs.forEach(currChatId => {
@@ -42,7 +41,7 @@ export const fetchCurrentChatMessages = () => async (dispatch, getState) => {
 					messages.push({ _id, text, createdAt, user: { _id: senderId, name } });
 				});
 				console.log('*******MESSAGES FROM QUERY: ', messages);
-				dispatch(getCurrentChatMessages(messages));
+				dispatch(getMessages(messages));
 			});
 		}
 	} catch (err) {
@@ -61,10 +60,9 @@ export const postMessage = text => async (dispatch, getState) => {
 			chatId = await dispatch(createCurrentChatId());
 			console.log('POST MESSAGE STATE AFTER CREATE CHAT ID: ', state);
 			console.log('CHATID', chatId);
-			await dispatch(addNewChatroom(uid));
-			await dispatch(addNewChatroom(contactId));
+			await dispatch(addNewChatroom());
 			console.log('POST MESSAGE STATE AFTER CREATE CHATROOM: ', state);
-			await dispatch(addNewMembers([ uid, contactId ]));
+			await dispatch(addNewMember());
 		} else {
 			chatId = state.chats.currentChat.currentChatId;
 		}
@@ -80,7 +78,7 @@ export const postMessage = text => async (dispatch, getState) => {
 			senderName: displayName,
 			timestamp
 		});
-		await dispatch(fetchCurrentChatMessages());
+		await dispatch(fetchMessages());
 		console.log('DISPATCHED ADD NEW MESSAGE!');
 	} catch (err) {
 		console.error('Error adding msg to db: ', err);
@@ -96,18 +94,13 @@ export const subscribeToMessages = () => async dispatch => {
 };
 
 // ---------- INITIAL STATE ---------- //
-const defaultMessages = {
-	messages: [],
-	currentChatMessages: []
-};
+const defaultMessages = [];
 
 // ---------- REDUCER ---------- //
 const messagesReducer = (state = defaultMessages, action) => {
 	switch (action.type) {
-		case GET_ALL_MESSAGES:
-			return { ...state, messages: action.messages };
-		case GET_CURRENT_CHAT_MESSAGES:
-			return { ...state, currentChatMessages: action.messages };
+		case GET_MESSAGES:
+			return action.messages;
 		case SEND_MESSAGE:
 			return { ...state };
 		case RECEIVE_MESSAGE:
