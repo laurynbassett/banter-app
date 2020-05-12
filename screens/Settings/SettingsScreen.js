@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
+import { StyleSheet, Button } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { List, ListItem } from "react-native-elements";
 import firebase from "firebase/app";
