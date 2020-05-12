@@ -1,46 +1,49 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
-
-import SettingsScreen from "../screens/SettingsScreen";
-import ChatListScreen from "../screens/ChatListScreen";
 import { TabBarIcon } from "../components";
+import SettingsNavigator from "./SettingsNavigator";
+import ChatNavigator from "./ChatNavigator";
+import ContactNavigator from "./ContactNavigator";
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = "Chats";
 
-export default function BottomTabNavigator({ navigation, route }) {
-  navigation.setOptions({ headerTitle: getHeaderTitle(route) });
+export default function BottomTabNavigator() {
+  // navigation.setOptions({ headerTitle: getHeaderTitle(route) });
 
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
       <BottomTab.Screen
         name="Chats"
-        component={ChatListScreen}
+        component={ChatNavigator}
         options={{
           title: "Chats",
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} name="ios-chatbubbles" />
           ),
+          headerTitle: "Chats",
         }}
       />
       <BottomTab.Screen
         name="Contacts"
-        component={SettingsScreen}
+        component={ContactNavigator}
         options={{
           title: "Contacts",
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} name="md-contact" />
           ),
+          headerTitle: "Contacts",
         }}
       />
       <BottomTab.Screen
         name="Settings"
-        component={SettingsScreen}
+        component={SettingsNavigator}
         options={{
           title: "Settings",
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} name="ios-settings" />
           ),
+          headerTitle: "Settings",
         }}
       />
     </BottomTab.Navigator>

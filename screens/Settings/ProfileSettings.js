@@ -1,16 +1,22 @@
-import { Ionicons } from "@expo/vector-icons";
-import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import { StyleSheet, Text, View, Button, TextInput } from "react-native";
-import { RectButton, ScrollView } from "react-native-gesture-handler";
+import { ScrollView } from "react-native-gesture-handler";
+import { Avatar } from "react-native-elements";
 import firebase from "firebase/app";
 
-export default function SettingsScreen() {
+export default function ProfileSettings() {
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
+      <Avatar
+        size="large"
+        title="LW"
+        onPress={() => console.log("Works!")}
+        activeOpacity={0.7}
+      />
+
       <TextInput
         style={styles.inputBox}
         type="firstName"
