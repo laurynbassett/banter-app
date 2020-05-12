@@ -26,9 +26,7 @@ export default function SettingsScreen({ navigation }) {
           // leftIcon={{ name: item.icon }}
           bottomDivider
           chevron
-          onPress={() =>
-            navigation.navigate(`Settings`, { screen: `${item.title}Settings` })
-          }
+          onPress={() => navigation.navigate(`${item.title}Settings`)}
         />
       ))}
       <Button

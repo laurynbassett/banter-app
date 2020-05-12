@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
 import { TabBarIcon } from "../components";
@@ -6,13 +7,10 @@ import ChatNavigator from "./ChatNavigator";
 import ContactNavigator from "./ContactNavigator";
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = "Chats";
 
 export default function BottomTabNavigator() {
-  // navigation.setOptions({ headerTitle: getHeaderTitle(route) });
-
   return (
-    <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
+    <BottomTab.Navigator initialRouteName={"Chats"}>
       <BottomTab.Screen
         name="Chats"
         component={ChatNavigator}
@@ -48,18 +46,4 @@ export default function BottomTabNavigator() {
       />
     </BottomTab.Navigator>
   );
-}
-
-function getHeaderTitle(route) {
-  const routeName =
-    route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
-
-  switch (routeName) {
-    case "Chats":
-      return "All Chats";
-    case "Contacts":
-      return "Contacts";
-    case "Settings":
-      return "Settings";
-  }
 }
