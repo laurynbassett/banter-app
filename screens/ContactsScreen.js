@@ -9,14 +9,14 @@ const dummyData = [
 		name: 'Isra Khan',
 		email: 'israkhan2@gmail.com',
 		phone: '111-111-1111',
-		profileImage: 'https://i.picsum.photos/id/14/536/354.jpg'
+		imageUrl: 'https://i.picsum.photos/id/14/536/354.jpg'
 	},
 	{
 		id: '-M73eGgR51mWegoz_uUw',
 		name: 'Jacob Wallin',
 		email: 'jacobwallin@gmail.com',
 		phone: '222-222-2222',
-		profileImage: 'https://picsum.photos/seed/picsum/200/300'
+		imageUrl: 'https://picsum.photos/seed/picsum/200/300'
 	}
 ];
 

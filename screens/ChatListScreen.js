@@ -37,8 +37,7 @@ class ChatListScreen extends React.Component {
 	}
 
 	goToSingleChat(item) {
-		// set current chat
-		this.props.setCurrentChat();
+		this.props.setCurrentChat(item.id);
 		console.log('yes', this.props);
 		this.props.navigation.navigate('SingleChat');
 	}

@@ -4,15 +4,23 @@ import { Provider } from 'react-redux';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
-// import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { BottomTabNavigator, useLinking } from './navigation';
-import { ChatListScreen, HomeScreen, LoadingScreen, LoginScreen, SingleChatScreen, SignUpScreen } from './screens';
+import {
+	ChatListScreen,
+	ContactsScreen,
+	HomeScreen,
+	LoadingScreen,
+	LoginScreen,
+	SingleChatScreen,
+	SignUpScreen
+} from './screens';
 import store from './store';
 
-import { SingleChatHeaderLeft, SingleChatHeaderCenter } from './components';
+import { SingleChatHeader, AddContact, AddContactButton } from './components';
 
 const Stack = createStackNavigator();
 
@@ -30,6 +38,7 @@ export default function App(props) {
 
 				// Load fonts
 				await Font.loadAsync({
+					...Ionicons.font,
 					'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf')
 				});
 			} catch (e) {
@@ -61,7 +70,14 @@ export default function App(props) {
 								name='SingleChat'
 								component={SingleChatScreen}
 								options={{
-									headerTitle: SingleChatHeaderCenter
+									headerTitle: SingleChatHeader
+								}}
+							/>
+							<Stack.Screen
+								name='AddContact'
+								component={AddContact}
+								options={{
+									headerTitle: 'New Contact'
 								}}
 							/>
 						</Stack.Navigator>

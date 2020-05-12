@@ -41,33 +41,33 @@ export const fetchAllChats = () => async (dispatch, getState) => {
 	}
 };
 
-// export const fetchCurrentChatId = contactId => async (dispatch, getState) => {
-// 	try {
-// 		const state = getState();
-// 		console.log('FETCH CURR CHAT ID STATE: ', state);
-// 		let currChatId = '';
+export const fetchCurrentChatId = contactId => async (dispatch, getState) => {
+	try {
+		const state = getState();
+		console.log('FETCH CURR CHAT ID STATE: ', state);
+		let currChatId = '';
 
-// 		chatroomsRef.on('value', snapshot => {
-// 			if (snapshot.child(contactId).exists()) {
-// 				db.ref(`chatrooms/${contactId}`).on('value', contactChats => {
-// 					console.log('FETCH CURRENT CHAT - CONTACT CHATS: ', Object.keys(contactChats.val()));
-// 					const matchingChat = Object.keys(contactChats.val()).find(chatId => {
-// 						console.log('CHILD CHAT VAL: ', chatId);
-// 						console.log('STATE CHATS: ', state.chatrooms);
-// 						console.log('INCLUDES?: ', state.chatrooms.includes(String(chatId)));
-// 						return state.chatrooms.includes(chatId);
-// 					});
-// 					console.log('****MATCHING CHAT: ', matchingChat);
-// 					currChatId = matchingChat ? matchingChat : '';
-// 					console.log('CURRENT CHAT: ', currChatId);
-// 					dispatch(getCurrentChat(currChatId));
-// 				});
-// 			}
-// 		});
-// 	} catch (err) {
-// 		console.log('Error fetching current chat ID: ', err);
-// 	}
-// };
+		// async-await
+		db.ref(`users/${contactId}`).once('value', contact => {
+			if (contact.child('chatrooms').exists()) {
+				const contactChats = contact.child('chatrooms').val();
+				console.log('FETCH CURRENT CHATID- CONTACT CHATS: ', Object.keys(contactChats.val()));
+				const matchingChat = Object.keys(contactChats).find(chatId => {
+					console.log('CHILD CHAT VAL: ', chatId);
+					console.log('STATE CHATS: ', state.user.chatrooms);
+					console.log('INCLUDES?: ', state.user.chatrooms.includes(chatId));
+					return state.user.chatrooms.includes(chatId);
+				});
+				console.log('****MATCHING CHAT: ', matchingChat);
+				currChatId = matchingChat ? matchingChat : '';
+				console.log('CURRENT CHAT: ', currChatId);
+				dispatch(setCurrentChat(currChatId));
+			}
+		});
+	} catch (err) {
+		console.log('Error fetching current chat ID: ', err);
+	}
+};
 
 export const createCurrentChatId = () => async dispatch => {
 	try {
@@ -80,6 +80,16 @@ export const createCurrentChatId = () => async dispatch => {
 		return newChatId;
 	} catch (err) {
 		console.log('Error creating current chat ID: ', err);
+	}
+};
+
+// for SingleChatHeader
+export const fetchMemberNames = () => async (dispatch, getState) => {
+	try {
+		const state = getState();
+		db.ref(`chats/${state.chats.currentChat.me}`);
+	} catch (err) {
+		console.log('Error fetching current chat member names: ', err);
 	}
 };
 

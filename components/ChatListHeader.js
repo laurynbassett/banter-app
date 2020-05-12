@@ -2,42 +2,50 @@ import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
 
+import Layout from '../constants/Layout';
+
+export const ChatListHeader = () => {
+	return (
+		<View style={styles.container}>
+			<View style={styles.center}>
+				<Text style={styles.text}>All Chats</Text>
+			</View>
+			<View style={styles.right}>
+				<TouchableOpacity onPress={() => props.nav.navigate('SingleChat')}>
+					<Entypo name='new-message' size={20} style={styles.icon} />
+				</TouchableOpacity>
+			</View>
+		</View>
+	);
+};
+
 export const ChatListHeaderRight = () => {
 	return (
 		<View style={styles.left}>
 			// add onPress
 			<TouchableOpacity>
-				<Entypo name='new-message' size={30} style={{ marginBottom: -3 }} />
+				<Entypo name='new-message' size={30} style={styles.icon} />
 			</TouchableOpacity>
 		</View>
 	);
 };
 
-export const ChatListHeaderCenter = props => {
-	const dummyUri =
-		'https://ik.imagekit.io/ionicfirebaseapp/getflutter/tr:dpr-auto,tr:w-auto/2020/02/circular--1--1.png';
-
-	return (
-		<View style={styles.center}>
-			{/* <Image style={styles.image} source={{ uri: props.uri }} /> */}
-			<Image style={styles.image} source={{ uri: dummyUri }} />
-			<Text />
-		</View>
-	);
-};
-
 const styles = StyleSheet.create({
-	left: {
-		textAlign: 'left'
+	container: {
+		flexDirection: 'row',
+		justifyContent: 'center'
 	},
 	center: {
-		flexDirection: 'column',
-		textAlign: 'center'
+		alignContent: 'center',
+		alignSelf: 'center',
+		marginLeft: Layout.window.width * 0.25,
+		marginRight: Layout.window.width * 0.25
 	},
-	image: {
-		width: 20,
-		height: 20,
-		borderRadius: 100,
-		borderWidth: 1
+		right: {
+		alignContent: 'flex-end',
+		alignSelf: 'flex-end'
+	},
+	icon: {
+		marginBottom: -3
 	}
 });
