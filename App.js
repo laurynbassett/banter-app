@@ -50,7 +50,7 @@ export default function App(props) {
 
       // Load fonts
       try {
-        await Font.loadAsync({
+        await Expo.Font.loadAsync({
           ...Ionicons.font,
           "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf"),
         });
