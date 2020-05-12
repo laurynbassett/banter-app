@@ -4,19 +4,24 @@ import { SplashScreen } from "expo";
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import { Provider } from "react-redux";
 import store from "./store";
-import { BottomTabNavigator, useLinking, LoginNavigator } from "./navigation";
-import {
-  HomeScreen,
-  SingleChatScreen,
-  LoadingScreen,
-  LoginScreen,
-  SignUpScreen,
-} from "./screens";
+import useLinking from "./navigation/useLinking";
+import AppNavigation from "./navigation";
+import firebase from "firebase/app";
+import { ReactReduxFirebaseProvider } from "react-redux-firebase";
 
-const Stack = createStackNavigator();
+// react-redux-firebase config
+const rrfConfig = {
+  userProfile: "users",
+};
+
+const rrfProps = {
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+  // createFirestoreInstance // <- needed if using firestore
+};
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -65,28 +70,17 @@ export default function App(props) {
   } else {
     return (
       <Provider store={store}>
-        <View style={styles.container}>
-          {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-          <NavigationContainer
-            ref={containerRef}
-            initialState={initialNavigationState}
-          >
-            {/* <LoginNavigator /> */}
-            <Stack.Navigator>
-              <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
-              {/* <Stack.Screen
-                name="LoginScreen"
-                component={LoginNavigator}
-                options={{ title: "Login" }}
-              /> */}
-              <Stack.Screen name="LoginScreen" component={LoginScreen} />
-              <Stack.Screen name="SignUp" component={SignUpScreen} />
-              <Stack.Screen name="Root" component={BottomTabNavigator} />
-              <Stack.Screen name="ChatList" component={HomeScreen} />
-              <Stack.Screen name="SingleChat" component={SingleChatScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </View>
+        <ReactReduxFirebaseProvider {...rrfProps}>
+          <View style={styles.container}>
+            {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+            <NavigationContainer
+              ref={containerRef}
+              initialState={initialNavigationState}
+            >
+              <AppNavigation />
+            </NavigationContainer>
+          </View>
+        </ReactReduxFirebaseProvider>
       </Provider>
     );
   }
@@ -98,12 +92,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 });
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// })

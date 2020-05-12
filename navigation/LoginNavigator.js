@@ -19,23 +19,3 @@ export default function LoginNavigator() {
     </Stack.Navigator>
   );
 }
-
-// export default class LoginNavigator extends React.Component {
-
-//   render() {
-//     return (
-//       <Stack.Navigator initialRouteName="LoginScreen">
-//         <Stack.Screen
-//           name="LoginScreen"
-//           component={LoginScreen}
-//           options={{ title: "Login" }}
-//         />
-//         <Stack.Screen
-//           name="SignUpScreen"
-//           component={SignUpScreen}
-//           options={{ title: "Sign Up" }}
-//         />
-//       </Stack.Navigator>
-//     );
-//   }
-// }

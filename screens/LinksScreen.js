@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import firebase from "firebase/app";
 
-export default function LinksScreen() {
+export default function LinksScreen({ navigation }) {
   return (
     <ScrollView
       style={styles.container}
@@ -32,7 +32,9 @@ export default function LinksScreen() {
       <Button
         style={styles.button}
         title="Log Out"
-        onPress={() => firebase.auth().signOut()}
+        onPress={() => {
+          firebase.auth().signOut();
+        }}
       />
     </ScrollView>
   );
