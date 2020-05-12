@@ -1,58 +1,54 @@
+/* eslint-disable react/display-name */
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
-import LinksScreen from '../screens/LinksScreen';
-import { HomeScreen, SingleChatScreen } from '../screens';
+import LinksScreen from "../screens/LinksScreen";
+import { HomeScreen, SingleChatScreen } from "../screens";
 import ChatListScreen from "../screens/ChatListScreen";
-import { TabBarIcon } from '../components';
+import { TabBarIcon } from "../components";
+import SettingsNavigator from "./SettingsNavigator";
+import ChatNavigator from "./ChatNavigator";
+import ContactNavigator from "./ContactNavigator";
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Chats';
 
-export default function BottomTabNavigator({ navigation, route }) {
-  navigation.setOptions({ headerTitle: getHeaderTitle(route)});
-
+export default function BottomTabNavigator() {
   return (
-    <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
+    <BottomTab.Navigator initialRouteName={"Chats"}>
       <BottomTab.Screen
         name="Chats"
-        component={ChatListScreen}
+        component={ChatNavigator}
         options={{
-          title: 'Chats',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-chatbubbles' : 'md-chatbubbles'} />,
+          title: "Chats",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon focused={focused} name="ios-chatbubbles" />
+          ),
+          headerTitle: "Chats",
         }}
       />
       <BottomTab.Screen
         name="Contacts"
-        component={LinksScreen}
+        component={ContactNavigator}
         options={{
-          title: 'Contacts',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-contact': 'md-contact'} />,
+          title: "Contacts",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon focused={focused} name="md-contact" />
+          ),
+          headerTitle: "Contacts",
         }}
       />
-       <BottomTab.Screen
+      <BottomTab.Screen
         name="Settings"
-        component={LinksScreen}
+        component={SettingsNavigator}
         options={{
-          title: 'Settings',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-settings': 'md-settings'} />,
+          title: "Settings",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon focused={focused} name="ios-settings" />
+          ),
+          headerTitle: "Settings",
         }}
       />
     </BottomTab.Navigator>
   );
-}
-
-function getHeaderTitle(route) {
-  const routeName =
-    route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
-
-  switch (routeName) {
-    case 'Chats':
-      return 'All Chats'
-    case 'Contacts':
-      return 'Contacts';
-    case 'Settings':
-      return 'Settings';
-  }
 }

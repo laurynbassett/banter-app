@@ -1,5 +1,5 @@
 import React from "react";
-
+import { connect } from "react-redux";
 import ChatListItem from "../components/ChatListItem";
 
 import { connect } from "react-redux";
@@ -9,12 +9,12 @@ import { fetchChatrooms } from "../store/chatrooms";
 import { fetchAllChats } from "../store/chats";
 
 import {
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+  // Image,
+  // Platform,
+  // StyleSheet,
+  // Text,
+  // TouchableOpacity,
+  // View,
   FlatList,
 } from "react-native";
 import { GoogleAuthData } from "expo-google-sign-in";

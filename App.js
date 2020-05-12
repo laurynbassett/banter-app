@@ -6,8 +6,14 @@ import { SplashScreen } from "expo";
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { Provider } from "react-redux";
+import store from "./store";
+import useLinking from "./navigation/useLinking";
+import AppNavigation from "./navigation";
+import firebase from "firebase/app";
+import { ReactReduxFirebaseProvider } from "react-redux-firebase";
 
+<<<<<<< HEAD
 import { BottomTabNavigator, useLinking } from "./navigation";
 import {
   ChatList as ChatListScreen,
@@ -20,8 +26,19 @@ import {
 import store from "./store";
 
 import { SingleChatHeaderLeft, SingleChatHeaderCenter } from "./components";
+=======
+// react-redux-firebase config
+const rrfConfig = {
+  userProfile: "users",
+};
+>>>>>>> 41a64d4fc33d5e07f4fd5b61ffc3c5ab8e29e904
 
-const Stack = createStackNavigator();
+const rrfProps = {
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+  // createFirestoreInstance // <- needed if using firestore
+};
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
@@ -37,6 +54,24 @@ export default function App(props) {
 
         // Load fonts
         await Font.loadAsync({
+<<<<<<< HEAD
+=======
+          ...Ionicons.font,
+          "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf"),
+        });
+      } catch (e) {
+        // We might want to provide this error information to an error reporting service
+        console.warn(e);
+      } finally {
+        setLoadingComplete(true);
+        SplashScreen.hide();
+      }
+
+      // Load fonts
+      try {
+        await Expo.Font.loadAsync({
+          ...Ionicons.font,
+>>>>>>> 41a64d4fc33d5e07f4fd5b61ffc3c5ab8e29e904
           "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf"),
         });
       } catch (e) {
@@ -55,6 +90,7 @@ export default function App(props) {
   } else {
     return (
       <Provider store={store}>
+<<<<<<< HEAD
         <View style={styles.container}>
           {Platform.OS === "ios" && <StatusBar barStyle="default" />}
           <NavigationContainer
@@ -79,6 +115,19 @@ export default function App(props) {
             </Stack.Navigator>
           </NavigationContainer>
         </View>
+=======
+        <ReactReduxFirebaseProvider {...rrfProps}>
+          <View style={styles.container}>
+            {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+            <NavigationContainer
+              ref={containerRef}
+              initialState={initialNavigationState}
+            >
+              <AppNavigation />
+            </NavigationContainer>
+          </View>
+        </ReactReduxFirebaseProvider>
+>>>>>>> 41a64d4fc33d5e07f4fd5b61ffc3c5ab8e29e904
       </Provider>
     );
   }
@@ -90,12 +139,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 });
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-// })
