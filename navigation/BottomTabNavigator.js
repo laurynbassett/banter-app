@@ -1,11 +1,6 @@
 /* eslint-disable react/display-name */
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
-import { Platform } from "react-native";
-
-import LinksScreen from "../screens/LinksScreen";
-import { HomeScreen, SingleChatScreen } from "../screens";
-import ChatListScreen from "../screens/ChatListScreen";
 import { TabBarIcon } from "../components";
 import SettingsNavigator from "./SettingsNavigator";
 import ChatNavigator from "./ChatNavigator";

@@ -2,11 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import ChatListItem from "../components/ChatListItem";
 
-import { connect } from "react-redux";
-
 import firebase, { auth, db } from "../Firebase";
-import { fetchChatrooms } from "../store/chatrooms";
-import { fetchAllChats } from "../store/chats";
+import { fetchAllChats } from "../store/user";
 
 import {
   // Image,
@@ -43,16 +40,8 @@ class ChatListScreen extends React.Component {
     this.goToSingleChat = this.goToSingleChat.bind(this);
   }
 
-  fetchChatData = async () => {
-    const uid = auth.currentUser.uid;
-    await this.props.fetchChatrooms(uid);
-    console.log("FETCHED CHATROOMS - uid: ", uid);
-    await this.props.fetchAllChats();
-    console.log("FETCHED CHATS");
-  };
-
   componentDidMount() {
-    this.props.fetchChatrooms();
+    // this.props.fetchChatrooms();
   }
 
   goToSingleChat(chatRoomId) {
@@ -77,11 +66,10 @@ class ChatListScreen extends React.Component {
 }
 
 const mapState = (state) => ({
-  chatrooms: state.chatrooms,
+  chatrooms: state.user.chatrooms,
 });
 
 const mapDispatch = (dispatch) => ({
-  fetchChatrooms: (uid) => dispatch(fetchChatrooms(uid)),
   fetchAllChats: () => dispatch(fetchAllChats()),
 });
 

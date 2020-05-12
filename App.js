@@ -6,15 +6,12 @@ import { SplashScreen } from "expo";
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
-import { Provider } from "react-redux";
 import store from "./store";
-import useLinking from "./navigation/useLinking";
 import AppNavigation from "./navigation";
 import firebase from "firebase/app";
 import { ReactReduxFirebaseProvider } from "react-redux-firebase";
 
-<<<<<<< HEAD
-import { BottomTabNavigator, useLinking } from "./navigation";
+import useLinking from "./navigation/useLinking";
 import {
   ChatList as ChatListScreen,
   HomeScreen,
@@ -23,15 +20,12 @@ import {
   SingleChatScreen,
   SignUpScreen,
 } from "./screens";
-import store from "./store";
 
 import { SingleChatHeaderLeft, SingleChatHeaderCenter } from "./components";
-=======
 // react-redux-firebase config
 const rrfConfig = {
   userProfile: "users",
 };
->>>>>>> 41a64d4fc33d5e07f4fd5b61ffc3c5ab8e29e904
 
 const rrfProps = {
   firebase,
@@ -54,24 +48,7 @@ export default function App(props) {
 
         // Load fonts
         await Font.loadAsync({
-<<<<<<< HEAD
-=======
           ...Ionicons.font,
-          "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf"),
-        });
-      } catch (e) {
-        // We might want to provide this error information to an error reporting service
-        console.warn(e);
-      } finally {
-        setLoadingComplete(true);
-        SplashScreen.hide();
-      }
-
-      // Load fonts
-      try {
-        await Expo.Font.loadAsync({
-          ...Ionicons.font,
->>>>>>> 41a64d4fc33d5e07f4fd5b61ffc3c5ab8e29e904
           "space-mono": require("./assets/fonts/SpaceMono-Regular.ttf"),
         });
       } catch (e) {
@@ -90,32 +67,6 @@ export default function App(props) {
   } else {
     return (
       <Provider store={store}>
-<<<<<<< HEAD
-        <View style={styles.container}>
-          {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-          <NavigationContainer
-            ref={containerRef}
-            initialState={initialNavigationState}
-          >
-            <Stack.Navigator>
-              <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
-              <Stack.Screen name="LoginScreen" component={LoginScreen} />
-              <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-              <Stack.Screen name="Root" component={BottomTabNavigator} />
-              <Stack.Screen name="ChatList" component={ChatListScreen} />
-              <Stack.Screen
-                name="SingleChat"
-                component={SingleChatScreen}
-                options={{
-                  // headerStyle: styles.headerContainer,
-                  headerTitle: SingleChatHeaderCenter,
-                  // headerLeft: SingleChatHeaderLeft,
-                }}
-              />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </View>
-=======
         <ReactReduxFirebaseProvider {...rrfProps}>
           <View style={styles.container}>
             {Platform.OS === "ios" && <StatusBar barStyle="default" />}
@@ -127,7 +78,6 @@ export default function App(props) {
             </NavigationContainer>
           </View>
         </ReactReduxFirebaseProvider>
->>>>>>> 41a64d4fc33d5e07f4fd5b61ffc3c5ab8e29e904
       </Provider>
     );
   }
