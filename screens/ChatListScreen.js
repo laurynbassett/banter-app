@@ -55,17 +55,15 @@ class ChatListScreen extends React.Component {
     this.props.fetchChatrooms();
   }
 
-  goToSingleChat() {
+  goToSingleChat(chatRoomId) {
     console.log("yes", this.props);
     this.props.navigation.navigate("SingleChat", {
-      contactId: "Xr067E9MvdVlMPB3k2fXO7EfFgZ2",
-      contactName: "Isra Khan",
-      contactEmail: "israkhan2@gmail.com",
+      chatRoomId: chatRoomId,
     });
   }
 
   render() {
-    console.log(this.props.chatrooms);
+    console.log("RENDER", this.props.chatrooms);
     return (
       <FlatList
         data={this.props.chatrooms}

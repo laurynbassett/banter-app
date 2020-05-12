@@ -11,13 +11,14 @@ const getChatrooms = (chatrooms) => ({ type: GET_CHATROOMS, chatrooms });
 const addChatroom = (chatId) => ({ type: ADD_CHATROOM, chatId });
 
 // ---------- THUNK CREATORS ---------- //
+
+/* only listening for deleting / adding new chat rooms */
 export const fetchChatrooms = (uid) => async (dispatch, getState) => {
   try {
-    let chatrooms = [];
-
-    db.ref("users/username1").on("value", function (snapshot) {
+    db.ref("users/username1/uid_1").on("value", function (snapshot) {
+      let chatrooms = [];
       Promise.all(
-        Object.keys(snapshot.val().chatrooms).map((chatRoom) => {
+        Object.keys(snapshot.val()).map((chatRoom) => {
           return db.ref("chats/" + chatRoom).once("value");
         })
       ).then((snapshots) => {
@@ -31,6 +32,22 @@ export const fetchChatrooms = (uid) => async (dispatch, getState) => {
     console.log("Error fetching chatrooms: ", err);
   }
 };
+
+/* need to add listeners for chatroom changes */
+// export const fetchChatrooms = (uid) => async (dispatch, getState) => {
+//   try {
+//     db.ref("users/username1/chatrooms").on("value", function (snapshot) {
+//       let chatrooms = [];
+//         Object.keys(snapshot.val()).forEach((chatRoom) => {
+//         	db.ref("chats/" + chatRoom).on("value", function (snap) {
+
+// 					});
+//         })
+//     })
+//   } catch (err) {
+//     console.log("Error fetching chatrooms: ", err);
+//   }
+// };
 
 export const addNewChatroom = (uid) => async (dispatch, getState) => {
   try {
