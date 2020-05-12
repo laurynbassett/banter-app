@@ -1,4 +1,4 @@
-// import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
@@ -32,13 +32,15 @@ export default function LinksScreen() {
       <Button
         style={styles.button}
         title="Log Out"
-        onPress={() => firebase.auth().signOut()}
+        onPress={() => {
+          firebase.auth().signOut();
+        }}
       />
     </ScrollView>
   );
 }
 
-function OptionButton({ label, onPress, isLastOption }) {
+function OptionButton({ icon, label, onPress, isLastOption }) {
   return (
     <RectButton
       style={[styles.option, isLastOption && styles.lastOption]}
@@ -46,7 +48,7 @@ function OptionButton({ label, onPress, isLastOption }) {
     >
       <View style={{ flexDirection: "row" }}>
         <View style={styles.optionIconContainer}>
-          {/* <Ionicons name={icon} size={22} color="rgba(0,0,0,0.35)" /> */}
+          <Ionicons name={icon} size={22} color="rgba(0,0,0,0.35)" />
         </View>
         <View style={styles.optionTextContainer}>
           <Text style={styles.optionText}>{label}</Text>
