@@ -150,35 +150,6 @@ const isUserEqual = (googleUser, firebaseUser) => {
   return false;
 };
 
-// Auth Logout
-export const logout = () => {
-  try {
-    auth.signOut();
-    console.log("USER LOGGED OUT");
-    return true;
-  } catch (err) {
-    const errMessage = err.message;
-    console.log("Logout Error: ", errMessage);
-  }
-};
-
-// Check Login
-export const checkLogin = () => {
-  try {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        console.log("USER IS LOGGED IN");
-        return true;
-      } else {
-        console.log("USER IS LOGGED OUT");
-        return false;
-      }
-    });
-  } catch (err) {
-    console.log("Login Check Error: ", err);
-  }
-};
-
 // Check Errors
 export const checkErrors = (email, password) => {
   switch ((email, password)) {
@@ -192,12 +163,6 @@ export const checkErrors = (email, password) => {
       return console.log("no errors");
   }
 };
-
-// // User Info
-// export const getUser = () => {
-//   const { deviceId, deviceName, platform } = Constants;
-//   return { deviceId, deviceName, platform };
-// }
 
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential

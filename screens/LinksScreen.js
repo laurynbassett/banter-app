@@ -5,7 +5,7 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import firebase from "firebase/app";
 
-export default function LinksScreen({ navigation }) {
+export default function LinksScreen() {
   return (
     <ScrollView
       style={styles.container}
