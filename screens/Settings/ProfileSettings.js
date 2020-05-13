@@ -10,13 +10,6 @@ export default function ProfileSettings() {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      <Avatar
-        size="large"
-        title="LW"
-        onPress={() => console.log("Works!")}
-        activeOpacity={0.7}
-      />
-
       <TextInput
         style={styles.inputBox}
         type="firstName"
@@ -31,14 +24,6 @@ export default function ProfileSettings() {
         // value={email}
         placeholder="Last Name"
         onChangeText={(lastName) => this.setState({ lastName })}
-      />
-
-      <TextInput
-        style={styles.inputBox}
-        type="language"
-        // value={email}
-        placeholder="Language"
-        onChangeText={(language) => this.setState({ language })}
       />
 
       <Button
