@@ -3,38 +3,64 @@ import { StyleSheet, Button, TextInput } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Avatar } from "react-native-elements";
 import firebase from "firebase/app";
+import { putUserName } from "../../store/user";
+import { connect } from "react-redux";
 
-export default function ProfileSettings() {
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <TextInput
-        style={styles.inputBox}
-        type="firstName"
-        // value={email}
-        placeholder="First Name"
-        onChangeText={(firstName) => this.setState({ firstName })}
-      />
+export class ProfileSettings extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstName: "",
+      lastName: "",
+    };
+  }
 
-      <TextInput
-        style={styles.inputBox}
-        type="lastName"
-        // value={email}
-        placeholder="Last Name"
-        onChangeText={(lastName) => this.setState({ lastName })}
-      />
+  componentDidMount() {
+    const [firstName, lastName] = this.props.name.split(" ");
+    this.setState({ firstName, lastName });
+  }
 
-      <Button
-        style={styles.button}
-        title="Log Out"
-        onPress={() => {
-          firebase.auth().signOut();
-        }}
-      />
-    </ScrollView>
-  );
+  handleFirstNameChange(evt) {
+    this.setState({ firstName: evt.target.value });
+  }
+
+  handleLastNameChange(evt) {
+    this.setState({ lastName: evt.target.value });
+  }
+
+  render() {
+    return (
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <TextInput
+          style={styles.inputBox}
+          type="firstName"
+          value={this.state.firstName}
+          placeholder="First Name"
+          onChangeText={(firstName) => this.setState({ firstName })}
+        />
+
+        <TextInput
+          style={styles.inputBox}
+          type="lastName"
+          value={this.state.lastName}
+          placeholder="Last Name"
+          onChangeText={(lastName) => this.setState({ lastName })}
+        />
+
+        <Button
+          style={styles.button}
+          title="Save"
+          onPress={() => {
+            this.props.updateUser(this.state.firstName, this.state.lastName);
+            this.props.navigation.navigate("Settings");
+          }}
+        />
+      </ScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -52,3 +78,13 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 });
+
+const mapState = (state) => ({
+  name: state.user.name,
+});
+
+const mapDispatch = (dispatch) => ({
+  updateUser: (f, l) => dispatch(putUserName(f, l)),
+});
+
+export default connect(mapState, mapDispatch)(ProfileSettings);

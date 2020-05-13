@@ -34,7 +34,9 @@ export class SettingsScreen extends React.Component {
             bottomDivider
             chevron
             onPress={() =>
-              this.props.navigation.navigate(`${item.title}Settings`)
+              this.props.navigation.navigate(`${item.title}Settings`, {
+                user: this.props.user,
+              })
             }
           />
         ))}

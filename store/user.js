@@ -6,6 +6,7 @@ const usersRef = db.ref("users");
 
 // ---------- ACTION TYPES ---------- //
 const GET_USER = "GET_USER";
+const UPDATE_USER_NAME = "UPDATE_USER_NAME";
 const GET_CHATROOMS = "GET_CHATROOMS";
 const ADD_CONTACT = "ADD_CONTACT";
 const ADD_CHATROOM = "ADD_CHATROOM";
@@ -13,6 +14,7 @@ const ADD_CONTACT_ERROR = "ADD_CONTACT_ERROR";
 
 // ---------- ACTION CREATORS ---------- //
 const getUser = (user) => ({ type: GET_USER, user });
+const updateUserName = (name) => ({ type: UPDATE_USER_NAME, name });
 const getChatrooms = (chatrooms) => ({ type: GET_CHATROOMS, chatrooms });
 const addChatroom = (chatId) => ({ type: ADD_CHATROOM, chatId });
 const addContact = (contact) => ({ type: ADD_CONTACT, contact });
@@ -123,6 +125,24 @@ export const fetchUser = () => async (dispatch, getState) => {
   }
 };
 
+export const putUserName = (firstName, lastName) => async (
+  dispatch,
+  getState
+) => {
+  try {
+    const uid = getState().firebase.auth.uid;
+    const fullName = `${firstName} ${lastName}`;
+    await firebase
+      .database()
+      .ref("/users/" + uid)
+      .update({ name: fullName });
+
+    dispatch(updateUserName(fullName));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // ---------- INITIAL STATE ---------- //
 const defaultUser = {
   name: "",
@@ -139,7 +159,15 @@ const defaultUser = {
 const userReducer = (state = defaultUser, action) => {
   switch (action.type) {
     case GET_USER:
-      return action.user;
+      return {
+        ...state,
+        email: action.user.email,
+        created_at: action.user.created_at,
+        language: action.user.language,
+        name: action.user.name,
+      };
+    case UPDATE_USER_NAME:
+      return { ...state, name: action.name };
     case GET_CHATROOMS:
       return { ...state, chatrooms: action.chatrooms };
     case ADD_CHATROOM:
