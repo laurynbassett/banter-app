@@ -131,12 +131,7 @@ export const addNewMember = () => async (dispatch, getState) => {
 // ---------- INITIAL STATE ---------- //
 const defaultChats = {
   chats: [],
-  currentChat: {
-    currentChatId: "",
-    lastMessage: "",
-    timestamp: null,
-    members: [],
-  },
+  currentChat: {},
 };
 
 // ---------- REDUCER ---------- //

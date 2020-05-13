@@ -27,13 +27,21 @@ const receiveMessage = (message) => ({ type: RECEIVE_MESSAGE, message });
 
 export const fetchMessages = () => (dispatch, getState) => {
   // query for all messages for the current chat, and add listener on child_added for new messages
-  console.log("!!!!!!!!", getState().chats.currentChat.id);
-
   db.ref(`messages/${getState().chats.currentChat.id}`).on(
     "child_added",
     function (snapshot) {
-      console.log("message retreived!", snapshot.val());
-      dispatch(addMessage(snapshot.val()));
+      // format message object to be compatible GiftedChat
+      newMessage = {
+        _id: snapshot.key,
+        user: {
+          _id: snapshot.val().senderId,
+          name: snapshot.val().senderName,
+        },
+        text: snapshot.val().message,
+        createdAt: snapshot.val().timestamp,
+      };
+      // add message to redux state
+      dispatch(addMessage(newMessage));
     }
   );
 };
