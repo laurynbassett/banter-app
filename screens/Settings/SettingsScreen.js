@@ -17,8 +17,10 @@ const list = [
 ];
 
 export class SettingsScreen extends React.Component {
-  render() {
+  componentDidMount() {
     this.props.grabUser();
+  }
+  render() {
     return (
       <ScrollView
         style={styles.container}
@@ -65,8 +67,12 @@ const styles = StyleSheet.create({
   },
 });
 
+const mapState = (state) => ({
+  user: state.user,
+});
+
 const mapDispatch = (dispatch) => ({
   grabUser: () => dispatch(fetchUser()),
 });
 
-export default connect(null, mapDispatch)(SettingsScreen);
+export default connect(mapState, mapDispatch)(SettingsScreen);
