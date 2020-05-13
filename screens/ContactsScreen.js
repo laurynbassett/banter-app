@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { Component } from 'react';
 import { FlatList } from 'react-native';
 import { connect } from 'react-redux';
 
 import { ContactListItem } from '../components';
 import { fetchContacts } from '../store/user';
+import { fetchAllChats } from '../store/chats';
 
 const dummyData = [
 	{
@@ -22,31 +23,29 @@ const dummyData = [
 	}
 ];
 
-const ContactsScreen = props => {
-	const loadContacts = async () => {
-		await props.fetchContacts;
-	};
-
-	useEffect(() => {
-		loadContacts();
-	}, []);
-
-	const contacts = props.contacts;
-
-	return (
-		<FlatList
-			data={dummyData}
-			renderItem={({ item }) => <ContactListItem navigation={props.navigation} {...item} />}
-			keyExtractor={(item, index) => index.toString()}
-		/>
-	);
-};
+class ContactsScreen extends Component {
+	async componentDidMount() {
+		await this.props.fetchContacts();
+		await this.props.fetchAllChats();
+	}
+	render() {
+		const contacts = this.props.contacts;
+		return (
+			<FlatList
+				data={contacts}
+				renderItem={({ item }) => <ContactListItem navigation={this.props.navigation} {...item} />}
+				keyExtractor={(item, index) => index.toString()}
+			/>
+		);
+	}
+}
 
 const mapState = state => ({
 	contacts: state.user.contactObjs
 });
 
 const mapDispatch = dispatch => ({
+	fetchAllChats: () => dispatch(fetchAllChats()),
 	fetchContacts: () => dispatch(fetchContacts())
 });
 

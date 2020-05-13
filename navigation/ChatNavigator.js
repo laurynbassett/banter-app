@@ -9,7 +9,7 @@ export default function ChatNavigator({ navigation, route }) {
 	return (
 		<Stack.Navigator initialRouteName='Chat'>
 			<Stack.Screen name='Chat' component={ChatListScreen} options={{ title: 'Chat' }} />
-			<Stack.Screen name='SingleChat' component={SingleChatScreen} options={{ headerTitle: SingleChatHeader }} />
+			<Stack.Screen name='SingleChat' component={SingleChatScreen} options={{ tabBarVisible: false }} />
 		</Stack.Navigator>
 	);
 }

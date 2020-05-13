@@ -6,6 +6,7 @@ import { GoogleAuthData } from 'expo-google-sign-in';
 import firebase, { auth, db } from '../Firebase';
 import ChatListItem from '../components/ChatListItem';
 import { fetchAllChats, setCurrentChat } from '../store/chats';
+import { fetchUser } from '../store/user';
 
 const dummyData = [
 	{
@@ -32,17 +33,13 @@ class ChatListScreen extends React.Component {
 	}
 
 	componentDidMount() {
+		this.props.fetchUser();
 		this.props.fetchAllChats();
 	}
 
 	goToSingleChat(chatRoomId) {
 		console.log('yes', this.props);
-		this.props.navigation.navigate(
-			'SingleChat',
-			(params: {
-				chatRoomId: chatRoomId
-			})
-		);
+		this.props.navigation.navigate('SingleChat');
 	}
 
 	render() {
@@ -62,6 +59,7 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
+	fetchUser: () => dispatch(fetchUser()),
 	fetchAllChats: () => dispatch(fetchAllChats())
 });
 

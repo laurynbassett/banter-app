@@ -20,22 +20,15 @@ class SingleChat extends Component {
 		this.handleSendMessage = this.handleSendMessage.bind(this);
 	}
 
-	// componentWillMount() {
-	// 	this.props.subscribeToMessages();
-	// }
+	static navigationOptions = {
+		tabBarLabel: 'SINGLE'
+	};
 
 	async componentDidMount() {
-		// Fire.shared.on(message =>
-		// 	this.setState(previousState => ({
-		// 		messages: GiftedChat.append(previousState.messages, message)
-		// 	}))
-		// );
 		console.log('THIS.PROPS START SINGLECHAT', this.props);
 		const user = auth.currentUser;
 		await this.props.fetchMessages();
-		console.log('THIS.PROPS AFTER FETCHMSGS', this.props);
-		console.log('SINGLE CHAT currentChatId: ', this.props.currentChat);
-		const chatId = this.props.currentChat.currentChatId;
+		const chatId = this.props.currentChat.id;
 		this.setState({
 			chatId,
 			messages: this.props.messages,
@@ -44,15 +37,14 @@ class SingleChat extends Component {
 	}
 
 	handleSendMessage(messages) {
-		console.log('HANDLE SEND MSG: ', messages);
 		this.setState(previousState => ({
 			messages: GiftedChat.append(previousState.messages, messages)
 		}));
-		const { uid, displayName } = auth.currentUser;
-		const { contactId } = this.props.route.params;
+		const { user } = this.props;
+		const { id } = this.props.route.params;
 		const message = messages[messages.length - 1].text;
 		const timestamp = Date.now();
-		this.props.sendMessage({ uid, displayName, contactId, message, timestamp });
+		this.props.sendMessage({ uid: user.id, contactId: id, displayName: user.name, message, timestamp });
 	}
 
 	render() {
@@ -76,13 +68,13 @@ class SingleChat extends Component {
 
 const mapState = state => ({
 	currentChat: state.chats.currentChat,
-	messages: state.messages.currentChatMessages
+	messages: state.messages.currentChatMessages,
+	user: state.user
 });
 
 const mapDispatch = dispatch => ({
 	fetchMessages: () => dispatch(fetchMessages()),
 	sendMessage: msg => dispatch(postMessage(msg))
-	// subscribeToMessages: () => dispatch(subscribeToMessages())
 });
 
 export default connect(mapState, mapDispatch)(SingleChat);
@@ -91,7 +83,7 @@ const styles = StyleSheet.create({
 	container: {
 		backgroundColor: '#fafafa',
 		width: Layout.window.width,
-		height: Layout.window.height * 0.9
+		height: Layout.window.height * 0.8
 	},
 	headerContainer: {
 		flexDirection: 'row',

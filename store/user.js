@@ -1,4 +1,4 @@
-import firebase, { auth, db } from '../Firebase';
+import { db } from '../Firebase';
 
 import { fetchAllChats } from './chats';
 
@@ -25,11 +25,14 @@ export const fetchUser = () => async (dispatch, getState) => {
 	try {
 		const state = getState();
 		const user = state.firebase.auth;
-		db.ref(`users/${user.uid}`).once('value', user => {
-			if (snapshot.val()) {
-				console.log('SNAPSHOT VAL FETCH USER', snapshot.val());
-			}
-		});
+		// db.ref(`users/${user.uid}`).once('value', userRef => {
+		// 	console.log('SNAPSHOT VAL FETCH USER', userRef.val());
+		const email = user.email;
+		const name = user.displayName;
+		const phone = user.phoneNumber;
+		const imageUrl = user.photoURL;
+		dispatch(getUser({ id: user.uid, email, name, phone, imageUrl }));
+		// });
 	} catch (err) {
 		console.log('Error adding new contact: ', err);
 	}
@@ -38,11 +41,11 @@ export const fetchUser = () => async (dispatch, getState) => {
 export const fetchChatrooms = () => async (dispatch, getState) => {
 	try {
 		let chatrooms = [];
-		const uid = auth.currentUser.uid;
-		console.log('FETCH USER CHATROOMS UID', uid);
 
 		const state = getState();
 		console.log('FETCH USER CHATROOMS STATE: ', state);
+		const uid = state.firebase.auth.uid;
+		console.log('FETCH USER CHATROOMS UID', uid);
 
 		db.ref(`users/${uid}`).on('value', user => {
 			if (user.child('chatrooms').exists()) {
@@ -62,20 +65,26 @@ export const fetchChatrooms = () => async (dispatch, getState) => {
 	}
 };
 
-export const addNewChatroom = () => async (dispatch, getState) => {
+export const addNewChatroom = (chatId, userId) => async (dispatch, getState) => {
 	try {
 		const state = getState();
-		const uid = auth.currentUser.uid;
-		const chatId = state.chats.currentChat.currentChatId;
-		console.log('ADD NEW CHATROOM PROPS: ', uid, 'chatID: ', chatId);
-
-		db.ref(`users/${uid}/chatrooms`).on('value', chatrooms => {
-			chatrooms.update({ [chatId]: true });
-			console.log('POST-ADD USER CHATROOMS: ', chatrooms.val());
+		usersRef.child(userId).once('value', user => {
+			if (user.child('chatrooms').exists()) {
+				db
+					.ref(`users/${userId}`)
+					.child('chatrooms')
+					.update({ [chatId]: true })
+					.then(() => dispatch(addChatroom(chatId)))
+					.catch(err => console.log('Error updating chatroom', err));
+			} else {
+				db
+					.ref(`users/${userId}`)
+					.child('chatrooms')
+					.set({ [chatId]: true })
+					.then(() => dispatch(addChatroom(chatId)))
+					.catch(err => console.log('Error updating chatroom', err));
+			}
 		});
-
-		console.log('DISPATCHING ADD CHATROOM', chatId);
-		dispatch(addChatroom(chatId));
 	} catch (err) {
 		console.log('Error adding new chatroom: ', err);
 	}
@@ -84,22 +93,34 @@ export const addNewChatroom = () => async (dispatch, getState) => {
 export const addNewContact = ({ name, email, phone }) => async (dispatch, getState) => {
 	try {
 		const state = getState();
-		const uid = auth.currentUser.uid;
+		const uid = state.firebase.auth.uid;
+		const userRef = db.ref(`users/${uid}`);
+		const matchEmail = await usersRef.orderByChild('email').equalTo(email).once('value');
+		const matchPhone = await usersRef.orderByChild('phone').equalTo(phone).once('value');
 
-		const matchEmail = usersRef.orderByChild('email').equalTo(email);
-		console.log('MATCHEMAIL', matchEmail);
-		const matchPhone = usersRef.orderByChild('phone').equalTo(phone);
-		console.log('MATCHPHONE', matchPhone);
-		// if (uid.child('email').exists()) {
-		// 	} else if (uid.child('phone').exists()) {
-		if (matchEmail || matchPhone) {
-			// db.ref(`users/${uid}`).once('value', user => {
-			// 	user.child('contacts').update()
-			// })
+		if (matchEmail) {
+			const id = Object.values(matchEmail)[0].children_.root_.key;
+			db.ref(`users/${id}`).once('value', contactRef => {
+				const name = contactRef.child('name').val();
+				const email = contactRef.child('email').val();
+				const imageUrl = contactRef.child('imageUrl').val();
+				const language = contactRef.child('language').val();
+				userRef.child('contacts').update({ [id]: true });
+				dispatch(addContact({ id, name, email, imageUrl, language }));
+			});
+		} else if (matchPhone) {
+			const id = Object.values(matchPhone)[0].children_.root_.key;
+			db.ref(`users/${id}`).once('value', contactRef => {
+				const name = contactRef.child('name').val();
+				const email = contactRef.child('email').val();
+				const imageUrl = contactRef.child('imageUrl').val();
+				const language = contactRef.child('language').val();
+				userRef.child('contacts').update({ [id]: true });
+				dispatch(addContact({ id, name, email, imageUrl, language }));
+			});
 		} else {
 			// send error (contact doesn't exist)
-			const errMsg = 'There is no user with the given email or phone number.';
-			dispatch(addContactError(errMsg));
+			dispatch(addContactError("User doesn't exist!"));
 		}
 	} catch (err) {
 		console.log('Error adding new contact: ', err);
@@ -109,14 +130,29 @@ export const addNewContact = ({ name, email, phone }) => async (dispatch, getSta
 export const fetchContacts = () => async (dispatch, getState) => {
 	try {
 		const state = getState();
-		let contacts = [];
-		state.user.contacts.forEach(contact => {
-			const contactData = db.ref(`users/${contact}`).val();
-			console.log('CONTACT***', contactData);
-			contacts.push(contactData);
-		});
+		console.log('***********');
 
-		dispatch(getContacts(contacts));
+		const id = state.user.id;
+		let contacts = [];
+		const contactKeys = Object.keys(state.firebase.profile.contacts);
+		console.log('**********FB', contactKeys);
+		const getAllContacts = async () => {
+			for (let key of contactKeys) {
+				await db.ref(`users/${key}`).once('value', contact => {
+					console.log('&****** CONTACT', contact);
+					const name = contact.child('name').val();
+					const email = contact.child('email').val();
+					const phone = contact.child('phone').val() || '';
+					const imageUrl = contact.child('imageUrl').val() || '';
+					contacts.push({ id: key, name, email, phone, imageUrl });
+					console.log('*******************CONTACTS', contacts);
+				});
+			}
+		};
+		getAllContacts().then(() => {
+			console.log('CONTACTS*******************', contacts);
+			dispatch(getContacts(contacts));
+		});
 	} catch (err) {
 		console.log('Error fetching contacts: ', err);
 	}
@@ -124,9 +160,11 @@ export const fetchContacts = () => async (dispatch, getState) => {
 
 // ---------- INITIAL STATE ---------- //
 const defaultUser = {
+	id: '',
 	name: '',
 	email: '',
 	phone: '',
+	imageUrl: '',
 	language: '',
 	unseenCount: null,
 	contacts: [],
@@ -139,7 +177,14 @@ const defaultUser = {
 const userReducer = (state = defaultUser, action) => {
 	switch (action.type) {
 		case GET_USER:
-			return action.user;
+			return {
+				...state,
+				id: action.user.id,
+				name: action.user.name,
+				email: action.user.email,
+				phone: action.user.phone,
+				imageUrl: action.user.imageUrl
+			};
 		case GET_CHATROOMS:
 			return { ...state, chatrooms: action.chatrooms };
 		case ADD_CHATROOM:

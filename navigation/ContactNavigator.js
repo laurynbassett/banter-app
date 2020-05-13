@@ -9,11 +9,10 @@ import { ContactsHeaderRight } from '../components';
 const Stack = createStackNavigator();
 
 export default function ContactNavigator({ navigation, route }) {
-	console.log('STACK PROPS', navigation);
 	return (
-		<Stack.Navigator navigation={navigation} initialRouteName='Contact'>
+		<Stack.Navigator navigation={navigation} initialRouteName='Contacts'>
 			<Stack.Screen
-				name='Contact'
+				name='Contacts'
 				component={ContactsScreen}
 				options={({ navigation }) => ({
 					title: 'Contacts',

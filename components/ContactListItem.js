@@ -1,21 +1,25 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Image, Platform, StyleSheet, Text, TouchableHighlight, View, FlatList } from 'react-native';
+
+import { fetchCurrentChatId } from '../store/chats';
 
 const ContactListItem = props => {
 	console.log('PROPS', props);
 
-	const goToSingleChat = contact => {
-		props.fetchCurrentChatId(contact.id);
+	const goToSingleChat = () => {
+		props.fetchCurrentChatId(props.id);
 		props.navigation.navigate('SingleChat', {
-			id: contact.id,
-			name: contact.name
+			id: props.id,
+			name: props.name
 		});
 	};
 
+	const defaultUrl = 'https://i.picsum.photos/id/14/536/354.jpg';
 	return (
-		<TouchableHighlight onPress={() => goToSingleChat(props)}>
+		<TouchableHighlight onPress={goToSingleChat}>
 			<View style={styles.container}>
-				{props.imageUrl && <Image source={{ uri: props.imageUrl }} style={styles.image} />}
+				<Image source={{ uri: props.imageUrl || defaultUrl }} style={styles.image} />
 				<View style={styles.contactWrapper}>
 					<View style={styles.contactNameWrapper}>
 						<Text style={styles.contactName}>{props.name}</Text>
@@ -32,7 +36,11 @@ const ContactListItem = props => {
 	);
 };
 
-export default ContactListItem;
+const mapDispatch = dispatch => ({
+	fetchCurrentChatId: id => dispatch(fetchCurrentChatId(id))
+});
+
+export default connect(null, mapDispatch)(ContactListItem);
 
 const styles = StyleSheet.create({
 	container: {
