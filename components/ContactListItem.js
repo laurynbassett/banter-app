@@ -1,18 +1,19 @@
 import React from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableHighlight, View, FlatList } from 'react-native';
-import { connect } from 'react-redux';
-import { fetchCurrentChatId } from '../store/chats';
 
 const ContactListItem = props => {
 	console.log('PROPS', props);
 
-	const goToSingleChat = contactId => {
-		props.fetchCurrentChatId(contactId);
-		props.navigation.navigate('SingleChat');
+	const goToSingleChat = contact => {
+		props.fetchCurrentChatId(contact.id);
+		props.navigation.navigate('SingleChat', {
+			id: contact.id,
+			name: contact.name
+		});
 	};
 
 	return (
-		<TouchableHighlight onPress={() => goToSingleChat(props.id)}>
+		<TouchableHighlight onPress={() => goToSingleChat(props)}>
 			<View style={styles.container}>
 				{props.imageUrl && <Image source={{ uri: props.imageUrl }} style={styles.image} />}
 				<View style={styles.contactWrapper}>
@@ -31,11 +32,7 @@ const ContactListItem = props => {
 	);
 };
 
-const mapDispatch = dispatch => ({
-	fetchCurrentChatId: id => dispatch(fetchCurrentChatId(id))
-});
-
-export default connect(null, mapDispatch)(ContactListItem);
+export default ContactListItem;
 
 const styles = StyleSheet.create({
 	container: {

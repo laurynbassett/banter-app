@@ -1,7 +1,9 @@
-import React from 'react';
-import { Image, Platform, StyleSheet, Text, View, FlatList } from 'react-native';
+import React, { useEffect } from 'react';
+import { FlatList } from 'react-native';
+import { connect } from 'react-redux';
 
 import { ContactListItem } from '../components';
+import { fetchContacts } from '../store/user';
 
 const dummyData = [
 	{
@@ -21,6 +23,16 @@ const dummyData = [
 ];
 
 const ContactsScreen = props => {
+	const loadContacts = async () => {
+		await props.fetchContacts;
+	};
+
+	useEffect(() => {
+		loadContacts();
+	}, []);
+
+	const contacts = props.contacts;
+
 	return (
 		<FlatList
 			data={dummyData}
@@ -30,4 +42,12 @@ const ContactsScreen = props => {
 	);
 };
 
-export default ContactsScreen;
+const mapState = state => ({
+	contacts: state.user.contactObjs
+});
+
+const mapDispatch = dispatch => ({
+	fetchContacts: () => dispatch(fetchContacts())
+});
+
+export default connect(mapState, mapDispatch)(ContactsScreen);

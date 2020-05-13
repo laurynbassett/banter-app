@@ -37,9 +37,12 @@ class ChatListScreen extends React.Component {
 
 	goToSingleChat(chatRoomId) {
 		console.log('yes', this.props);
-		this.props.navigation.navigate('SingleChat', {
-			chatRoomId: chatRoomId
-		});
+		this.props.navigation.navigate(
+			'SingleChat',
+			(params: {
+				chatRoomId: chatRoomId
+			})
+		);
 	}
 
 	render() {
