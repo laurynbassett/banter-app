@@ -20,6 +20,7 @@ export const fetchAllChats = () => async (dispatch, getState) => {
     const userId = auth.currentUser.uid;
     console.log("FETCHING ALL CHATS");
 
+    // TODO: remove hard coded user ID from Firebase query
     // get each chat id from the user, adding a listener for any additional chat rooms added
     db.ref(`users/uid_1/chatrooms`).on("child_added", function (snapshot) {
       db.ref(`chats/${snapshot.key}`)
@@ -45,9 +46,6 @@ export const fetchAllChats = () => async (dispatch, getState) => {
           });
         });
     });
-
-    // console.log("FETCHED ALL CHATS:", chats);
-    // dispatch(getAllChats(chats));
   } catch (err) {
     console.log("Error fetching all chats: ", err);
   }
@@ -157,6 +155,7 @@ const chatsReducer = (state = defaultChats, action) => {
         }),
       };
     case SET_CURRENT_CHAT:
+      console.log("SET CURRENT CHAT CURRENT STATE", state);
       return {
         ...state,
         currentChat: state.chats.find((chat) => chat.id === action.chatId),

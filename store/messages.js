@@ -1,115 +1,105 @@
-import React from 'react';
-import base64 from 'base-64';
+import React from "react";
+import base64 from "base-64";
 
-import firebase, { auth, db } from '../Firebase';
-import { createCurrentChatId, addNewMember } from './chats';
-import { addNewChatroom } from './user';
+import firebase, { auth, db } from "../Firebase";
+import { createCurrentChatId, addNewMember } from "./chats";
+import { addNewChatroom } from "./user";
 
-const messagesRef = db.ref('messages');
-const chatsRef = db.ref('chats');
+const messagesRef = db.ref("messages");
+const chatsRef = db.ref("chats");
 
 // ---------- ACTION TYPES ---------- //
-export const GET_MESSAGES = 'GET_MESSAGES';
-export const SEND_MESSAGE = 'SEND_MESSAGE';
-export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
+export const GET_MESSAGES = "GET_MESSAGES";
+export const ADD_MESSAGE = "ADD_MESSAGE";
+export const SEND_MESSAGE = "SEND_MESSAGE";
+export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
 
 // ---------- ACTION CREATORS ---------- //
 
-const getMessages = messages => ({ type: GET_MESSAGES, messages });
+const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
+const addMessage = (message) => ({ type: ADD_MESSAGE, message });
 const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
-const receiveMessage = message => ({ type: RECEIVE_MESSAGE, message });
+const receiveMessage = (message) => ({ type: RECEIVE_MESSAGE, message });
 
 // ---------- THUNK CREATORS ---------- //
 
 // for current chat
-export const fetchMessages = () => async (dispatch, getState) => {
-	try {
-		let messages = [];
-		const state = getState();
-		console.log('FETCH CURRCHAT MSGS STATE: ', state);
-		const chatId = state.chats.currentChat.currentChatId;
-		if (chatId) {
-			// later add .limitToLast
-			db.ref(`messages/${chatId}`).on('value', currChatMsgs => {
-				console.log('FETCH CURRENT MSGS - MSGS: ', currChatMsgs);
-				currChatMsgs.forEach(currChatId => {
-					console.log('*******ID', currChatId);
-					const _id = currChatId.key;
-					const text = currChatId.child('message').val();
-					const createdAt = currChatId.child('timestamp').val();
-					const senderId = currChatId.child('senderId').val();
-					const name = currChatId.child('senderName').val();
-					messages.push({ _id, text, createdAt, user: { _id: senderId, name } });
-				});
-				console.log('*******MESSAGES FROM QUERY: ', messages);
-				dispatch(getMessages(messages));
-			});
-		}
-	} catch (err) {
-		console.error('Error getting current chat messages: ', err);
-	}
+
+export const fetchMessages = () => (dispatch, getState) => {
+  // query for all messages for the current chat, and add listener on child_added for new messages
+  console.log("!!!!!!!!", getState().chats.currentChat.id);
+
+  db.ref(`messages/${getState().chats.currentChat.id}`).on(
+    "child_added",
+    function (snapshot) {
+      console.log("message retreived!", snapshot.val());
+      dispatch(addMessage(snapshot.val()));
+    }
+  );
 };
 
-export const postMessage = text => async (dispatch, getState) => {
-	try {
-		const { uid, displayName, contactId, message, timestamp } = text;
-		console.log('TEXT***', text);
-		const state = getState();
-		console.log('POST MESSAGE STATE: ', state);
-		let chatId = '';
-		if (!state.chats.currentChat.currentChatId) {
-			chatId = await dispatch(createCurrentChatId());
-			console.log('POST MESSAGE STATE AFTER CREATE CHAT ID: ', state);
-			console.log('CHATID', chatId);
-			await dispatch(addNewChatroom());
-			console.log('POST MESSAGE STATE AFTER CREATE CHATROOM: ', state);
-			await dispatch(addNewMember());
-		} else {
-			chatId = state.chats.currentChat.currentChatId;
-		}
-		const currChatRef = db.ref(`messages/${chatId}`);
-		chatsRef.child(chatId).set({
-			lastMessage: `${uid}: ${message}`,
-			senderId: uid,
-			timestamp
-		});
-		currChatRef.push().set({
-			message,
-			senderId: uid,
-			senderName: displayName,
-			timestamp
-		});
-		await dispatch(fetchMessages());
-		console.log('DISPATCHED ADD NEW MESSAGE!');
-	} catch (err) {
-		console.error('Error adding msg to db: ', err);
-	}
+export const postMessage = (text) => async (dispatch, getState) => {
+  try {
+    const { uid, displayName, contactId, message, timestamp } = text;
+    console.log("TEXT***", text);
+    const state = getState();
+    console.log("POST MESSAGE STATE: ", state);
+    let chatId = "";
+    if (!state.chats.currentChat.currentChatId) {
+      chatId = await dispatch(createCurrentChatId());
+      console.log("POST MESSAGE STATE AFTER CREATE CHAT ID: ", state);
+      console.log("CHATID", chatId);
+      await dispatch(addNewChatroom());
+      console.log("POST MESSAGE STATE AFTER CREATE CHATROOM: ", state);
+      await dispatch(addNewMember());
+    } else {
+      chatId = state.chats.currentChat.currentChatId;
+    }
+    const currChatRef = db.ref(`messages/${chatId}`);
+    chatsRef.child(chatId).set({
+      lastMessage: `${uid}: ${message}`,
+      senderId: uid,
+      timestamp,
+    });
+    currChatRef.push().set({
+      message,
+      senderId: uid,
+      senderName: displayName,
+      timestamp,
+    });
+    await dispatch(fetchMessages());
+    console.log("DISPATCHED ADD NEW MESSAGE!");
+  } catch (err) {
+    console.error("Error adding msg to db: ", err);
+  }
 };
 
-export const subscribeToMessages = () => async dispatch => {
-	try {
-		messages.on('child_added', data => dispatch(receiveMessage(data.val())));
-	} catch (err) {
-		console.error('Error subscribing to messages: ', err);
-	}
+export const subscribeToMessages = () => async (dispatch) => {
+  try {
+    messages.on("child_added", (data) => dispatch(receiveMessage(data.val())));
+  } catch (err) {
+    console.error("Error subscribing to messages: ", err);
+  }
 };
 
 // ---------- INITIAL STATE ---------- //
 
-const defaultMessages = [];
+const defaultMessages = { messages: [] };
 
 // ---------- REDUCER ---------- //
 const messagesReducer = (state = defaultMessages, action) => {
-	switch (action.type) {
-		case GET_MESSAGES:
-			return action.messages;
-		case SEND_MESSAGE:
-			return { ...state };
-		case RECEIVE_MESSAGE:
-			return { ...state, messages: state.messages.concat(action.message) };
-		default:
-			return state;
-	}
+  switch (action.type) {
+    case GET_MESSAGES:
+      return action.messages;
+    case ADD_MESSAGE:
+      return { messages: state.messages.concat(action.message) };
+    case SEND_MESSAGE:
+      return { ...state };
+    case RECEIVE_MESSAGE:
+      return { messages: state.messages.concat(action.message) };
+    default:
+      return state;
+  }
 };
 
 export default messagesReducer;

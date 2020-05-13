@@ -9,29 +9,9 @@ import {
   View,
   FlatList,
 } from "react-native";
-import { GoogleAuthData } from "expo-google-sign-in";
 
-import firebase, { auth, db } from "../Firebase";
 import ChatListItem from "../components/ChatListItem";
 import { fetchAllChats, setCurrentChat } from "../store/chats";
-
-const dummyData = [
-  {
-    id: "5",
-    title: "Isra",
-    lastMessage: "Jacob: yo whats up",
-  },
-  {
-    id: "4",
-    title: "Group Chat",
-    lastMessage: "Jacob: hello",
-  },
-  {
-    id: "3",
-    title: "Lauryn",
-    lastMessage: "Lauryn: Ok sounds great",
-  },
-];
 
 class ChatListScreen extends React.Component {
   constructor(props) {
@@ -43,11 +23,12 @@ class ChatListScreen extends React.Component {
     this.props.fetchAllChats();
   }
 
-  goToSingleChat(chatRoomId) {
-    console.log("yes", this.props);
-    this.props.navigation.navigate("SingleChat", {
-      chatRoomId: chatRoomId,
-    });
+  goToSingleChat(chatId) {
+    // set current chatroom in redux
+    this.props.setCurrentChat(chatId);
+
+    // navigate to single chat page
+    this.props.navigation.navigate("SingleChat");
   }
 
   render() {
@@ -70,6 +51,7 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
   fetchAllChats: () => dispatch(fetchAllChats()),
+  setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);
