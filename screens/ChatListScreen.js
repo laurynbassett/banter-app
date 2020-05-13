@@ -1,45 +1,65 @@
-import React from "react";
-import { connect } from "react-redux";
-import ChatListItem from "../components/ChatListItem";
+import React from 'react';
+import { connect } from 'react-redux';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
+import { GoogleAuthData } from 'expo-google-sign-in';
 
-import {
-  // Image,
-  // Platform,
-  // StyleSheet,
-  // Text,
-  // TouchableOpacity,
-  // View,
-  FlatList,
-} from "react-native";
+import firebase, { auth, db } from '../Firebase';
+import ChatListItem from '../components/ChatListItem';
+import { fetchAllChats, setCurrentChat } from '../store/chats';
 
 const dummyData = [
-  {
-    title: "Isra",
-    lastMessage: "Jacob: yo whats up",
-  },
-  {
-    title: "Group Chat",
-    lastMessage: "Jacob: hi whats good",
-  },
-  {
-    title: "Lauryn",
-    lastMessage: "Lauryn: Ok sounds great",
-  },
+	{
+		id: '5',
+		title: 'Isra',
+		lastMessage: 'Jacob: yo whats up'
+	},
+	{
+		id: '4',
+		title: 'Group Chat',
+		lastMessage: 'Jacob: hello'
+	},
+	{
+		id: '3',
+		title: 'Lauryn',
+		lastMessage: 'Lauryn: Ok sounds great'
+	}
 ];
 
-export function ChatList(props) {
-  console.log("PRINTING UID FROM REACT COMPONENT", props.auth.uid);
-  return (
-    <FlatList
-      data={dummyData}
-      renderItem={({ item }) => <ChatListItem key={item.title} item={item} />}
-    />
-  );
+class ChatListScreen extends React.Component {
+	constructor(props) {
+		super(props);
+		this.goToSingleChat = this.goToSingleChat.bind(this);
+	}
+
+	componentDidMount() {
+		this.props.fetchAllChats();
+	}
+
+	goToSingleChat(chatRoomId) {
+		console.log('yes', this.props);
+		this.props.navigation.navigate('SingleChat', {
+			chatRoomId: chatRoomId
+		});
+	}
+
+	render() {
+		console.log('RENDER', this.props.chatrooms);
+		return (
+			<FlatList
+				data={this.props.chatrooms}
+				renderItem={({ item }) => <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />}
+				keyExtractor={(item, index) => index.toString()}
+			/>
+		);
+	}
 }
 
-const mapState = (state) => ({
-  user: state.user,
-  auth: state.firebase.auth,
+const mapState = state => ({
+	chatrooms: state.user.chatrooms
 });
 
-export default connect(mapState)(ChatList);
+const mapDispatch = dispatch => ({
+	fetchAllChats: () => dispatch(fetchAllChats())
+});
+
+export default connect(mapState, mapDispatch)(ChatListScreen);
