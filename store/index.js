@@ -4,9 +4,9 @@ import loggerMiddleware from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 
 import chatsReducer from './chats';
+import { firebaseReducer } from 'react-redux-firebase';
 import messagesReducer from './messages';
 import userReducer from './user';
-import { firebaseReducer } from 'react-redux-firebase';
 
 // ---------- REDUCER---------- //
 const reducer = combineReducers({
@@ -24,7 +24,7 @@ const store = createStore(reducer, middleware);
 
 export default store;
 
+export * from './auth';
 export * from './chats';
 export * from './messages';
 export * from './user';
-export * from './auth';
