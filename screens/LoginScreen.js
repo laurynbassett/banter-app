@@ -43,29 +43,41 @@ class LoginScreen extends Component {
   // }
 
   registerForPushNotificationsAsync = async () => {
+    // isDevice checks that user is not on a simulator, but actually on a real device
+
     if (Constants.isDevice) {
-      console.log(
-        "CONSTANTS.ISDEVICE",
-        Constants.isDevice,
-        "CONSTANTS",
-        Constants
-      );
+      // status returns either "undetermined", "granted", or "denied"
+      // "undetermined" means the user has not either granted or denied when prompted
+      // "granted" means the user answered yes to turning on push notifications
+      // "denied" means the user rejected push notifications
+      // source: https://docs.expo.io/versions/latest/sdk/permissions/#returns
+
       const { status: existingStatus } = await Permissions.getAsync(
         Permissions.NOTIFICATIONS
       );
       let finalStatus = existingStatus;
+
+      //TODO: update so we're only asking Permission if status = "undetermined".
+      // Don't want to ask the user every time they login (?)
       if (existingStatus !== "granted") {
+        //This command initiates notification popup
         const { status } = await Permissions.askAsync(
           Permissions.NOTIFICATIONS
         );
+
+        //IF permission is granted, finalStatus will === "granted"
+        //TODO: if finalStatus !== existingStatus --> update users/uid/notifications/status
         finalStatus = status;
       }
       if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
+        // alert("Failed to get push token for push notification!");
         return;
       }
+
+      // TODO: Store token in users/uid/notifications/token
       let token = await Notifications.getExpoPushTokenAsync();
-      console.log("TOKEN", token);
+
+      // TODO: Persist token to store
       this.setState({ expoPushToken: token });
     } else {
       alert("Must use physical device for Push Notifications");
