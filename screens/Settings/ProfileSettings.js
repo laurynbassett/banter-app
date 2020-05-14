@@ -19,14 +19,6 @@ export class ProfileSettings extends React.Component {
     this.setState({ firstName, lastName });
   }
 
-  handleFirstNameChange(evt) {
-    this.setState({ firstName: evt.target.value });
-  }
-
-  handleLastNameChange(evt) {
-    this.setState({ lastName: evt.target.value });
-  }
-
   render() {
     return (
       <ScrollView
@@ -52,15 +44,6 @@ export class ProfileSettings extends React.Component {
             onChangeText: (lastName) => this.setState({ lastName }),
           }}
         />
-
-        {/* <Button
-          style={styles.button}
-          title="Save"
-          onPress={() => {
-            this.props.updateUser(this.state.firstName, this.state.lastName);
-            this.props.navigation.navigate("Settings");
-          }}
-        /> */}
 
         <Button
           title="Save"
