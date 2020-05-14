@@ -1,6 +1,4 @@
-import { db } from '../Firebase';
-
-import { fetchAllChats } from './chats';
+import { auth, db } from '../Firebase';
 
 const usersRef = db.ref('users');
 
@@ -8,17 +6,15 @@ const usersRef = db.ref('users');
 const GET_USER = 'GET_USER';
 const GET_CHATROOMS = 'GET_CHATROOMS';
 const ADD_CONTACT = 'ADD_CONTACT';
-const ADD_CHATROOM = 'ADD_CHATROOM';
 const ADD_CONTACT_ERROR = 'ADD_CONTACT_ERROR';
 const GET_CONTACTS = 'GET_CONTACTS';
 
 // ---------- ACTION CREATORS ---------- //
 const getUser = user => ({ type: GET_USER, user });
 const getChatrooms = chatrooms => ({ type: GET_CHATROOMS, chatrooms });
-const addChatroom = chatId => ({ type: ADD_CHATROOM, chatId });
 const addContact = contact => ({ type: ADD_CONTACT, contact });
 const addContactError = message => ({ type: ADD_CONTACT, message });
-const getContacts = contacts => ({ type: GET_CONTACTS, contacts });
+
 // ---------- THUNK CREATORS ---------- //
 
 export const fetchUser = () => async (dispatch, getState) => {
@@ -55,31 +51,19 @@ export const fetchChatrooms = () => async (dispatch, getState) => {
 			}
 			console.log('FETCHED CHATROOMS: ', chatrooms);
 			dispatch(getChatrooms(chatrooms));
-			dispatch(fetchAllChats());
 		});
 	} catch (err) {
 		console.log('Error fetching user chatrooms: ', err);
 	}
 };
 
-export const addNewChatroom = (chatId, userId) => async (dispatch, getState) => {
+export const addNewChatroom = (chatId, userId) => async () => {
 	try {
-		const state = getState();
 		usersRef.child(userId).once('value', user => {
 			if (user.child('chatrooms').exists()) {
-				db
-					.ref(`users/${userId}`)
-					.child('chatrooms')
-					.update({ [chatId]: true })
-					.then(() => dispatch(addChatroom(chatId)))
-					.catch(err => console.log('Error updating chatroom', err));
+				db.ref(`users/${userId}`).child('chatrooms').update({ [chatId]: true });
 			} else {
-				db
-					.ref(`users/${userId}`)
-					.child('chatrooms')
-					.set({ [chatId]: true })
-					.then(() => dispatch(addChatroom(chatId)))
-					.catch(err => console.log('Error updating chatroom', err));
+				db.ref(`users/${userId}`).child('chatrooms').set({ [chatId]: true });
 			}
 		});
 	} catch (err) {
@@ -92,29 +76,23 @@ export const addNewContact = ({ name, email, phone }) => async (dispatch, getSta
 		const state = getState();
 		const uid = state.firebase.auth.uid;
 		const userRef = db.ref(`users/${uid}`);
-		const matchEmail = await usersRef.orderByChild('email').equalTo(email).once('value');
-		const matchPhone = await usersRef.orderByChild('phone').equalTo(phone).once('value');
+		let matchEmail = '';
+		let matchEmailUserId = '';
+		let matchPhone = '';
+		let matchPhoneUserId = '';
+		await usersRef.orderByChild('email').equalTo(email).once('value', snapshot => {
+			matchEmail = snapshot.val();
+			matchEmailUserId = matchEmail ? Object.keys(matchEmail)[0] : '';
+		});
+		await usersRef.orderByChild('phone').equalTo(phone).once('value', snapshot => {
+			matchPhone = snapshot.val();
+			matchPhoneUserId = matchPhone ? Object.keys(matchPhone)[0] : '';
+		});
 
 		if (matchEmail) {
-			const id = Object.values(matchEmail)[0].children_.root_.key;
-			db.ref(`users/${id}`).once('value', contactRef => {
-				const name = contactRef.child('name').val();
-				const email = contactRef.child('email').val();
-				const imageUrl = contactRef.child('imageUrl').val();
-				const language = contactRef.child('language').val();
-				userRef.child('contacts').update({ [id]: true });
-				dispatch(addContact({ id, name, email, imageUrl, language }));
-			});
+			userRef.child('contacts').update({ [matchEmailUserId]: true });
 		} else if (matchPhone) {
-			const id = Object.values(matchPhone)[0].children_.root_.key;
-			db.ref(`users/${id}`).once('value', contactRef => {
-				const name = contactRef.child('name').val();
-				const email = contactRef.child('email').val();
-				const imageUrl = contactRef.child('imageUrl').val();
-				const language = contactRef.child('language').val();
-				userRef.child('contacts').update({ [id]: true });
-				dispatch(addContact({ id, name, email, imageUrl, language }));
-			});
+			userRef.child('contacts').update({ [matchPhoneUserId]: true });
 		} else {
 			// send error (contact doesn't exist)
 			dispatch(addContactError("User doesn't exist!"));
@@ -124,26 +102,23 @@ export const addNewContact = ({ name, email, phone }) => async (dispatch, getSta
 	}
 };
 
-export const fetchContacts = () => async (dispatch, getState) => {
+export const fetchContacts = () => async dispatch => {
 	try {
-		const state = getState();
+		const userId = auth.currentUser.uid;
 
-		const id = state.user.id;
-		let contacts = [];
-		const contactKeys = Object.keys(state.firebase.profile.contacts);
-		const getAllContacts = async () => {
-			for (let key of contactKeys) {
-				await db.ref(`users/${key}`).once('value', contact => {
-					const name = contact.child('name').val();
-					const email = contact.child('email').val();
-					const phone = contact.child('phone').val() || '';
-					const imageUrl = contact.child('imageUrl').val() || '';
-					contacts.push({ id: key, name, email, phone, imageUrl });
-				});
-			}
-		};
-		getAllContacts().then(() => {
-			dispatch(getContacts(contacts));
+		db.ref(`users/${userId}/contacts`).on('child_added', function(snapshot) {
+			db.ref(`users/${snapshot.key}`).once('value').then(snapshot => {
+				// add id to chat object
+				let newContact = snapshot.val();
+				newContact.id = snapshot.key;
+				newContact.name = newContact.name || '';
+				newContact.email = newContact.email;
+				newContact.phone = newContact.phone || '';
+				newContact.imageUrl = newContact.imageUrl || '';
+
+				// add new chat to state
+				dispatch(addContact(newContact));
+			});
 		});
 	} catch (err) {
 		console.log('Error fetching contacts: ', err);
@@ -160,7 +135,6 @@ const defaultUser = {
 	language: '',
 	unseenCount: null,
 	contacts: [],
-	contactObjs: [],
 	chatrooms: [],
 	error: ''
 };
@@ -179,12 +153,10 @@ const userReducer = (state = defaultUser, action) => {
 			};
 		case GET_CHATROOMS:
 			return { ...state, chatrooms: action.chatrooms };
-		case ADD_CHATROOM:
-			return { ...state, chatrooms: [ ...state.chatrooms, action.chatId ] };
+		case ADD_CONTACT:
+			return { ...state, contacts: [ ...state.contacts, action.contact ] };
 		case ADD_CONTACT_ERROR:
 			return { ...state, error: state.message };
-		case GET_CONTACTS:
-			return { ...state, contactObjs: action.contacts };
 		default:
 			return state;
 	}

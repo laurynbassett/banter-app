@@ -7,6 +7,10 @@ import Fire, { auth, db } from '../Firebase';
 import Layout from '../constants/Layout';
 import { fetchMessages, postMessage, subscribeToMessages } from '../store/messages';
 class SingleChat extends Component {
+	constructor(props) {
+		super(props);
+		this.handleSendMessage = this.handleSendMessage.bind(this);
+	}
 	static navigationOptions = {
 		header: 'SINGLE'
 	};
@@ -20,14 +24,13 @@ class SingleChat extends Component {
 
 	handleSendMessage(messages) {
 		console.log('HANDLE SEND MSG: ', messages);
-		this.setState(previousState => ({
-			messages: GiftedChat.append(previousState.messages, messages)
-		}));
-		const { uid, displayName } = auth.currentUser;
-		const { contactId } = this.props.route.params;
+		GiftedChat.append(this.props.messages, messages);
+		const { uid, displayName } = this.props;
+		const contactId = this.props.route.params ? this.props.route.params.contactId : '';
+		const contactName = this.props.route.params ? this.props.route.params.name : '';
 		const message = messages[messages.length - 1].text;
 		const timestamp = Date.now();
-		this.props.sendMessage({ uid, displayName, contactId, message, timestamp });
+		this.props.sendMessage({ uid, displayName, message, timestamp, contactId, contactName });
 	}
 
 	render() {
@@ -36,14 +39,15 @@ class SingleChat extends Component {
 				<GiftedChat
 					messages={this.props.messages}
 					user={{
-						_id: this.props.firebase.uid,
-						name: this.props.firebase.displayName
+						_id: this.props.uid,
+						name: this.props.displayName
 					}}
 					onSend={this.handleSendMessage}
 					alignTop={true}
 					isTyping={true}
 					showUserAvatar={true}
 					showAvatarForEveryMessage={true}
+					inverted={false}
 					placeholder='Type a message...'
 				/>
 			</View>
@@ -53,7 +57,8 @@ class SingleChat extends Component {
 
 const mapState = state => ({
 	messages: state.messages.messages,
-	firebase: state.firebase.auth,
+	uid: state.firebase.auth.uid,
+	displayName: state.firebase.auth.displayName,
 	currentChat: state.chats.currentChat
 });
 

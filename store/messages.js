@@ -48,17 +48,21 @@ export const fetchMessages = () => (dispatch, getState) => {
 
 export const postMessage = text => async (dispatch, getState) => {
 	try {
-		const { uid, contactId, displayName, message, timestamp } = text;
+		console.log('TEXT', text);
+		const { uid, displayName, message, timestamp, contactId, contactName } = text;
+		const members = {
+			uid: displayName,
+			contactId: contactName
+		};
 		const state = getState();
 		let chatId = '';
-		if (!state.chats.currentChat.currentChatId) {
+		if (!state.chats.currentChat) {
 			chatId = await dispatch(createCurrentChatId());
 			await dispatch(addNewChatroom(chatId, uid));
 			await dispatch(addNewChatroom(chatId, contactId));
-			await dispatch(addNewMember(chatId, uid));
-			await dispatch(addNewMember(chatId, contactId));
+			await dispatch(addNewMember(chatId, members));
 		} else {
-			chatId = state.chats.currentChat.currentChatId;
+			chatId = state.chats.currentChat.id;
 		}
 		const currChatRef = db.ref(`messages/${chatId}`);
 		chatsRef

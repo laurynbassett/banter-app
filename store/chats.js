@@ -15,7 +15,7 @@ export const setCurrentChat = chatId => ({ type: SET_CURRENT_CHAT, chatId });
 const addMember = member => ({ type: ADD_MEMBERS, member });
 
 // ---------- THUNK CREATORS ---------- //
-export const fetchAllChats = () => async (dispatch, getState) => {
+export const fetchAllChats = () => async dispatch => {
 	try {
 		const userId = auth.currentUser.uid;
 		console.log('FETCHING ALL CHATS');
@@ -85,23 +85,12 @@ export const fetchMemberNames = () => async (dispatch, getState) => {
 	}
 };
 
-export const addNewMember = (chatId, userId) => async (dispatch, getState) => {
+export const addNewMember = (chatId, members) => async () => {
 	try {
+		console.log('ADD NEW MEMBER', name);
 		chatsRef.child(chatId).once('value', chat => {
-			if (chat.child('members').exists()) {
-				db
-					.ref(`chats/${chatId}/members`)
-					.update({ [userId]: true })
-					.then(() => dispatch(fetchAllChats()))
-					.catch(err => console.log('Error updating members', err));
-			} else {
-				db
-					.ref(`chats/${chatId}`)
-					.child('members')
-					.set({ [userId]: true })
-					.then(() => dispatch(fetchAllChats()))
-					.catch(err => console.log('Error setting member', err));
-			}
+			console.log('MEMBERS DOESNT EXIST');
+			db.ref(`chats/${chatId}`).child('members').set(members);
 		});
 	} catch (err) {
 		console.log('Error adding new members: ', err);
