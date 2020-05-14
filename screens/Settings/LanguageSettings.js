@@ -1,26 +1,62 @@
 import * as React from "react";
-import languages from "../../languages.json";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { ListItem } from "react-native-elements";
 
-let languageArr = Object.keys(languages)
-  .map(function (key) {
-    return languages[key];
-  })
-  .filter((l) => l !== "Auto Detect");
+// let languageArr = Object.keys(languages)
+//   .map(function (key) {
+//     return languages[key];
+//   })
+//   .filter((l) => l !== "Auto Detect");
 
-export default function Language() {
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      {languageArr.map((lang, i) => (
-        <ListItem key={i} title={lang} bottomDivider />
-      ))}
-    </ScrollView>
-  );
+export default class Notification extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      sound: "Note",
+      pushNotify: true,
+      preview: true,
+    };
+  }
+
+  render() {
+    return (
+      <ScrollView>
+        <View>
+          <Text style={styles.label}>Push Notifications</Text>
+          <ListItem
+            title={"Show Notifications"}
+            bottomDivider
+            switch={{
+              value: this.state.pushNotify,
+              onValueChange: (value) => {
+                this.setState({ pushNotify: value });
+              },
+            }}
+          />
+          <ListItem
+            title={"Sound"}
+            bottomDivider
+            rightSubtitle={this.state.sound}
+            chevron
+          />
+        </View>
+        <View>
+          <ListItem
+            title={"Show Preview"}
+            style={styles.topRow}
+            bottomDivider
+            switch={{
+              value: this.state.preview,
+              onValueChange: (value) => {
+                this.setState({ preview: value });
+              },
+            }}
+          />
+        </View>
+      </ScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -28,13 +64,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fafafa",
   },
-  inputBox: {
-    width: "85%",
-    margin: 10,
-    padding: 15,
-    fontSize: 16,
-    borderColor: "#d3d3d3",
-    borderBottomWidth: 1,
-    textAlign: "left",
+  label: {
+    paddingTop: 13,
+    paddingBottom: 8,
+    paddingLeft: 8,
+  },
+  topRow: {
+    paddingTop: 26,
   },
 });
