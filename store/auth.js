@@ -31,6 +31,7 @@ export const signUpWithEP = (
           name: `${firstName} ${lastName}`,
           language: language,
           created_at: Date.now(),
+          notification: { token: null, status: "undetermined" },
         });
       }
       await auth.signInWithEmailAndPassword(email, password);
@@ -104,6 +105,7 @@ const onSignIn = (googleUser) => {
                 email: result.user.email,
                 name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
                 created_at: Date.now(),
+                notification: { token: null, status: "undetermined" },
               })
               .then(function (snapshot) {
                 console.log("Snapshot", snapshot);
@@ -168,15 +170,15 @@ const registerForPushNotificationsAsync = async (getState) => {
     );
     let finalStatus = existingStatus;
 
-    // Don't want to ask the user every time they login (?)
+    // Don't want to ask the user every time they login
     if (existingStatus === "undetermined") {
       //This command initiates notification popup
       const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
 
       //IF permission is granted, finalStatus will === "granted"
       finalStatus = status;
-      //TODO: if finalStatus !== existingStatus --> update users/uid/notifications/status
 
+      // if finalStatus !== existingStatus --> update users/uid/notifications/status
       if (finalStatus !== existingStatus) {
         const uid = getState().firebase.auth.uid;
         await firebase
@@ -185,6 +187,7 @@ const registerForPushNotificationsAsync = async (getState) => {
           .update({ status: finalStatus });
       }
     }
+
     if (finalStatus !== "granted") {
       return;
     }
