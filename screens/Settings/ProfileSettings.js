@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, TextInput } from "react-native";
+import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { putUserName } from "../../store/user";
 import { Button, ListItem } from "react-native-elements";

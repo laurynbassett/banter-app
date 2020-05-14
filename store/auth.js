@@ -118,11 +118,14 @@ const onSignIn = (googleUser) => {
           // Handle Errors here.
           var errorCode = error.code;
           var errorMessage = error.message;
+
+          console.log(errorCode, ": ", errorMessage);
           // The email of the user's account used.
           var email = error.email;
           // The firebase.auth.AuthCredential type that was used.
           var credential = error.credential;
           // ...
+          console.log("email: ", email, "credentials: ", credential);
         });
     } else {
       console.log("User already signed-in Firebase.");

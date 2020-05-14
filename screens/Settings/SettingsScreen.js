@@ -6,17 +6,7 @@ import { Button, ListItem } from "react-native-elements";
 import firebase from "firebase/app";
 import { fetchUser, putLang } from "../../store/user";
 import { connect } from "react-redux";
-import { useLinkProps } from "@react-navigation/native";
 import RNPickerSelect from "react-native-picker-select";
-
-const list = [
-  {
-    title: "Profile",
-  },
-  {
-    title: "Notification",
-  },
-];
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== "auto")
