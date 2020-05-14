@@ -1,15 +1,23 @@
 import React, { Component } from "react";
-import { StyleSheet, TextInput, View, Text, Dimensions } from "react-native";
-import { auth } from "../Firebase";
-import * as Google from "expo-google-app-auth";
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  Text,
+  Dimensions,
+  Vibration,
+  Platform,
+} from "react-native";
+import { Notifications } from "expo";
+import * as Permissions from "expo-permissions";
+import Constants from "expo-constants";
 import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
-// import firebase from 'firebase/app';
 import { TouchableOpacity } from "react-native-gesture-handler";
-import firebase from "firebase";
-// Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
-// including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 import { connect } from "react-redux";
 import { loginWithEP, loginWithGoogle } from "../store/auth";
+
+// Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
+// including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
 
 class LoginScreen extends Component {
   constructor(props) {
@@ -18,16 +26,51 @@ class LoginScreen extends Component {
       email: "",
       password: "",
       loading: false,
+      expoPushToken: "",
+      notification: {},
     };
+    this.registerForPushNotificationsAsync = this.registerForPushNotificationsAsync.bind(
+      this
+    );
   }
 
-  handleEmailChange(evt) {
-    this.setState({ email: evt.target.value });
-  }
+  // handleEmailChange(evt) {
+  //   this.setState({ email: evt.target.value });
+  // }
 
-  handlePasswordChange(evt) {
-    this.setState({ password: evt.target.value });
-  }
+  // handlePasswordChange(evt) {
+  //   this.setState({ password: evt.target.value });
+  // }
+
+  registerForPushNotificationsAsync = async () => {
+    if (Constants.isDevice) {
+      console.log(
+        "CONSTANTS.ISDEVICE",
+        Constants.isDevice,
+        "CONSTANTS",
+        Constants
+      );
+      const { status: existingStatus } = await Permissions.getAsync(
+        Permissions.NOTIFICATIONS
+      );
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Permissions.askAsync(
+          Permissions.NOTIFICATIONS
+        );
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
+        return;
+      }
+      let token = await Notifications.getExpoPushTokenAsync();
+      console.log("TOKEN", token);
+      this.setState({ expoPushToken: token });
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
+  };
 
   render() {
     console.log("GOOGLE_IOS_CLIENT_ID", GOOGLE_IOS_CLIENT_ID);
@@ -53,7 +96,10 @@ class LoginScreen extends Component {
         <TouchableOpacity
           style={styles.button}
           title="Login"
-          onPress={() => this.props.loginWithEmail(email, password)}
+          onPress={() => {
+            this.props.loginWithEmail(email, password);
+            this.registerForPushNotificationsAsync();
+          }}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
@@ -71,10 +117,6 @@ class LoginScreen extends Component {
           style={styles.button}
           title="Sign Up"
           onPress={() => {
-            // this.props.navigation.navigate("LoginScreen", {
-            //   screen: "SignUp",
-            // });
-
             this.props.navigation.navigate("SignUp");
           }}
         >
