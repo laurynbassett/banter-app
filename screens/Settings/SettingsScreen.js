@@ -21,7 +21,7 @@ const list = [
 let languageArr = Object.keys(languages)
   .filter((k) => k !== "auto")
   .map(function (key) {
-    return { label: languages[key], value: key };
+    return { label: languages[key], value: languages[key] };
   });
 
 export class SettingsScreen extends React.Component {
@@ -38,7 +38,9 @@ export class SettingsScreen extends React.Component {
   componentDidMount() {
     this.props.grabUser();
 
-    this.setState({ value: this.props.user.language });
+    this.setState({
+      value: this.props.user.language,
+    });
 
     console.log(this.props.user);
   }
@@ -62,12 +64,10 @@ export class SettingsScreen extends React.Component {
             }
           />
         ))}
-        <Text>Language:</Text>
+
+        <Text style={styles.pickerLabel}>Language:</Text>
         <RNPickerSelect
-          // placeholder={{
-          //   label: "Select a language...",
-          //   value: null,
-          // }}
+          placeholder={{}}
           items={languageArr}
           onValueChange={(value) => {
             this.setState({
@@ -82,7 +82,7 @@ export class SettingsScreen extends React.Component {
             this.inputRefs.picker2.togglePicker();
           }}
           style={{ ...pickerSelectStyles }}
-          value={this.props.user.value}
+          value={this.state.value}
           ref={(el) => {
             this.inputRefs.picker = el;
           }}
@@ -114,6 +114,9 @@ const styles = StyleSheet.create({
     borderColor: "#d3d3d3",
     borderBottomWidth: 1,
     textAlign: "left",
+  },
+  pickerLabel: {
+    fontSize: 16,
   },
 });
 
