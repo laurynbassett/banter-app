@@ -25,14 +25,16 @@ export const fetchUser = () => async (dispatch, getState) => {
 	try {
 		const state = getState();
 		const user = state.firebase.auth;
-		// db.ref(`users/${user.uid}`).once('value', userRef => {
-		// 	console.log('SNAPSHOT VAL FETCH USER', userRef.val());
-		const email = user.email;
-		const name = user.displayName;
-		const phone = user.phoneNumber;
-		const imageUrl = user.photoURL;
-		dispatch(getUser({ id: user.uid, email, name, phone, imageUrl }));
-		// });
+		console.log('GET USER - FIREBASE USER: ', user);
+		dispatch(
+			getUser({
+				id: user.uid,
+				email: user.email,
+				name: user.displayName,
+				phone: user.phoneNumber,
+				imageUrl: user.photoURL
+			})
+		);
 	} catch (err) {
 		console.log('Error adding new contact: ', err);
 	}
@@ -41,18 +43,13 @@ export const fetchUser = () => async (dispatch, getState) => {
 export const fetchChatrooms = () => async (dispatch, getState) => {
 	try {
 		let chatrooms = [];
-
 		const state = getState();
-		console.log('FETCH USER CHATROOMS STATE: ', state);
 		const uid = state.firebase.auth.uid;
-		console.log('FETCH USER CHATROOMS UID', uid);
 
 		db.ref(`users/${uid}`).on('value', user => {
 			if (user.child('chatrooms').exists()) {
-				const chatroomIds = Object.keys(chatrooms.val());
-				console.log('FETCH USER CHATROOMS: ', chatroomIds);
+				const chatroomIds = Object.keys(user.child('chatrooms').val());
 				chatroomIds.forEach(chatroomId => {
-					console.log('USER CHATROOM CHILD: ', chatroomId);
 					chatrooms.push(chatroomId);
 				});
 			}
@@ -130,27 +127,22 @@ export const addNewContact = ({ name, email, phone }) => async (dispatch, getSta
 export const fetchContacts = () => async (dispatch, getState) => {
 	try {
 		const state = getState();
-		console.log('***********');
 
 		const id = state.user.id;
 		let contacts = [];
 		const contactKeys = Object.keys(state.firebase.profile.contacts);
-		console.log('**********FB', contactKeys);
 		const getAllContacts = async () => {
 			for (let key of contactKeys) {
 				await db.ref(`users/${key}`).once('value', contact => {
-					console.log('&****** CONTACT', contact);
 					const name = contact.child('name').val();
 					const email = contact.child('email').val();
 					const phone = contact.child('phone').val() || '';
 					const imageUrl = contact.child('imageUrl').val() || '';
 					contacts.push({ id: key, name, email, phone, imageUrl });
-					console.log('*******************CONTACTS', contacts);
 				});
 			}
 		};
 		getAllContacts().then(() => {
-			console.log('CONTACTS*******************', contacts);
 			dispatch(getContacts(contacts));
 		});
 	} catch (err) {

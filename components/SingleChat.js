@@ -7,53 +7,38 @@ import Fire, { auth, db } from '../Firebase';
 import Layout from '../constants/Layout';
 import { fetchMessages, postMessage, subscribeToMessages } from '../store/messages';
 class SingleChat extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			messages: [],
-			user: {
-				_id: '',
-				name: ''
-			},
-			chatId: ''
-		};
-		this.handleSendMessage = this.handleSendMessage.bind(this);
-	}
-
 	static navigationOptions = {
-		tabBarLabel: 'SINGLE'
+		header: 'SINGLE'
 	};
 
 	async componentDidMount() {
-		console.log('THIS.PROPS START SINGLECHAT', this.props);
-		const user = auth.currentUser;
+		console.log('SINGLE CHAT PROPS', this.props);
+		// fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
 		await this.props.fetchMessages();
-		const chatId = this.props.currentChat.id;
-		this.setState({
-			chatId,
-			messages: this.props.messages,
-			user: { _id: user.uid, name: user.displayName }
-		});
+		console.log('FETCHED MESSAGES - PROPS*****', this.props);
 	}
 
 	handleSendMessage(messages) {
+		console.log('HANDLE SEND MSG: ', messages);
 		this.setState(previousState => ({
 			messages: GiftedChat.append(previousState.messages, messages)
 		}));
-		const { user } = this.props;
-		const { id } = this.props.route.params;
+		const { uid, displayName } = auth.currentUser;
+		const { contactId } = this.props.route.params;
 		const message = messages[messages.length - 1].text;
 		const timestamp = Date.now();
-		this.props.sendMessage({ uid: user.id, contactId: id, displayName: user.name, message, timestamp });
+		this.props.sendMessage({ uid, displayName, contactId, message, timestamp });
 	}
 
 	render() {
-		console.log('*******THIS STATE*******', this.state);
 		return (
 			<View style={styles.container}>
 				<GiftedChat
-					messages={this.state.messages}
-					user={this.state.user}
+					messages={this.props.messages}
+					user={{
+						_id: this.props.firebase.uid,
+						name: this.props.firebase.displayName
+					}}
 					onSend={this.handleSendMessage}
 					alignTop={true}
 					isTyping={true}
@@ -67,9 +52,9 @@ class SingleChat extends Component {
 }
 
 const mapState = state => ({
-	currentChat: state.chats.currentChat,
-	messages: state.messages.currentChatMessages,
-	user: state.user
+	messages: state.messages.messages,
+	firebase: state.firebase.auth,
+	currentChat: state.chats.currentChat
 });
 
 const mapDispatch = dispatch => ({

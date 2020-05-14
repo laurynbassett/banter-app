@@ -10,41 +10,39 @@ const chatsRef = db.ref('chats');
 
 // ---------- ACTION TYPES ---------- //
 export const GET_MESSAGES = 'GET_MESSAGES';
+export const ADD_MESSAGE = 'ADD_MESSAGE';
 export const SEND_MESSAGE = 'SEND_MESSAGE';
 export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
 
 // ---------- ACTION CREATORS ---------- //
 
 const getMessages = messages => ({ type: GET_MESSAGES, messages });
+const addMessage = message => ({ type: ADD_MESSAGE, message });
 const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
 const receiveMessage = message => ({ type: RECEIVE_MESSAGE, message });
 
 // ---------- THUNK CREATORS ---------- //
 
 // for current chat
-export const fetchMessages = () => async (dispatch, getState) => {
-	try {
-		let messages = [];
-		const state = getState();
-		const chatId = state.chats.currentChat.currentChatId;
-		console.log('FETCHMESAGE CHAT ID', chatId);
-		if (chatId) {
-			// later add .limitToLast
-			db.ref(`messages/${chatId}`).on('value', currChatMsgs => {
-				console.log('currChatMsgs', currChatMsgs);
-				currChatMsgs.forEach(currChatId => {
-					const _id = currChatId.key;
-					const text = currChatId.child('message').val();
-					const createdAt = currChatId.child('timestamp').val();
-					const senderId = currChatId.child('senderId').val();
-					const name = currChatId.child('senderName').val();
-					messages.push({ _id, text, createdAt, user: { _id: senderId, name } });
-				});
-				dispatch(getMessages(messages));
-			});
-		}
-	} catch (err) {
-		console.error('Error getting current chat messages: ', err);
+export const fetchMessages = () => (dispatch, getState) => {
+	console.log('CURRCHAT', getState().chats.currentChat);
+	// query for all messages for the current chat, and add listener on child_added for new messages
+	if (getState().chats.currentChat) {
+		db.ref(`messages/${getState().chats.currentChat.id}`).on('child_added', function(snapshot) {
+			// format message object to be compatible GiftedChat
+			const newMessage = {
+				_id: snapshot.key,
+				user: {
+					_id: snapshot.val().senderId,
+					name: snapshot.val().senderName
+				},
+				text: snapshot.val().message,
+				createdAt: snapshot.val().timestamp
+			};
+			console.log('NEWMSG', newMessage);
+			// add message to redux state
+			dispatch(addMessage(newMessage));
+		});
 	}
 };
 
@@ -98,17 +96,19 @@ export const subscribeToMessages = () => async dispatch => {
 
 // ---------- INITIAL STATE ---------- //
 
-const defaultMessages = [];
+const defaultMessages = { messages: [] };
 
 // ---------- REDUCER ---------- //
 const messagesReducer = (state = defaultMessages, action) => {
 	switch (action.type) {
 		case GET_MESSAGES:
 			return action.messages;
+		case ADD_MESSAGE:
+			return { messages: state.messages.filter(msg => msg._id !== action.message._id).concat(action.message) };
 		case SEND_MESSAGE:
 			return { ...state };
 		case RECEIVE_MESSAGE:
-			return { ...state, messages: state.messages.concat(action.message) };
+			return { messages: state.messages.concat(action.message) };
 		default:
 			return state;
 	}

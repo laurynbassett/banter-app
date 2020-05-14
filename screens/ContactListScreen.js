@@ -6,29 +6,15 @@ import { ContactListItem } from '../components';
 import { fetchContacts } from '../store/user';
 import { fetchAllChats } from '../store/chats';
 
-const dummyData = [
-	{
-		id: 'Xr067E9MvdVlMPB3k2fXO7EfFgZ2',
-		name: 'Isra Khan',
-		email: 'israkhan2@gmail.com',
-		phone: '111-111-1111',
-		imageUrl: 'https://i.picsum.photos/id/14/536/354.jpg'
-	},
-	{
-		id: '-M73eGgR51mWegoz_uUw',
-		name: 'Jacob Wallin',
-		email: 'jacobwallin@gmail.com',
-		phone: '222-222-2222',
-		imageUrl: 'https://picsum.photos/seed/picsum/200/300'
-	}
-];
-
-class ContactsScreen extends Component {
+class ContactListScreen extends Component {
 	async componentDidMount() {
+		console.log('FETCHING CONTACTS - ContactListScreen');
 		await this.props.fetchContacts();
+		console.log('FETCHING CHATS - ContactListScreen');
 		await this.props.fetchAllChats();
 	}
 	render() {
+		console.log('CONTACT LIST SCREEN PROPS', this.props);
 		const contacts = this.props.contacts;
 		return (
 			<FlatList
@@ -49,4 +35,4 @@ const mapDispatch = dispatch => ({
 	fetchContacts: () => dispatch(fetchContacts())
 });
 
-export default connect(mapState, mapDispatch)(ContactsScreen);
+export default connect(mapState, mapDispatch)(ContactListScreen);

@@ -5,12 +5,17 @@ import { Image, Platform, StyleSheet, Text, TouchableHighlight, View, FlatList }
 import { fetchCurrentChatId } from '../store/chats';
 
 const ContactListItem = props => {
-	console.log('PROPS', props);
+	console.log('ContactListItem PROPS', props);
 
-	const goToSingleChat = () => {
-		props.fetchCurrentChatId(props.id);
+	const goToSingleChat = async () => {
+		console.log('CLICKED ON CONTACT', props.id);
+		// set current chatroom in redux
+		await props.fetchCurrentChatId(props.id, props.uid);
+		console.log('AWAITED NOW NAVIGATING');
+
+		// navigate to single chat page
 		props.navigation.navigate('SingleChat', {
-			id: props.id,
+			contactId: props.id,
 			name: props.name
 		});
 	};
@@ -25,22 +30,28 @@ const ContactListItem = props => {
 						<Text style={styles.contactName}>{props.name}</Text>
 					</View>
 					<View style={styles.contactInfoWrapper}>
-						<Text style={styles.contactWrapper}>{props.phone}</Text>
-					</View>
-					<View style={styles.contactInfoWrapper}>
 						<Text style={styles.contactWrapper}>{props.email}</Text>
 					</View>
+					{props.phone ? (
+						<View style={styles.contactInfoWrapper}>
+							<Text style={styles.contactWrapper}>{props.phone}</Text>
+						</View>
+					) : null}
 				</View>
 			</View>
 		</TouchableHighlight>
 	);
 };
 
-const mapDispatch = dispatch => ({
-	fetchCurrentChatId: id => dispatch(fetchCurrentChatId(id))
+const mapState = state => ({
+	uid: state.firebase.auth.uid
 });
 
-export default connect(null, mapDispatch)(ContactListItem);
+const mapDispatch = dispatch => ({
+	fetchCurrentChatId: (contactId, uid) => dispatch(fetchCurrentChatId(contactId, uid))
+});
+
+export default connect(mapState, mapDispatch)(ContactListItem);
 
 const styles = StyleSheet.create({
 	container: {

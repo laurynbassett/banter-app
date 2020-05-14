@@ -11,17 +11,7 @@ import firebase from 'firebase/app';
 import { ReactReduxFirebaseProvider } from 'react-redux-firebase';
 
 import useLinking from './navigation/useLinking';
-import {
-	ChatListScreen,
-	ContactsScreen,
-	HomeScreen,
-	LoadingScreen,
-	LoginScreen,
-	SingleChatScreen,
-	SignUpScreen
-} from './screens';
 
-import { SingleChatHeaderLeft, SingleChatHeaderCenter } from './components';
 // react-redux-firebase config
 const rrfConfig = {
 	userProfile: 'users'
