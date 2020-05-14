@@ -1,61 +1,71 @@
 import * as React from "react";
-import { StyleSheet, Button, TextInput } from "react-native";
+import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Avatar } from "react-native-elements";
-import firebase from "firebase/app";
+import { putUserName } from "../../store/user";
+import { Button, ListItem } from "react-native-elements";
+import { connect } from "react-redux";
 
-export default function ProfileSettings() {
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <Avatar
-        size="large"
-        title="LW"
-        onPress={() => console.log("Works!")}
-        activeOpacity={0.7}
-      />
+export class ProfileSettings extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstName: "",
+      lastName: "",
+    };
+  }
 
-      <TextInput
-        style={styles.inputBox}
-        type="firstName"
-        // value={email}
-        placeholder="First Name"
-        onChangeText={(firstName) => this.setState({ firstName })}
-      />
+  componentDidMount() {
+    const [firstName, lastName] = this.props.name.split(" ");
+    this.setState({ firstName, lastName });
+  }
 
-      <TextInput
-        style={styles.inputBox}
-        type="lastName"
-        // value={email}
-        placeholder="Last Name"
-        onChangeText={(lastName) => this.setState({ lastName })}
-      />
+  render() {
+    return (
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <ListItem
+          title={"First Name"}
+          bottomDivider
+          titleStyle={styles.title}
+          input={{
+            value: this.state.firstName,
+            onChangeText: (firstName) => this.setState({ firstName }),
+          }}
+        />
 
-      <TextInput
-        style={styles.inputBox}
-        type="language"
-        // value={email}
-        placeholder="Language"
-        onChangeText={(language) => this.setState({ language })}
-      />
+        <ListItem
+          title={"Last Name"}
+          bottomDivider
+          titleStyle={styles.title}
+          input={{
+            value: this.state.lastName,
+            onChangeText: (lastName) => this.setState({ lastName }),
+          }}
+        />
 
-      <Button
-        style={styles.button}
-        title="Log Out"
-        onPress={() => {
-          firebase.auth().signOut();
-        }}
-      />
-    </ScrollView>
-  );
+        <Button
+          title="Save"
+          onPress={() => {
+            this.props.updateUser(this.state.firstName, this.state.lastName);
+            this.props.navigation.navigate("Settings");
+          }}
+          large
+          style={styles.button}
+        />
+      </ScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fafafa",
+  },
+  title: {
+    fontWeight: "bold",
   },
   inputBox: {
     width: "85%",
@@ -66,4 +76,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     textAlign: "left",
   },
+  button: {
+    paddingTop: 10,
+  },
 });
+
+const mapState = (state) => ({
+  name: state.user.name,
+});
+
+const mapDispatch = (dispatch) => ({
+  updateUser: (f, l) => dispatch(putUserName(f, l)),
+});
+
+export default connect(mapState, mapDispatch)(ProfileSettings);

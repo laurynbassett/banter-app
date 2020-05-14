@@ -1,16 +1,22 @@
-import { auth, db } from '../Firebase';
+import firebase, { auth, db } from "../Firebase";
+import { fetchAllChats } from "./chats";
 
-const usersRef = db.ref('users');
+
+const usersRef = db.ref("users");
 
 // ---------- ACTION TYPES ---------- //
 const GET_USER = 'GET_USER';
+const UPDATE_USER_NAME = "UPDATE_USER_NAME";
+const UPDATE_LANG = "UPDATE_LANG";
 const GET_CHATROOMS = 'GET_CHATROOMS';
+const GET_CONTACTS = 'GET_CONTACTS';
 const ADD_CONTACT = 'ADD_CONTACT';
 const ADD_CONTACT_ERROR = 'ADD_CONTACT_ERROR';
-const GET_CONTACTS = 'GET_CONTACTS';
 
 // ---------- ACTION CREATORS ---------- //
 const getUser = user => ({ type: GET_USER, user });
+const updateUserName = (name) => ({ type: UPDATE_USER_NAME, name });
+const updateLang = (lang) => ({ type: UPDATE_LANG, lang });
 const getChatrooms = chatrooms => ({ type: GET_CHATROOMS, chatrooms });
 const addContact = contact => ({ type: ADD_CONTACT, contact });
 const addContactError = message => ({ type: ADD_CONTACT, message });
@@ -102,6 +108,53 @@ export const addNewContact = ({ name, email, phone }) => async (dispatch, getSta
 	}
 };
 
+export const fetchUser = () => async (dispatch, getState) => {
+  try {
+    const uid = getState().firebase.auth.uid;
+
+    const snapshot = await firebase
+      .database()
+      .ref("/users/" + uid)
+      .once("value");
+
+    dispatch(getUser(snapshot.val()));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const putUserName = (firstName, lastName) => async (
+  dispatch,
+  getState
+) => {
+  try {
+    const uid = getState().firebase.auth.uid;
+    const fullName = `${firstName} ${lastName}`;
+    await firebase
+      .database()
+      .ref("/users/" + uid)
+      .update({ name: fullName });
+
+    dispatch(updateUserName(fullName));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const putLang = (lang) => async (dispatch, getState) => {
+  try {
+    const uid = getState().firebase.auth.uid;
+    await firebase
+      .database()
+      .ref("/users/" + uid)
+      .update({ language: lang });
+
+    dispatch(updateLang(lang));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const fetchContacts = () => async dispatch => {
 	try {
 		const userId = auth.currentUser.uid;
@@ -151,6 +204,10 @@ const userReducer = (state = defaultUser, action) => {
 				phone: action.user.phone,
 				imageUrl: action.user.imageUrl
 			};
+     case UPDATE_USER_NAME:
+      return { ...state, name: action.name };
+    case UPDATE_LANG:
+      return { ...state, language: action.lang };
 		case GET_CHATROOMS:
 			return { ...state, chatrooms: action.chatrooms };
 		case ADD_CONTACT:
