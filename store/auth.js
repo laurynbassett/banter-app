@@ -2,6 +2,9 @@ import { auth, db } from "../Firebase";
 import * as Google from "expo-google-app-auth";
 import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
 import firebase from "firebase/app";
+import { Notifications } from "expo";
+import * as Permissions from "expo-permissions";
+import Constants from "expo-constants";
 
 const SET_USER_LOGIN = "SET_USER_LOGIN";
 
@@ -148,6 +151,52 @@ const isUserEqual = (googleUser, firebaseUser) => {
     }
   }
   return false;
+};
+
+const registerForPushNotificationsAsync = async (getState) => {
+  // isDevice checks that user is not on a simulator, but actually on a real device
+
+  if (Constants.isDevice) {
+    // status returns either "undetermined", "granted", or "denied"
+    // "undetermined" means the user has not either granted or denied when prompted
+    // "granted" means the user answered yes to turning on push notifications
+    // "denied" means the user rejected push notifications
+    // source: https://docs.expo.io/versions/latest/sdk/permissions/#returns
+
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    );
+    let finalStatus = existingStatus;
+
+    // Don't want to ask the user every time they login (?)
+    if (existingStatus === "undetermined") {
+      //This command initiates notification popup
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+
+      //IF permission is granted, finalStatus will === "granted"
+      finalStatus = status;
+      //TODO: if finalStatus !== existingStatus --> update users/uid/notifications/status
+
+      if (finalStatus !== existingStatus) {
+        const uid = getState().firebase.auth.uid;
+        await firebase
+          .database()
+          .ref("/users/" + uid + "/notifications")
+          .update({ status: finalStatus });
+      }
+    }
+    if (finalStatus !== "granted") {
+      return;
+    }
+
+    // TODO: Store token in users/uid/notifications/token
+    let token = await Notifications.getExpoPushTokenAsync();
+
+    // TODO: Persist token to store
+    this.setState({ expoPushToken: token });
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
 };
 
 // Check Errors

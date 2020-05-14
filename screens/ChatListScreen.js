@@ -31,6 +31,26 @@ class ChatListScreen extends React.Component {
     this.props.navigation.navigate("SingleChat");
   }
 
+  sendPushNotification = async () => {
+    const message = {
+      to: this.state.expoPushToken,
+      sound: "default",
+      title: "Original Title",
+      body: "And here is the body!",
+      data: { data: "goes here" },
+      _displayInForeground: true,
+    };
+    const response = await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    });
+  };
+
   render() {
     console.log("RENDER", this.props.chatrooms);
     return (

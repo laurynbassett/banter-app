@@ -32,6 +32,7 @@ class LoginScreen extends Component {
     this.registerForPushNotificationsAsync = this.registerForPushNotificationsAsync.bind(
       this
     );
+    this._handleNotification = this._handleNotification.bind(this);
   }
 
   // handleEmailChange(evt) {
@@ -84,9 +85,13 @@ class LoginScreen extends Component {
     }
   };
 
+  _handleNotification = (notification) => {
+    Vibration.vibrate();
+    console.log(notification);
+    this.setState({ notification: notification });
+  };
+
   render() {
-    console.log("GOOGLE_IOS_CLIENT_ID", GOOGLE_IOS_CLIENT_ID);
-    console.log("THIS.STATE", this.state);
     const { email, password } = this.state;
     return (
       <View style={styles.container}>
