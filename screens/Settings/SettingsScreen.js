@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text, StyleSheet, Button, Picker } from "react-native";
+import { Text, StyleSheet, Button } from "react-native";
 import languages from "../../languages.json";
 import { ScrollView } from "react-native-gesture-handler";
 import { List, ListItem } from "react-native-elements";
@@ -8,13 +8,14 @@ import { fetchUser, putLang } from "../../store/user";
 import { connect } from "react-redux";
 import { useLinkProps } from "@react-navigation/native";
 import RNPickerSelect from "react-native-picker-select";
+import { Chevron } from "react-native-shapes";
 
 const list = [
   {
     title: "Profile",
   },
   {
-    title: "Language",
+    title: "Notification",
   },
 ];
 
@@ -50,22 +51,31 @@ export class SettingsScreen extends React.Component {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
       >
-        {list.map((item, i) => (
-          <ListItem
-            key={i}
-            title={item.title}
-            // leftIcon={{ name: item.icon }}
-            bottomDivider
-            chevron
-            onPress={() =>
-              this.props.navigation.navigate(`${item.title}Settings`, {
-                user: this.props.user,
-              })
-            }
-          />
-        ))}
+        <ListItem
+          title={"Profile"}
+          // leftIcon={{ name: item.icon }}
+          bottomDivider
+          chevron
+          onPress={() =>
+            this.props.navigation.navigate("ProfileSettings", {
+              user: this.props.user,
+            })
+          }
+        />
 
-        <Text style={styles.pickerLabel}>Language:</Text>
+        <ListItem
+          title={"Notifications"}
+          // leftIcon={{ name: item.icon }}
+          bottomDivider
+          chevron
+          onPress={() =>
+            this.props.navigation.navigate("NotificationSettings", {
+              user: this.props.user,
+            })
+          }
+        />
+
+        <Text style={styles.label}>Language</Text>
         <RNPickerSelect
           placeholder={{}}
           items={languageArr}
@@ -115,8 +125,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     textAlign: "left",
   },
-  pickerLabel: {
-    fontSize: 16,
+  label: {
+    paddingTop: 13,
+    paddingBottom: 8,
+    paddingLeft: 8,
   },
 });
 
@@ -126,9 +138,9 @@ const pickerSelectStyles = StyleSheet.create({
     paddingTop: 13,
     paddingHorizontal: 10,
     paddingBottom: 12,
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 4,
+    borderTopWidth: 0.25,
+    borderBottomWidth: 0.25,
+    borderColor: "grey",
     backgroundColor: "white",
     color: "black",
   },

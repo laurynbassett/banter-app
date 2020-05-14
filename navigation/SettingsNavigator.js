@@ -2,7 +2,7 @@ import * as React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import SettingsScreen from "../screens/Settings/SettingsScreen";
 import ProfileSettings from "../screens/Settings/ProfileSettings";
-import Languages from "../screens/Settings/LanguageSettings";
+import Notification from "../screens/Settings/NotificationSettings";
 const Stack = createStackNavigator();
 
 export default function SettingsNavigator() {
@@ -19,9 +19,9 @@ export default function SettingsNavigator() {
         options={{ title: "Profile Information" }}
       />
       <Stack.Screen
-        name="LanguageSettings"
-        component={Languages}
-        options={{ title: "Language" }}
+        name="NotificationSettings"
+        component={Notification}
+        options={{ title: "Notification" }}
       />
     </Stack.Navigator>
   );
