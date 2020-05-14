@@ -1,14 +1,13 @@
 import * as React from "react";
-import { Text, StyleSheet, Button } from "react-native";
+import { Text, StyleSheet } from "react-native";
 import languages from "../../languages.json";
 import { ScrollView } from "react-native-gesture-handler";
-import { List, ListItem } from "react-native-elements";
+import { Button, ListItem } from "react-native-elements";
 import firebase from "firebase/app";
 import { fetchUser, putLang } from "../../store/user";
 import { connect } from "react-redux";
 import { useLinkProps } from "@react-navigation/native";
 import RNPickerSelect from "react-native-picker-select";
-import { Chevron } from "react-native-shapes";
 
 const list = [
   {
@@ -51,6 +50,7 @@ export class SettingsScreen extends React.Component {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
       >
+        <Text style={styles.label}>Account Settings</Text>
         <ListItem
           title={"Profile"}
           // leftIcon={{ name: item.icon }}
@@ -75,7 +75,7 @@ export class SettingsScreen extends React.Component {
           }
         />
 
-        <Text style={styles.label}>Language</Text>
+        <Text style={styles.label}>Default Language</Text>
         <RNPickerSelect
           placeholder={{}}
           items={languageArr}
@@ -100,11 +100,12 @@ export class SettingsScreen extends React.Component {
         />
 
         <Button
-          style={styles.button}
           title="Log Out"
           onPress={() => {
             firebase.auth().signOut();
           }}
+          large
+          style={styles.button}
         />
       </ScrollView>
     );
@@ -129,6 +130,10 @@ const styles = StyleSheet.create({
     paddingTop: 13,
     paddingBottom: 8,
     paddingLeft: 8,
+    color: "grey",
+  },
+  button: {
+    paddingTop: 10,
   },
 });
 
@@ -138,8 +143,8 @@ const pickerSelectStyles = StyleSheet.create({
     paddingTop: 13,
     paddingHorizontal: 10,
     paddingBottom: 12,
-    borderTopWidth: 0.25,
-    borderBottomWidth: 0.25,
+    borderTopWidth: 0.2,
+    borderBottomWidth: 0.2,
     borderColor: "grey",
     backgroundColor: "white",
     color: "black",

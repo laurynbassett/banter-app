@@ -1,9 +1,8 @@
 import * as React from "react";
-import { StyleSheet, Button, TextInput } from "react-native";
+import { StyleSheet, TextInput } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Avatar } from "react-native-elements";
-import firebase from "firebase/app";
 import { putUserName } from "../../store/user";
+import { Button, ListItem } from "react-native-elements";
 import { connect } from "react-redux";
 
 export class ProfileSettings extends React.Component {
@@ -34,29 +33,43 @@ export class ProfileSettings extends React.Component {
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
       >
-        <TextInput
-          style={styles.inputBox}
-          type="firstName"
-          value={this.state.firstName}
-          placeholder="First Name"
-          onChangeText={(firstName) => this.setState({ firstName })}
+        <ListItem
+          title={"First Name"}
+          bottomDivider
+          titleStyle={styles.title}
+          input={{
+            value: this.state.firstName,
+            onChangeText: (firstName) => this.setState({ firstName }),
+          }}
         />
 
-        <TextInput
-          style={styles.inputBox}
-          type="lastName"
-          value={this.state.lastName}
-          placeholder="Last Name"
-          onChangeText={(lastName) => this.setState({ lastName })}
+        <ListItem
+          title={"Last Name"}
+          bottomDivider
+          titleStyle={styles.title}
+          input={{
+            value: this.state.lastName,
+            onChangeText: (lastName) => this.setState({ lastName }),
+          }}
         />
 
-        <Button
+        {/* <Button
           style={styles.button}
           title="Save"
           onPress={() => {
             this.props.updateUser(this.state.firstName, this.state.lastName);
             this.props.navigation.navigate("Settings");
           }}
+        /> */}
+
+        <Button
+          title="Save"
+          onPress={() => {
+            this.props.updateUser(this.state.firstName, this.state.lastName);
+            this.props.navigation.navigate("Settings");
+          }}
+          large
+          style={styles.button}
         />
       </ScrollView>
     );
@@ -68,6 +81,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fafafa",
   },
+  title: {
+    fontWeight: "bold",
+  },
   inputBox: {
     width: "85%",
     margin: 10,
@@ -76,6 +92,9 @@ const styles = StyleSheet.create({
     borderColor: "#d3d3d3",
     borderBottomWidth: 1,
     textAlign: "left",
+  },
+  button: {
+    paddingTop: 10,
   },
 });
 

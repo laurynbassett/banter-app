@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     paddingTop: 13,
     paddingBottom: 8,
     paddingLeft: 8,
+    color: "grey",
   },
   topRow: {
     paddingTop: 26,
