@@ -1,20 +1,9 @@
 import React, { Component } from "react";
-import {
-  StyleSheet,
-  TextInput,
-  View,
-  Text,
-  Dimensions,
-  Vibration,
-  Platform,
-} from "react-native";
-import { Notifications } from "expo";
-import * as Permissions from "expo-permissions";
-import Constants from "expo-constants";
-import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
+import { StyleSheet, TextInput, View, Text, Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { loginWithEP, loginWithGoogle } from "../store/auth";
+import { registerForPushNotificationsAsync } from "../store/user";
 
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
@@ -29,10 +18,6 @@ class LoginScreen extends Component {
       expoPushToken: "",
       notification: {},
     };
-    this.registerForPushNotificationsAsync = this.registerForPushNotificationsAsync.bind(
-      this
-    );
-    this._handleNotification = this._handleNotification.bind(this);
   }
 
   // handleEmailChange(evt) {
@@ -42,54 +27,6 @@ class LoginScreen extends Component {
   // handlePasswordChange(evt) {
   //   this.setState({ password: evt.target.value });
   // }
-
-  registerForPushNotificationsAsync = async () => {
-    // isDevice checks that user is not on a simulator, but actually on a real device
-
-    if (Constants.isDevice) {
-      // status returns either "undetermined", "granted", or "denied"
-      // "undetermined" means the user has not either granted or denied when prompted
-      // "granted" means the user answered yes to turning on push notifications
-      // "denied" means the user rejected push notifications
-      // source: https://docs.expo.io/versions/latest/sdk/permissions/#returns
-
-      const { status: existingStatus } = await Permissions.getAsync(
-        Permissions.NOTIFICATIONS
-      );
-      let finalStatus = existingStatus;
-
-      //TODO: update so we're only asking Permission if status = "undetermined".
-      // Don't want to ask the user every time they login (?)
-      if (existingStatus !== "granted") {
-        //This command initiates notification popup
-        const { status } = await Permissions.askAsync(
-          Permissions.NOTIFICATIONS
-        );
-
-        //IF permission is granted, finalStatus will === "granted"
-        //TODO: if finalStatus !== existingStatus --> update users/uid/notifications/status
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        // alert("Failed to get push token for push notification!");
-        return;
-      }
-
-      // TODO: Store token in users/uid/notifications/token
-      let token = await Notifications.getExpoPushTokenAsync();
-
-      // TODO: Persist token to store
-      this.setState({ expoPushToken: token });
-    } else {
-      alert("Must use physical device for Push Notifications");
-    }
-  };
-
-  _handleNotification = (notification) => {
-    Vibration.vibrate();
-    console.log(notification);
-    this.setState({ notification: notification });
-  };
 
   render() {
     const { email, password } = this.state;
@@ -115,7 +52,7 @@ class LoginScreen extends Component {
           title="Login"
           onPress={() => {
             this.props.loginWithEmail(email, password);
-            this.registerForPushNotificationsAsync();
+            this.props.requestPushNotification();
           }}
         >
           <Text style={styles.buttonText}>Login</Text>
@@ -125,7 +62,10 @@ class LoginScreen extends Component {
         <TouchableOpacity
           style={styles.button}
           title="Login with Google"
-          onPress={() => this.props.loginWithGoogle()}
+          onPress={() => {
+            this.props.loginWithGoogle();
+            this.props.requestPushNotification();
+          }}
         >
           <Text style={styles.buttonText}>Login with Google</Text>
         </TouchableOpacity>
@@ -185,6 +125,7 @@ const mapState = (state) => ({
 const mapDispatch = (dispatch) => ({
   loginWithEmail: (email, password) => dispatch(loginWithEP(email, password)),
   loginWithGoogle: () => dispatch(loginWithGoogle()),
+  requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(LoginScreen);

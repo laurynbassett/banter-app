@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { connect } from "react-redux";
 import { signUpWithEP } from "../store/auth";
+import { registerForPushNotificationsAsync } from "../store/user";
 
 class SignUpScreen extends Component {
   constructor(props) {
@@ -25,13 +26,13 @@ class SignUpScreen extends Component {
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
 
-	handleEmailChange(evt) {
-		this.setState({ email: evt.target.value });
-	}
+  handleEmailChange(evt) {
+    this.setState({ email: evt.target.value });
+  }
 
-	handlePasswordChange(evt) {
-		this.setState({ password: evt.target.value });
-	}
+  handlePasswordChange(evt) {
+    this.setState({ password: evt.target.value });
+  }
 
   render() {
     const {
@@ -52,21 +53,21 @@ class SignUpScreen extends Component {
           onChangeText={(firstName) => this.setState({ firstName })}
         />
 
-				<TextInput
-					style={styles.inputBox}
-					type='Last Name'
-					value={lastName}
-					placeholder='Last Name'
-					onChangeText={lastName => this.setState({ lastName })}
-				/>
+        <TextInput
+          style={styles.inputBox}
+          type="Last Name"
+          value={lastName}
+          placeholder="Last Name"
+          onChangeText={(lastName) => this.setState({ lastName })}
+        />
 
-				<TextInput
-					style={styles.inputBox}
-					type='Language'
-					value={language}
-					placeholder='Language'
-					onChangeText={language => this.setState({ language })}
-				/>
+        <TextInput
+          style={styles.inputBox}
+          type="Language"
+          value={language}
+          placeholder="Language"
+          onChangeText={(language) => this.setState({ language })}
+        />
 
         <TextInput
           style={styles.inputBox}
@@ -84,7 +85,7 @@ class SignUpScreen extends Component {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={() =>
+          onPress={() => {
             this.props.signup(
               email,
               password,
@@ -92,51 +93,55 @@ class SignUpScreen extends Component {
               lastName,
               language,
               loading
-            )
-          }
+            );
+            this.props.requestPushNotification();
+          }}
         >
           <Text style={styles.buttonText}>Signup</Text>
         </TouchableOpacity>
 
-				<TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('LoginScreen')}>
-					<Text style={styles.buttonText}>Login with existing account</Text>
-				</TouchableOpacity>
-			</View>
-		);
-	}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => this.props.navigation.navigate("LoginScreen")}
+        >
+          <Text style={styles.buttonText}>Login with existing account</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 }
 
-const { width: WIDTH } = Dimensions.get('window');
+const { width: WIDTH } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center'
-	},
-	inputBox: {
-		width: '85%',
-		margin: 10,
-		padding: 15,
-		fontSize: 16,
-		borderColor: '#d3d3d3',
-		borderWidth: 1,
-		textAlign: 'left'
-	},
-	button: {
-		width: WIDTH - 55,
-		height: 45,
-		backgroundColor: '#0D9BFE',
-		borderRadius: 25,
-		marginTop: 20,
-		justifyContent: 'center'
-	},
-	buttonText: {
-		color: 'white',
-		fontSize: 16,
-		textAlign: 'center'
-	}
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inputBox: {
+    width: "85%",
+    margin: 10,
+    padding: 15,
+    fontSize: 16,
+    borderColor: "#d3d3d3",
+    borderWidth: 1,
+    textAlign: "left",
+  },
+  button: {
+    width: WIDTH - 55,
+    height: 45,
+    backgroundColor: "#0D9BFE",
+    borderRadius: 25,
+    marginTop: 20,
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    textAlign: "center",
+  },
 });
 
 const mapState = (state) => ({
@@ -146,6 +151,7 @@ const mapState = (state) => ({
 const mapDispatch = (dispatch) => ({
   signup: (email, password, firstName, lastName, language) =>
     dispatch(signUpWithEP(email, password, firstName, lastName, language)),
+  requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(SignUpScreen);
