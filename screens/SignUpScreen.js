@@ -1,29 +1,22 @@
-import React, { Component } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  View,
-  Dimensions,
-} from "react-native";
-import { connect } from "react-redux";
-import { signUpWithEP } from "../store/auth";
+import React, { Component } from 'react';
+import { StyleSheet, Text, TouchableOpacity, TextInput, View, Dimensions } from 'react-native';
+import { connect } from 'react-redux';
+import { signUpWithEP } from '../store';
 
 class SignUpScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: "",
-      language: "",
-      loading: false,
-    };
-    this.handleEmailChange = this.handleEmailChange.bind(this);
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
-  }
+	constructor(props) {
+		super(props);
+		this.state = {
+			email: '',
+			password: '',
+			firstName: '',
+			lastName: '',
+			language: '',
+			loading: false
+		};
+		this.handleEmailChange = this.handleEmailChange.bind(this);
+		this.handlePasswordChange = this.handlePasswordChange.bind(this);
+	}
 
 	handleEmailChange(evt) {
 		this.setState({ email: evt.target.value });
@@ -33,24 +26,17 @@ class SignUpScreen extends Component {
 		this.setState({ password: evt.target.value });
 	}
 
-  render() {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      language,
-      loading,
-    } = this.state;
-    return (
-      <View style={styles.container}>
-        <TextInput
-          style={styles.inputBox}
-          type="First Name"
-          value={firstName}
-          placeholder="First Name"
-          onChangeText={(firstName) => this.setState({ firstName })}
-        />
+	render() {
+		const { email, password, firstName, lastName, language, loading } = this.state;
+		return (
+			<View style={styles.container}>
+				<TextInput
+					style={styles.inputBox}
+					type='First Name'
+					value={firstName}
+					placeholder='First Name'
+					onChangeText={firstName => this.setState({ firstName })}
+				/>
 
 				<TextInput
 					style={styles.inputBox}
@@ -68,35 +54,26 @@ class SignUpScreen extends Component {
 					onChangeText={language => this.setState({ language })}
 				/>
 
-        <TextInput
-          style={styles.inputBox}
-          type="email"
-          value={email}
-          placeholder="Email"
-          onChangeText={(email) => this.setState({ email })}
-        />
-        <TextInput
-          style={styles.inputBox}
-          type="password"
-          value={password}
-          placeholder="Password"
-          onChangeText={(password) => this.setState({ password })}
-        />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            this.props.signup(
-              email,
-              password,
-              firstName,
-              lastName,
-              language,
-              loading
-            )
-          }
-        >
-          <Text style={styles.buttonText}>Signup</Text>
-        </TouchableOpacity>
+				<TextInput
+					style={styles.inputBox}
+					type='email'
+					value={email}
+					placeholder='Email'
+					onChangeText={email => this.setState({ email })}
+				/>
+				<TextInput
+					style={styles.inputBox}
+					type='password'
+					value={password}
+					placeholder='Password'
+					onChangeText={password => this.setState({ password })}
+				/>
+				<TouchableOpacity
+					style={styles.button}
+					onPress={() => this.props.signup(email, password, firstName, lastName, language, loading)}
+				>
+					<Text style={styles.buttonText}>Signup</Text>
+				</TouchableOpacity>
 
 				<TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('LoginScreen')}>
 					<Text style={styles.buttonText}>Login with existing account</Text>
@@ -139,13 +116,13 @@ const styles = StyleSheet.create({
 	}
 });
 
-const mapState = (state) => ({
-  user: state.user,
+const mapState = state => ({
+	user: state.user
 });
 
-const mapDispatch = (dispatch) => ({
-  signup: (email, password, firstName, lastName, language) =>
-    dispatch(signUpWithEP(email, password, firstName, lastName, language)),
+const mapDispatch = dispatch => ({
+	signup: (email, password, firstName, lastName, language) =>
+		dispatch(signUpWithEP(email, password, firstName, lastName, language))
 });
 
 export default connect(mapState, mapDispatch)(SignUpScreen);

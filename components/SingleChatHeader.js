@@ -1,53 +1,33 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { connect } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 
-import { TabBarIcon } from './TabBarIcon';
-import { fetchMemberNames } from '../store/chats';
+import Colors from '../constants/Colors';
+import AvatarIcon from './AvatarIcon';
+import { fetchMemberNames, getMessages, setCurrentChat } from '../store';
 
-const SingleChatHeader = props => {
+const UnconnectedSingleChatHeaderLeft = props => {
+	const goBack = () => {
+		// remove current chat
+		props.setCurrentChat('');
+		props.getMessages([]);
+		// go back to all chats
+		props.navigation.navigate(props.back);
+	};
 	return (
-		<View style={styles.container}>
-			<View style={styles.centerContainer}>
-				<Image style={styles.image} source={{ uri: dummyUri }} />
-				<Text style={styles.text}>Contacts</Text>
-			</View>
-		</View>
+		<TouchableOpacity style={styles.left} onPress={goBack} hitSlop={{ top: 10, left: 10, bottom: 10, right: 10 }}>
+			<Ionicons name='ios-arrow-back' size={25} color={Colors.tabIconSelected} />
+		</TouchableOpacity>
 	);
 };
-
-const mapState = state => ({
-	members: state.chats.currentChat.members
-});
 
 const mapDispatch = dispatch => ({
-	fetchMemberNames: () => dispatch(fetchMemberNames())
+	setCurrentChat: chatId => dispatch(setCurrentChat(chatId)),
+	getMessages: msgs => dispatch(getMessages(msgs))
 });
 
-export default connect(mapState, mapDispatch)(SingleChatHeader);
-
-export const SingleChatHeaderLeft = props => {
-	return (
-		<View style={styles.left}>
-			<TouchableOpacity onPress={() => props.nav.goBack()}>
-				<TabBarIcon focused={focused} name='ios-arrow-back' />
-			</TouchableOpacity>
-		</View>
-	);
-};
-
-export const SingleChatHeaderCenter = props => {
-	const dummyUri =
-		'https://ik.imagekit.io/ionicfirebaseapp/getflutter/tr:dpr-auto,tr:w-auto/2020/02/circular--1--1.png';
-
-	return (
-		<View style={[ styles.center, styles.centerContainer ]}>
-			{/* <Image style={styles.image} source={{ uri: props.uri }} /> */}
-			<Image style={styles.image} source={{ uri: dummyUri }} />
-			<Text />
-		</View>
-	);
-};
+export const SingleChatHeaderLeft = connect(null, mapDispatch)(UnconnectedSingleChatHeaderLeft);
 
 const styles = StyleSheet.create({
 	container: {
@@ -56,10 +36,20 @@ const styles = StyleSheet.create({
 	centerContainer: {
 		flexDirection: 'column'
 	},
+	left: {
+		marginLeft: 15
+	},
+	imageWrapper: {
+		width: 15,
+		height: 15
+	},
 	image: {
-		width: 20,
-		height: 20,
 		borderRadius: 100,
 		borderWidth: 1
+	},
+	text: {
+		fontSize: 13,
+		marginTop: 40,
+		marginBottom: 5
 	}
 });
