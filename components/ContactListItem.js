@@ -1,41 +1,57 @@
 import React from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableHighlight, View, FlatList } from 'react-native';
 import { connect } from 'react-redux';
+import { Image, Platform, StyleSheet, Text, TouchableHighlight, View, FlatList } from 'react-native';
+
 import { fetchCurrentChatId } from '../store/chats';
 
 const ContactListItem = props => {
-	console.log('PROPS', props);
+	console.log('ContactListItem PROPS', props);
 
-	const goToSingleChat = contactId => {
-		props.fetchCurrentChatId(contactId);
-		props.navigation.navigate('SingleChat');
+	const goToSingleChat = async () => {
+		console.log('CLICKED ON CONTACT', props.id);
+		// set current chatroom in redux
+		await props.fetchCurrentChatId(props.id, props.uid);
+		console.log('AWAITED NOW NAVIGATING');
+
+		// navigate to single chat page
+		props.navigation.navigate('SingleChat', {
+			contactId: props.id,
+			name: props.name
+		});
 	};
 
+	const defaultUrl = 'https://i.picsum.photos/id/14/536/354.jpg';
 	return (
-		<TouchableHighlight onPress={() => goToSingleChat(props.id)}>
+		<TouchableHighlight onPress={goToSingleChat}>
 			<View style={styles.container}>
-				{props.imageUrl && <Image source={{ uri: props.imageUrl }} style={styles.image} />}
+				<Image source={{ uri: props.imageUrl || defaultUrl }} style={styles.image} />
 				<View style={styles.contactWrapper}>
 					<View style={styles.contactNameWrapper}>
 						<Text style={styles.contactName}>{props.name}</Text>
 					</View>
 					<View style={styles.contactInfoWrapper}>
-						<Text style={styles.contactWrapper}>{props.phone}</Text>
-					</View>
-					<View style={styles.contactInfoWrapper}>
 						<Text style={styles.contactWrapper}>{props.email}</Text>
 					</View>
+					{props.phone ? (
+						<View style={styles.contactInfoWrapper}>
+							<Text style={styles.contactWrapper}>{props.phone}</Text>
+						</View>
+					) : null}
 				</View>
 			</View>
 		</TouchableHighlight>
 	);
 };
 
-const mapDispatch = dispatch => ({
-	fetchCurrentChatId: id => dispatch(fetchCurrentChatId(id))
+const mapState = state => ({
+	uid: state.firebase.auth.uid
 });
 
-export default connect(null, mapDispatch)(ContactListItem);
+const mapDispatch = dispatch => ({
+	fetchCurrentChatId: (contactId, uid) => dispatch(fetchCurrentChatId(contactId, uid))
+});
+
+export default connect(mapState, mapDispatch)(ContactListItem);
 
 const styles = StyleSheet.create({
 	container: {

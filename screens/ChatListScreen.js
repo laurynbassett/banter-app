@@ -1,17 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import {
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  FlatList,
-} from "react-native";
-import { registerForPushNotificationsAsync } from "../store/user";
+import { FlatList } from "react-native";
+
 import ChatListItem from "../components/ChatListItem";
 import { fetchAllChats, setCurrentChat } from "../store/chats";
+import { fetchUser, fetchChatrooms } from "../store/user";
 
 class ChatListScreen extends React.Component {
   constructor(props) {
@@ -20,8 +13,9 @@ class ChatListScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.props.fetchUser();
+    this.props.fetchChatrooms();
     this.props.fetchAllChats();
-    this.props.registerNotification();
   }
 
   goToSingleChat(chatId) {
@@ -31,26 +25,6 @@ class ChatListScreen extends React.Component {
     // navigate to single chat page
     this.props.navigation.navigate("SingleChat");
   }
-
-  sendPushNotification = async () => {
-    const message = {
-      to: this.state.expoPushToken,
-      sound: "default",
-      title: "Original Title",
-      body: "And here is the body!",
-      data: { data: "goes here" },
-      _displayInForeground: true,
-    };
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(message),
-    });
-  };
 
   render() {
     console.log("RENDER", this.props.chatrooms);
@@ -71,9 +45,10 @@ const mapState = (state) => ({
 });
 
 const mapDispatch = (dispatch) => ({
+  fetchUser: () => dispatch(fetchUser()),
+  fetchChatrooms: () => dispatch(fetchChatrooms()),
   fetchAllChats: () => dispatch(fetchAllChats()),
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
-  registerNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);

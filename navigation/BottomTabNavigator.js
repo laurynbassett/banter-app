@@ -1,9 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
-import { Text, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
-import { ChatListScreen, ContactsScreen, HomeScreen, SingleChatScreen } from '../screens';
-import { ContactsHeader, ChatListHeader, TabBarIcon } from '../components';
+import { TabBarIcon } from '../components';
 import SettingsNavigator from './SettingsNavigator';
 import ChatNavigator from './ChatNavigator';
 import ContactNavigator from './ContactNavigator';

@@ -6,7 +6,6 @@ import { TabBarIcon } from './TabBarIcon';
 import { fetchMemberNames } from '../store/chats';
 
 const SingleChatHeader = props => {
-	console.log('BTN PROPS', props);
 	return (
 		<View style={styles.container}>
 			<View style={styles.centerContainer}>
