@@ -1,5 +1,7 @@
 import firebase, { auth, db } from "../Firebase";
-
+import { Notifications } from "expo";
+import * as Permissions from "expo-permissions";
+import Constants from "expo-constants";
 import { fetchAllChats } from "./chats";
 
 const usersRef = db.ref("users");
@@ -12,6 +14,8 @@ const GET_CHATROOMS = "GET_CHATROOMS";
 const ADD_CONTACT = "ADD_CONTACT";
 const ADD_CHATROOM = "ADD_CHATROOM";
 const ADD_CONTACT_ERROR = "ADD_CONTACT_ERROR";
+const SET_NOTIFICATION_TOKEN = "SET_NOTIFICATION_TOKEN";
+const SET_NOTIFICATION_STATUS = "SET_NOTIFICATION_STATUS";
 
 // ---------- ACTION CREATORS ---------- //
 const getUser = (user) => ({ type: GET_USER, user });
@@ -22,6 +26,15 @@ const getChatrooms = (chatrooms) => ({ type: GET_CHATROOMS, chatrooms });
 const addChatroom = (chatId) => ({ type: ADD_CHATROOM, chatId });
 const addContact = (contact) => ({ type: ADD_CONTACT, contact });
 const addContactError = (message) => ({ type: ADD_CONTACT, message });
+
+const setNotificationToken = (token) => ({
+  type: SET_NOTIFICATION_TOKEN,
+  token,
+});
+const setNotificationStatus = (status) => ({
+  type: SET_NOTIFICATION_STATUS,
+  status,
+});
 
 // ---------- THUNK CREATORS ---------- //
 
@@ -160,6 +173,66 @@ export const putLang = (lang) => async (dispatch, getState) => {
   }
 };
 
+export const registerForPushNotificationsAsync = () => async (
+  dispatch,
+  getState
+) => {
+  // isDevice checks that user is not on a simulator, but actually on a real device
+  try {
+    const uid = getState().firebase.auth.uid;
+    if (Constants.isDevice) {
+      // status returns either "undetermined", "granted", or "denied"
+      // "undetermined" means the user has not either granted or denied when prompted
+      // "granted" means the user answered yes to turning on push notifications
+      // "denied" means the user rejected push notifications
+      // source: https://docs.expo.io/versions/latest/sdk/permissions/#returns
+
+      const { status: existingStatus } = await Permissions.getAsync(
+        Permissions.NOTIFICATIONS
+      );
+      let finalStatus = existingStatus;
+
+      // Don't want to ask the user every time they login
+      if (existingStatus === "undetermined") {
+        //This command initiates notification popup
+        const { status } = await Permissions.askAsync(
+          Permissions.NOTIFICATIONS
+        );
+
+        //IF permission is granted, finalStatus will === "granted"
+        finalStatus = status;
+
+        // if finalStatus !== existingStatus --> update users/uid/notifications/status
+        if (finalStatus !== existingStatus) {
+          await firebase
+            .database()
+            .ref("/users/" + uid + "/notifications")
+            .update({ status: finalStatus });
+        }
+        dispatch(setNotificationStatus(finalStatus));
+      }
+
+      if (finalStatus !== "granted") {
+        return;
+      }
+
+      // Store token in users/uid/notifications/token
+      let token = await Notifications.getExpoPushTokenAsync();
+      await firebase
+        .database()
+        .ref("/users/" + uid + "/notifications")
+        .update({ token: token });
+
+      // TODO: Persist token to store
+      dispatch(setNotificationToken(token));
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // ---------- INITIAL STATE ---------- //
 const defaultUser = {
   name: "",
@@ -170,6 +243,7 @@ const defaultUser = {
   contacts: [],
   chatrooms: [],
   error: "",
+  notification: {},
 };
 
 // ---------- REDUCER ---------- //
@@ -185,6 +259,16 @@ const userReducer = (state = defaultUser, action) => {
       };
     case UPDATE_USER_NAME:
       return { ...state, name: action.name };
+    case SET_NOTIFICATION_TOKEN:
+      return {
+        ...state,
+        notification: { ...state.notification, token: action.token },
+      };
+    case SET_NOTIFICATION_STATUS:
+      return {
+        ...state,
+        notification: { ...state.notification, status: action.status },
+      };
     case UPDATE_LANG:
       return { ...state, language: action.lang };
     case GET_CHATROOMS:
