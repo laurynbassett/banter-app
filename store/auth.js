@@ -28,7 +28,7 @@ export const signUpWithEP = (
           name: `${firstName} ${lastName}`,
           language: language,
           created_at: Date.now(),
-          notification: { token: null, status: "undetermined" },
+          notifications: { token: null, status: "undetermined" },
         });
       }
       await auth.signInWithEmailAndPassword(email, password);
@@ -102,7 +102,7 @@ const onSignIn = (googleUser) => {
                 email: result.user.email,
                 name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
                 created_at: Date.now(),
-                notification: { token: null, status: "undetermined" },
+                notifications: { token: null, status: "undetermined" },
               })
               .then(function (snapshot) {
                 console.log("Snapshot", snapshot);

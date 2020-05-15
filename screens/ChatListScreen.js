@@ -9,7 +9,7 @@ import {
   View,
   FlatList,
 } from "react-native";
-
+import { registerForPushNotificationsAsync } from "../store/user";
 import ChatListItem from "../components/ChatListItem";
 import { fetchAllChats, setCurrentChat } from "../store/chats";
 
@@ -21,6 +21,7 @@ class ChatListScreen extends React.Component {
 
   componentDidMount() {
     this.props.fetchAllChats();
+    this.props.registerNotification();
   }
 
   goToSingleChat(chatId) {
@@ -72,6 +73,7 @@ const mapState = (state) => ({
 const mapDispatch = (dispatch) => ({
   fetchAllChats: () => dispatch(fetchAllChats()),
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
+  registerNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);

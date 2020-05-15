@@ -55,7 +55,7 @@ export const fetchChatrooms = () => async (dispatch, getState) => {
   try {
     let chatrooms = [];
     const uid = auth.currentUser.uid;
-    console.log("FETCH USER CHATROOMS UID", uid);
+    // console.log("FETCH USER CHATROOMS UID", uid);
 
     const state = getState();
     console.log("FETCH USER CHATROOMS STATE: ", state);
@@ -191,9 +191,9 @@ export const registerForPushNotificationsAsync = () => async (
         Permissions.NOTIFICATIONS
       );
       let finalStatus = existingStatus;
-
+      console.log("EXISTING STATUS OF NOTIFICATION", existingStatus);
       // Don't want to ask the user every time they login
-      if (existingStatus === "undetermined") {
+      if (existingStatus !== "granted") {
         //This command initiates notification popup
         const { status } = await Permissions.askAsync(
           Permissions.NOTIFICATIONS
@@ -201,7 +201,7 @@ export const registerForPushNotificationsAsync = () => async (
 
         //IF permission is granted, finalStatus will === "granted"
         finalStatus = status;
-
+        console.log("FINAL STATUS OF NOTIFICATION", finalStatus);
         // if finalStatus !== existingStatus --> update users/uid/notifications/status
         if (finalStatus !== existingStatus) {
           await firebase
