@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, Linking } from "react-native";
 import languages from "../../languages.json";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, ListItem } from "react-native-elements";
@@ -67,7 +67,7 @@ export class SettingsScreen extends React.Component {
 
         <Text style={styles.label}>Default Language</Text>
         <RNPickerSelect
-          placeholder={{}}
+          placeholder={{ label: this.state.value, value: this.state.value }}
           items={languageArr}
           onValueChange={(value) => {
             this.setState({
@@ -93,6 +93,15 @@ export class SettingsScreen extends React.Component {
           title="Log Out"
           onPress={() => {
             firebase.auth().signOut();
+          }}
+          large
+          style={styles.button}
+        />
+
+        <Button
+          title="Settings"
+          onPress={() => {
+            Linking.openURL("app-settings:");
           }}
           large
           style={styles.button}
@@ -137,6 +146,10 @@ const pickerSelectStyles = StyleSheet.create({
     borderBottomWidth: 0.2,
     borderColor: "grey",
     backgroundColor: "white",
+    color: "black",
+    textDecorationColor: "black",
+  },
+  placeholder: {
     color: "black",
   },
 });

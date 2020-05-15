@@ -33,7 +33,7 @@ export const signUpWithEP = (
       }
       await auth.signInWithEmailAndPassword(email, password);
 
-      dispatch(setUserLogin(true));
+      // dispatch(setUserLogin(true));
     } catch (err) {
       const errMessage = err.message;
       console.log("Signup Error: ", errMessage);
@@ -63,11 +63,8 @@ export const loginWithGoogle = () => {
       });
 
       if (result.type === "success") {
-        console.log("LoginScreen.js.js 21 | ", result.user.givenName);
-        const user = onSignIn(result);
-        console.log("what is being returned from onSignIn", user);
-
-        dispatch(setUserLogin({ isLoggedIn: true }));
+        onSignIn(result);
+        // dispatch(setUserLogin({ isLoggedIn: true }));
       }
     } catch (e) {
       console.log("LoginScreen.js.js 30 | Error with login", e);
@@ -103,6 +100,7 @@ const onSignIn = (googleUser) => {
                 name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
                 created_at: Date.now(),
                 notifications: { token: null, status: "undetermined" },
+                language: "English",
               })
               .then(function (snapshot) {
                 console.log("Snapshot", snapshot);

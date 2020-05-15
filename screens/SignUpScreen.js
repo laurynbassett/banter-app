@@ -10,6 +10,14 @@ import {
 import { connect } from "react-redux";
 import { signUpWithEP } from "../store/auth";
 import { registerForPushNotificationsAsync } from "../store/user";
+import languages from "../languages.json";
+import RNPickerSelect from "react-native-picker-select";
+
+let languageArr = Object.keys(languages)
+  .filter((k) => k !== "auto")
+  .map(function (key) {
+    return { label: languages[key], value: languages[key] };
+  });
 
 class SignUpScreen extends Component {
   constructor(props) {
@@ -21,7 +29,10 @@ class SignUpScreen extends Component {
       lastName: "",
       language: "",
       loading: false,
+      value: "",
     };
+    this.inputRefs = {};
+
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
   }
@@ -61,14 +72,28 @@ class SignUpScreen extends Component {
           onChangeText={(lastName) => this.setState({ lastName })}
         />
 
-        <TextInput
-          style={styles.inputBox}
-          type="Language"
-          value={language}
-          placeholder="Language"
-          onChangeText={(language) => this.setState({ language })}
+        <RNPickerSelect
+          placeholder={{ label: "Select language...", value: null }}
+          placeholderTextColor="black"
+          items={languageArr}
+          onValueChange={(value) => {
+            this.setState({
+              language: value,
+            });
+          }}
+          onUpArrow={() => {
+            this.inputRefs.name.focus();
+          }}
+          onDownArrow={() => {
+            this.inputRefs.picker2.togglePicker();
+          }}
+          style={{ ...pickerSelectStyles }}
+          value={this.state.language}
+          ref={(el) => {
+            this.inputRefs.picker = el;
+          }}
+          hideIcon={true}
         />
-
         <TextInput
           style={styles.inputBox}
           type="email"
@@ -131,7 +156,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: WIDTH - 55,
-    height: 45,
+    height: 50,
     backgroundColor: "#0D9BFE",
     borderRadius: 25,
     marginTop: 20,
@@ -141,6 +166,22 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     textAlign: "center",
+  },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    width: "85%",
+    height: 50,
+    alignSelf: "center",
+    fontSize: 16,
+    paddingTop: 13,
+    paddingHorizontal: 15,
+    paddingBottom: 12,
+    borderColor: "#d3d3d3",
+    borderWidth: 1,
+    backgroundColor: "white",
+    color: "black",
   },
 });
 
