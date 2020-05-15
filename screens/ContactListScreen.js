@@ -3,19 +3,17 @@ import { FlatList } from 'react-native';
 import { connect } from 'react-redux';
 
 import { ContactListItem } from '../components';
-import { fetchContacts } from '../store/user';
+import { fetchContacts } from '../store';
 
 class ContactListScreen extends Component {
 	async componentDidMount() {
-		console.log('FETCHING CONTACTS - ContactListScreen');
 		await this.props.fetchContacts();
 	}
+
 	render() {
-		console.log('CONTACT LIST SCREEN PROPS', this.props);
-		const contacts = this.props.contacts;
 		return (
 			<FlatList
-				data={contacts}
+				data={this.props.contacts}
 				renderItem={({ item }) => <ContactListItem navigation={this.props.navigation} {...item} />}
 				keyExtractor={(item, index) => index.toString()}
 			/>
