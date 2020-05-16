@@ -6,22 +6,31 @@ const chatsRef = db.ref("chats");
 const ADD_CHAT = "ADD_CHAT";
 const UPDATE_CHAT = "UPDATE_CHAT";
 const SET_CURRENT_CHAT = "SET_CURRENT_CHAT";
-const ADD_MEMBER = "ADD_MEMBER";
+const SET_CURRENT_CHAT_PROPS = "SET_CURRENT_CHAT_PROPS";
+const ADD_MEMBERS = "ADD_MEMBERS";
+const SET_MEMBER = "SET_MEMBER";
 
 // ---------- ACTION CREATORS ---------- //
 const addChat = (chat) => ({ type: ADD_CHAT, chat });
 const updateChat = (chat) => ({ type: UPDATE_CHAT, chat });
 export const setCurrentChat = (chatId) => ({ type: SET_CURRENT_CHAT, chatId });
-const addMember = (member) => ({ type: ADD_MEMBERS, member });
+export const setCurrentChatProps = (chat) => ({
+  type: SET_CURRENT_CHAT_PROPS,
+  chat,
+});
+const addMembers = (members) => ({ type: ADD_MEMBERS, members });
+// for setting current chat header bar
+export const setMember = (member) => ({ type: SET_MEMBER, member });
 
 // ---------- THUNK CREATORS ---------- //
+
+// GET ALL CHATS
 export const fetchAllChats = () => async (dispatch) => {
   try {
     const userId = auth.currentUser.uid;
 
-    // TODO: remove hard coded user ID from Firebase query
-    // get each chat id from the user, adding a listener for any additional chat rooms added
-    db.ref(`users/${userId}/chatrooms`).on("child_added", function (snapshot) {
+    // get each chatId via user, adding listener for any additional chat rooms added
+    db.ref(`users/${userId}/chatrooms`).on("child_added", (snapshot) => {
       db.ref(`chats/${snapshot.key}`)
         .once("value")
         .then((snapshot) => {
@@ -50,52 +59,52 @@ export const fetchAllChats = () => async (dispatch) => {
   }
 };
 
-export const fetchCurrentChatId = (contactId, uid) => async (
-  dispatch,
-  getState
-) => {
+// GET CURRENT CHAT ID
+export const fetchCurrentChatId = (
+  { contactId, name },
+  { uid, userName },
+  navigation
+) => async (dispatch, getState) => {
   try {
     let currChatId = "";
-    // async-await
-    const state = getState();
-    state.chats.chats.forEach((chat) => {
-      if (chat.members.includes(contactId)) {
-        currChatId = chat.id;
-      }
-    });
-    dispatch(setCurrentChat(currChatId));
+    // check if chat exists w/ contact
+    const chat = getState().chats.chats.find((chat) =>
+      Object.keys(chat.members).includes(contactId)
+    );
+
+    if (chat) {
+      currChatId = chat.id;
+      // if existing chat, set current chat on redux state
+      dispatch(setCurrentChat(currChatId));
+    } else {
+      // if no existing chat, set current chat members on state
+      dispatch(
+        setCurrentChatProps({ members: { [uid]: userName, [contactId]: name } })
+      );
+    }
+    // navigate to single chat screen
+    navigation.navigate("SingleChat", { contactId, name });
   } catch (err) {
     console.log("Error fetching current chat ID: ", err);
   }
 };
 
+// CREATE NEW CHAT ID
 export const createCurrentChatId = () => async (dispatch) => {
   try {
     const newChatRef = await chatsRef.push();
     const newChatId = newChatRef.key;
-    dispatch(setCurrentChat(newChatId));
+    dispatch(setCurrentChatProps({ id: newChatId }));
     return newChatId;
   } catch (err) {
     console.log("Error creating current chat ID: ", err);
   }
 };
 
-// for SingleChatHeader
-export const fetchMemberNames = () => async (dispatch, getState) => {
+// ADD MEMBERS TO CURRENT CHAT
+export const addNewMembers = (chatId, members) => async () => {
   try {
-    const state = getState();
-    db.ref(`chats/${state.chats.currentChat.me}`);
-  } catch (err) {
-    console.log("Error fetching current chat member names: ", err);
-  }
-};
-
-export const addNewMember = (chatId, members) => async () => {
-  try {
-    chatsRef.child(chatId).once("value", (chat) => {
-      console.log("MEMBERS DOESNT EXIST");
-      db.ref(`chats/${chatId}`).child("members").set(members);
-    });
+    db.ref(`chats/${chatId}`).child("members").set(members);
   } catch (err) {
     console.log("Error adding new members: ", err);
   }
@@ -117,7 +126,7 @@ const chatsReducer = (state = defaultChats, action) => {
         ...state,
         chats: state.chats.map((chat) => {
           if (chat.id === action.chat.id) {
-            return { ...chat, ...action.chat };
+            return Object.assign({}, chat, action.chat);
           }
           return chat;
         }),
@@ -127,12 +136,16 @@ const chatsReducer = (state = defaultChats, action) => {
         ...state,
         currentChat: state.chats.find((chat) => chat.id === action.chatId),
       };
-    case ADD_MEMBER:
+    case SET_CURRENT_CHAT_PROPS:
+      return { ...state, currentChat: action.chat };
+    case SET_MEMBER:
+      return { ...state, currentChat: { members: member } };
+    case ADD_MEMBERS:
       return {
         ...state,
         currentChat: {
           ...state.currentChat,
-          members: [...state.currentChat.members, state.member],
+          members: Object.assign({}, state.currentChat.members, action.members),
         },
       };
     default:

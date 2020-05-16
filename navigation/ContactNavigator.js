@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 import { AddContactScreen, SingleChatScreen, ContactListScreen } from '../screens';
-import { ContactsHeaderRight } from '../components';
+import { ContactsHeaderRight, SingleChatHeaderLeft } from '../components';
 
 const Stack = createStackNavigator();
 
@@ -12,12 +10,12 @@ export default function ContactNavigator({ navigation, route }) {
 	return (
 		<Stack.Navigator navigation={navigation} initialRouteName='Contacts'>
 			<Stack.Screen
-				name='Contacts'
+				name='Contact'
 				component={ContactListScreen}
-				options={({ navigation }) => ({
+				options={{
 					title: 'Contacts',
 					headerRight: () => <ContactsHeaderRight navigation={navigation} />
-				})}
+				}}
 			/>
 			<Stack.Screen
 				name='AddContact'
@@ -26,7 +24,15 @@ export default function ContactNavigator({ navigation, route }) {
 					title: 'Add Contact'
 				}}
 			/>
-			<Stack.Screen name='SingleChat' component={SingleChatScreen} options={{ title: 'Single Chat' }} />
+			<Stack.Screen
+				name='SingleChat'
+				component={SingleChatScreen}
+				options={{
+					title: 'Single Chat',
+					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} route={route} back='Contact' />,
+					headerStyle: { height: 130 }
+				}}
+			/>
 		</Stack.Navigator>
 	);
 }

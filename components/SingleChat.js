@@ -1,55 +1,53 @@
 import React, { Component } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import { connect } from "react-redux";
 
-import Fire, { auth, db } from "../Firebase";
 import Layout from "../constants/Layout";
-import {
-  fetchMessages,
-  postMessage,
-  subscribeToMessages,
-} from "../store/messages";
+import { fetchMessages, postMessage } from "../store";
 class SingleChat extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      messages: [],
+    };
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
-  static navigationOptions = {
-    header: "SINGLE",
-  };
 
   async componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
     await this.props.fetchMessages();
+    this.setState({ messages: this.props.messages });
   }
 
   handleSendMessage(messages) {
-    GiftedChat.append(this.props.messages, messages);
-    const { uid, displayName } = this.props;
-    const contactId = this.props.route.params
-      ? this.props.route.params.contactId
-      : "";
-    const contactName = this.props.route.params
-      ? this.props.route.params.name
-      : "";
+    this.setState((previousState) => ({
+      messages: GiftedChat.append(previousState.messages, messages),
+    }));
+
+    const { currentChat, displayName, postMessage, route, uid } = this.props;
+    const contactId = route.params.contactId;
+    const contactName = route.params.name;
     const message = messages[messages.length - 1].text;
     const timestamp = Date.now();
-    this.props.sendMessage({
+    const currChatId = currentChat ? currentChat.id : "";
+    postMessage({
       uid,
       displayName,
-      message,
-      timestamp,
       contactId,
       contactName,
+      currChatId,
+      message,
+      timestamp,
     });
   }
 
   render() {
     return (
       <View style={styles.container}>
+        <Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
         <GiftedChat
-          messages={this.props.messages}
+          messages={this.state.messages}
           user={{
             _id: this.props.uid,
             name: this.props.displayName,
@@ -59,7 +57,6 @@ class SingleChat extends Component {
           isTyping={true}
           showUserAvatar={true}
           showAvatarForEveryMessage={true}
-          inverted={false}
           placeholder="Type a message..."
         />
       </View>
@@ -72,11 +69,12 @@ const mapState = (state) => ({
   uid: state.firebase.auth.uid,
   displayName: state.firebase.auth.displayName,
   currentChat: state.chats.currentChat,
+  sendMessageError: state.messages.sendMessageError,
 });
 
 const mapDispatch = (dispatch) => ({
   fetchMessages: () => dispatch(fetchMessages()),
-  sendMessage: (msg) => dispatch(postMessage(msg)),
+  postMessage: (msg) => dispatch(postMessage(msg)),
 });
 
 export default connect(mapState, mapDispatch)(SingleChat);
@@ -85,7 +83,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fafafa",
     width: Layout.window.width,
-    height: Layout.window.height * 0.8,
+    height: Layout.window.height * 0.75,
   },
   headerContainer: {
     flexDirection: "row",
