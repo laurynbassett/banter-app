@@ -6,8 +6,9 @@ import { ContactListItem } from '../components';
 import { fetchContacts } from '../store';
 
 class ContactListScreen extends Component {
-	async componentDidMount() {
-		await this.props.fetchContacts();
+	componentDidMount() {
+		this.props.fetchContacts();
+		console.log('FETCHED 0');
 	}
 
 	render() {

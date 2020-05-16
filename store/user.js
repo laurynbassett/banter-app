@@ -7,7 +7,6 @@ const usersRef = db.ref('users');
 const GET_USER = 'GET_USER';
 const UPDATE_USER_NAME = 'UPDATE_USER_NAME';
 const UPDATE_LANG = 'UPDATE_LANG';
-const GET_CHATROOMS = 'GET_CHATROOMS';
 const GET_CONTACTS = 'GET_CONTACTS';
 const ADD_CONTACT = 'ADD_CONTACT';
 const ADD_CONTACT_ERROR = 'ADD_CONTACT_ERROR';
@@ -16,7 +15,6 @@ const ADD_CONTACT_ERROR = 'ADD_CONTACT_ERROR';
 const getUser = user => ({ type: GET_USER, user });
 const updateUserName = name => ({ type: UPDATE_USER_NAME, name });
 const updateLang = lang => ({ type: UPDATE_LANG, lang });
-const getChatrooms = chatrooms => ({ type: GET_CHATROOMS, chatrooms });
 const getContacts = contacts => ({ type: GET_CONTACTS, contacts });
 const addContact = contact => ({ type: ADD_CONTACT, contact });
 const addContactError = message => ({ type: ADD_CONTACT_ERROR, message });
@@ -27,8 +25,18 @@ const addContactError = message => ({ type: ADD_CONTACT_ERROR, message });
 export const fetchUser = () => async (dispatch, getState) => {
 	try {
 		const uid = getState().firebase.auth.uid;
-		const snapshot = await firebase.database().ref('/users/' + uid).on('value');
-		dispatch(getUser(snapshot.val()));
+		const snapshot = firebase.database().ref(`users/${uid}`);
+		snapshot.on('value', snapshot => {
+			const user = snapshot.val();
+			console.log('USER 0', user);
+			user.id = snapshot.key;
+			const chatrooms = Object.keys(user.chatrooms);
+			user.chatrooms = chatrooms;
+			delete user.contacts;
+			console.log('USER', user);
+			dispatch(getUser(user));
+			return true;
+		});
 	} catch (err) {
 		console.log('Error adding new contact: ', err);
 	}
@@ -57,23 +65,6 @@ export const putLang = lang => async (dispatch, getState) => {
 	}
 };
 
-// GET ALL CHATROOMS
-export const fetchChatrooms = () => async (dispatch, getState) => {
-	try {
-		let chatrooms = [];
-		const uid = getState().firebase.auth.uid;
-		// get chatrooms from firebase via user node
-		db.ref(`users/${uid}`).on('value', user => {
-			if (user.child('chatrooms').exists()) {
-				chatrooms = Object.keys(user.child('chatrooms').val());
-			}
-			dispatch(getChatrooms(chatrooms));
-		});
-	} catch (err) {
-		console.log('Error fetching user chatrooms: ', err);
-	}
-};
-
 // ADD NEW CHATROOM
 export const addNewChatroom = (chatId, uid) => async () => {
 	try {
@@ -99,24 +90,27 @@ export const fetchContacts = () => async (dispatch, getState) => {
 		let allContacts = [];
 		let promises = [];
 
-		// get contacts via the user node
-		db.ref(`users/${uid}/contacts`).on('value', contacts => {
-			// for each contact, get additional info from their user node
-			Object.keys(contacts.val()).forEach(contact => {
-				// push to array of promises
-				promises.push(
-					db.ref(`users/${contact}`).once('value', snapshot => {
-						let newContact = snapshot.val();
-						newContact.id = snapshot.key;
-						allContacts.push(newContact);
-					})
-				);
-			});
+		// get current user from firebase
+		let user = await db.ref(`users/${uid}`).once('value');
+		// for each user contact, get additional info from their user node
+		Object.keys(user.val().contacts).forEach(contactId => {
+			console.log('CONTACT SNA 0', contactId);
+			// push to array of promises
+			promises.push(
+				db.ref(`users/${contactId}`).once('value', snapshot => {
+					let newContact = snapshot.val();
+					console.log('CONTACT SNAPS', newContact);
+					newContact.id = snapshot.key;
+					allContacts.push(newContact);
+				})
+			);
 		});
 
 		// wait for promises to resolve before dispatching getContacts
 		await Promise.all(promises);
+		console.log('PROMISES', promises);
 		dispatch(getContacts(allContacts));
+		return true;
 	} catch (err) {
 		console.log('Error fetching contacts: ', err);
 	}
@@ -183,19 +177,14 @@ const userReducer = (state = defaultUser, action) => {
 		case GET_USER:
 			return {
 				...state,
-				id: action.user.id,
-				name: action.user.name,
-				email: action.user.email,
-				phone: action.user.phone,
-				imageUrl: action.user.imageUrl
+				...action.user
 			};
 		case UPDATE_USER_NAME:
 			return { ...state, name: action.name };
 		case UPDATE_LANG:
 			return { ...state, language: action.lang };
-		case GET_CHATROOMS:
-			return { ...state, chatrooms: action.chatrooms };
 		case GET_CONTACTS:
+			console.log('IN GET CONTACTS', state);
 			return { ...state, contacts: action.contacts };
 		case ADD_CONTACT:
 			return {
