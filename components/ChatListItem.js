@@ -3,7 +3,6 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ChatListItem(props) {
-  console.log("rendering chatlistitem", props);
   return (
     <TouchableOpacity onPress={() => props.goToSingleChat(props.item.id)}>
       <View style={styles.itemView}>
