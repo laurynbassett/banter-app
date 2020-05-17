@@ -119,7 +119,7 @@ class SignUpScreen extends Component {
               language,
               loading
             );
-            this.props.requestPushNotification();
+            // this.props.requestPushNotification();
           }}
         >
           <Text style={styles.buttonText}>Signup</Text>

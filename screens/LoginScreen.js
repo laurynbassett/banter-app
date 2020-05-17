@@ -52,7 +52,7 @@ class LoginScreen extends Component {
           title="Login"
           onPress={() => {
             this.props.loginWithEmail(email, password);
-            this.props.requestPushNotification();
+            // this.props.requestPushNotification();
           }}
         >
           <Text style={styles.buttonText}>Login</Text>
