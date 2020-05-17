@@ -2,7 +2,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { connect } from 'react-redux';
-import { StackActions, NavigationActions } from 'react-navigation';
 
 import { ChatListHeaderRight, TabBarIcon } from '../components';
 import SettingsNavigator from './SettingsNavigator';
@@ -14,20 +13,12 @@ import { ChatListScreen } from '../screens';
 const BottomTab = createBottomTabNavigator();
 
 const BottomTabNavigator = props => {
-	console.log('BOTTOM PROPS', props);
-
 	return (
-		<BottomTab.Navigator
-			initialRouteName={'Chats'}
-			tabBarOnPress={() => {
-				console.log('BOTTOM TAB', props);
-				props.getMessages([]);
-			}}
-		>
+		<BottomTab.Navigator initialRouteName={'Chats'} defaultNavigationOptions={{ tabBarVisible: false }}>
 			<BottomTab.Screen
 				name='Chats'
-				component={ChatListScreen}
-				options={{
+				component={ChatNavigator}
+				options={({ route }) => ({
 					title: 'Chats',
 					tabBarIcon: ({ focused }) => (
 						<TabBarIcon
@@ -35,27 +26,20 @@ const BottomTabNavigator = props => {
 							name={Platform.OS === 'ios' ? 'ios-chatbubbles' : 'md-chatbubbles'}
 						/>
 					),
-					headerRight: () => <ChatListHeaderRight navigation={navigation} />,
-					tabPress: () => {
-						console.log('BOTTOM TAB', props);
-						props.getMessages('');
-					}
-				}}
+					tabBarVisible: getTabBarVisible(route),
+					headerRight: () => <ChatListHeaderRight navigation={navigation} />
+				})}
 			/>
 			<BottomTab.Screen
 				name='Contacts'
 				component={ContactNavigator}
-				options={{
+				options={({ route }) => ({
 					title: 'Contacts',
 					tabBarIcon: ({ focused }) => (
 						<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-contact' : 'md-contact'} />
 					),
-					tabPress: () => {
-						console.log('BOTTOM TAB', props);
-						props.getMessages('');
-					}
-					// headerTitle: ({ navigation }) => <AddContactButton nav={navigation} />
-				}}
+					tabBarVisible: getTabBarVisible(route)
+				})}
 			/>
 			<BottomTab.Screen
 				name='Settings'
@@ -64,11 +48,7 @@ const BottomTabNavigator = props => {
 					title: 'Settings',
 					tabBarIcon: ({ focused }) => (
 						<TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-settings' : 'md-settings'} />
-					),
-					tabPress: () => {
-						console.log('BOTTOM TAB', props);
-						props.getMessages('');
-					}
+					)
 				}}
 			/>
 		</BottomTab.Navigator>
@@ -80,3 +60,14 @@ const mapDispatch = dispatch => ({
 });
 
 export default connect(null, mapDispatch)(BottomTabNavigator);
+
+const getTabBarVisible = route => {
+	const routeName = route.state
+		? route.state.routes[route.state.index].name
+		: route.params ? route.params.screen : 'Chats';
+
+	if (routeName === 'SingleChat') {
+		return false;
+	}
+	return true;
+};

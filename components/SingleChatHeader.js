@@ -5,8 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 import Colors from '../constants/Colors';
 import AvatarIcon from './AvatarIcon';
-import { fetchMemberNames, getMessages, setCurrentChat } from '../store';
+import { getMessages, setCurrentChat } from '../store';
+import { memberNameHelper, memberIdHelper, memberImgHelper } from '../utils';
 
+// SINGLE CHAT HEADER LEFT
 const UnconnectedSingleChatHeaderLeft = props => {
 	const goBack = () => {
 		console.log('CLICKED LEFT', props);
@@ -31,27 +33,69 @@ const mapDispatch = dispatch => ({
 
 export const SingleChatHeaderLeft = connect(null, mapDispatch)(UnconnectedSingleChatHeaderLeft);
 
+// SINGLE CHAT HEADER CENTER
+const SingleChatHeaderCenter = props => {
+	const text = props.memberNames > 1 ? `${props.memberNames.length} people` : props.memberNames[0];
+
+	console.log('memberImgs', props.memberImgs, text);
+	return (
+		<View style={styles.centerContainer}>
+			{props.memberImgs.map(
+				(img, idx) =>
+					img !== 'undefined' ? (
+						<AvatarIcon containerStyle={styles.imgWrapper} src={img} key={img} style={styles.image} />
+					) : (
+						<AvatarIcon
+							containerStyle={styles.imgWrapper}
+							style={styles.avatar}
+							key={idx}
+							name={props.memberNames[idx]}
+						/>
+					)
+			)}
+			<Text style={styles.text}>{text}</Text>
+		</View>
+	);
+};
+
+const mapState = state => {
+	const chat = state.chats.currentChat;
+	const getMemberNames = chat ? memberNameHelper(Object.values(chat.members)) : [];
+	const getMemberImgs = chat ? memberImgHelper(Object.keys(chat.members), state.user.contacts) : [];
+	return {
+		memberNames: getMemberNames,
+		memberImgs: getMemberImgs
+	};
+};
+
+export default connect(mapState)(SingleChatHeaderCenter);
+
 const styles = StyleSheet.create({
 	container: {
 		justifyContent: 'center'
 	},
 	centerContainer: {
-		flexDirection: 'column'
+		flexDirection: 'column',
+		justifyContent: 'center',
+		marginLeft: 10
 	},
 	left: {
 		marginLeft: 15
 	},
-	imageWrapper: {
-		width: 15,
-		height: 15
-	},
 	image: {
 		borderRadius: 100,
-		borderWidth: 1
+		borderWidth: 1,
+		borderColor: '#fff',
+		width: 30,
+		height: 30
+	},
+	imgWrapper: {
+		justifyContent: 'center',
+		alignItems: 'center'
 	},
 	text: {
 		fontSize: 13,
-		marginTop: 40,
-		marginBottom: 5
+		marginTop: 5,
+		textAlign: 'center'
 	}
 });

@@ -1,5 +1,6 @@
 import firebase, { auth, db } from '../Firebase';
 import { formatNameHelper } from '../utils';
+import { fetchChats } from './chats';
 
 const usersRef = db.ref('users');
 
@@ -8,6 +9,7 @@ const GET_USER = 'GET_USER';
 const UPDATE_USER_NAME = 'UPDATE_USER_NAME';
 const UPDATE_LANG = 'UPDATE_LANG';
 const GET_CONTACTS = 'GET_CONTACTS';
+const GET_CONTACTS_SUCCESS = 'GET_CONTACTS_SUCCESS';
 const ADD_CONTACT = 'ADD_CONTACT';
 const ADD_CONTACT_ERROR = 'ADD_CONTACT_ERROR';
 
@@ -16,6 +18,7 @@ const getUser = user => ({ type: GET_USER, user });
 const updateUserName = name => ({ type: UPDATE_USER_NAME, name });
 const updateLang = lang => ({ type: UPDATE_LANG, lang });
 const getContacts = contacts => ({ type: GET_CONTACTS, contacts });
+const getContactsSuccess = status => ({ type: GET_CONTACTS_SUCCESS, status });
 const addContact = contact => ({ type: ADD_CONTACT, contact });
 const addContactError = message => ({ type: ADD_CONTACT_ERROR, message });
 
@@ -25,7 +28,7 @@ const addContactError = message => ({ type: ADD_CONTACT_ERROR, message });
 export const fetchUser = () => async (dispatch, getState) => {
 	try {
 		const uid = getState().firebase.auth.uid;
-		const snapshot = firebase.database().ref(`users/${uid}`);
+		const snapshot = db.ref(`users/${uid}`);
 		snapshot.on('value', snapshot => {
 			const user = snapshot.val();
 			console.log('USER 0', user);
@@ -90,27 +93,25 @@ export const fetchContacts = () => async (dispatch, getState) => {
 		let allContacts = [];
 		let promises = [];
 
-		// get current user from firebase
-		let user = await db.ref(`users/${uid}`).once('value');
-		// for each user contact, get additional info from their user node
-		Object.keys(user.val().contacts).forEach(contactId => {
-			console.log('CONTACT SNA 0', contactId);
-			// push to array of promises
-			promises.push(
-				db.ref(`users/${contactId}`).once('value', snapshot => {
-					let newContact = snapshot.val();
-					console.log('CONTACT SNAPS', newContact);
-					newContact.id = snapshot.key;
-					allContacts.push(newContact);
-				})
-			);
+		// get contacts via the user node
+		db.ref(`users/${uid}/contacts`).on('value', contacts => {
+			// for each contact, get additional info from their user node
+			Object.keys(contacts.val()).forEach(contact => {
+				// push to array of promises
+				promises.push(
+					db.ref(`users/${contact}`).once('value', snapshot => {
+						let newContact = snapshot.val();
+						newContact.id = snapshot.key;
+						allContacts.push(newContact);
+					})
+				);
+			});
 		});
 
 		// wait for promises to resolve before dispatching getContacts
 		await Promise.all(promises);
-		console.log('PROMISES', promises);
 		dispatch(getContacts(allContacts));
-		return true;
+		dispatch(getContactsSuccess(true));
 	} catch (err) {
 		console.log('Error fetching contacts: ', err);
 	}
@@ -168,7 +169,8 @@ const defaultUser = {
 	unseenCount: null,
 	contacts: [],
 	chatrooms: [],
-	addContactError: ''
+	addContactError: '',
+	getContactsSuccess: ''
 };
 
 // ---------- REDUCER ---------- //
@@ -186,6 +188,8 @@ const userReducer = (state = defaultUser, action) => {
 		case GET_CONTACTS:
 			console.log('IN GET CONTACTS', state);
 			return { ...state, contacts: action.contacts };
+		case GET_CONTACTS_SUCCESS:
+			return { ...state, getContactsSuccess: true };
 		case ADD_CONTACT:
 			return {
 				...state,
