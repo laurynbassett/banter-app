@@ -1,8 +1,7 @@
 import React from "react";
 import base64 from "base-64";
-
 import firebase, { auth, db } from "../Firebase";
-import { createCurrentChatId, addNewMember } from "./chats";
+import { createCurrentChatId, addNewMembers } from "./chats";
 import { addNewChatroom } from "./user";
 
 const messagesRef = db.ref("messages");
@@ -13,19 +12,20 @@ export const GET_MESSAGES = "GET_MESSAGES";
 export const ADD_MESSAGE = "ADD_MESSAGE";
 export const SEND_MESSAGE = "SEND_MESSAGE";
 export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
+const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
 
 // ---------- ACTION CREATORS ---------- //
 
-const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
+export const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
 const addMessage = (message) => ({ type: ADD_MESSAGE, message });
 const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
 const receiveMessage = (message) => ({ type: RECEIVE_MESSAGE, message });
+const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
 
 // ---------- THUNK CREATORS ---------- //
 
-// for current chat
+// GET MESSAGES FOR CURRENT CHAT
 export const fetchMessages = () => (dispatch, getState) => {
-  console.log("CURRCHAT", getState().chats.currentChat);
   // query for all messages for the current chat, and add listener on child_added for new messages
   if (getState().chats.currentChat) {
     db.ref(`messages/${getState().chats.currentChat.id}`).on(
@@ -41,7 +41,6 @@ export const fetchMessages = () => (dispatch, getState) => {
           text: snapshot.val().message,
           createdAt: snapshot.val().timestamp,
         };
-        console.log("NEWMSG", newMessage);
         // add message to redux state
         dispatch(addMessage(newMessage));
       }
@@ -49,41 +48,43 @@ export const fetchMessages = () => (dispatch, getState) => {
   }
 };
 
-export const postMessage = (text) => async (dispatch, getState) => {
+// SEND NEW MESSAGE
+export const postMessage = (text) => async (dispatch) => {
   try {
-    console.log("TEXT", text);
     const {
       uid,
       displayName,
-      message,
-      timestamp,
       contactId,
       contactName,
+      currChatId,
+      message,
+      timestamp,
     } = text;
     const members = {
-      uid: displayName,
-      contactId: contactName,
+      [uid]: displayName,
+      [contactId]: contactName,
     };
-    const state = getState();
-    let chatId = "";
-    if (!state.chats.currentChat) {
+    let chatId = currChatId;
+
+    // if chatId doesn't exist, create id, new chatroom and add members
+    if (!chatId) {
       chatId = await dispatch(createCurrentChatId());
       await dispatch(addNewChatroom(chatId, uid));
       await dispatch(addNewChatroom(chatId, contactId));
-      await dispatch(addNewMember(chatId, members));
-    } else {
-      chatId = state.chats.currentChat.id;
+      await dispatch(addNewMembers(chatId, members));
     }
-    const currChatRef = db.ref(`messages/${chatId}`);
+
+    // update chats node
     chatsRef
       .child(chatId)
       .update({
-        lastMessage: `${uid}: ${message}`,
+        lastMessage: message,
         senderId: uid,
         timestamp,
       })
       .then(() => {
-        currChatRef.push().set({
+        // update messages node
+        db.ref(`messages/${chatId}`).push().set({
           message,
           senderId: uid,
           senderName: displayName,
@@ -91,33 +92,7 @@ export const postMessage = (text) => async (dispatch, getState) => {
         });
       })
       .then(() => {
-        console.log("CONTACTID", contactId);
-
-        db.ref("users/" + contactId + "/notifications/token")
-          .once("value")
-          .then((snapshot) => {
-            const receiverToken = snapshot.val();
-            const notification = {
-              to: receiverToken,
-              sound: "default",
-              title: displayName,
-              body: message,
-              _displayInForeground: true,
-            };
-            fetch("https://exp.host/--/api/v2/push/send", {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Accept-encoding": "gzip, deflate",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(notification),
-            });
-          });
-      })
-      .then(() => {
         dispatch(fetchMessages());
-        console.log("DISPATCHED ADD NEW MESSAGE!");
       })
       .catch((err) =>
         console.log("Error posting message to chats and messages", err)
@@ -127,33 +102,49 @@ export const postMessage = (text) => async (dispatch, getState) => {
   }
 };
 
-export const subscribeToMessages = () => async (dispatch) => {
-  try {
-    messages.on("child_added", (data) => dispatch(receiveMessage(data.val())));
-  } catch (err) {
-    console.error("Error subscribing to messages: ", err);
-  }
-};
-
-export const notify = (chatroomId) => async (dispatch) => {
-  try {
-    // db.ref('/users/')
-  } catch (err) {
-    console.error("Error sending notification: ", err);
-  }
-};
-
+// export const notify = (chatroomId) => async (dispatch) => {
+//   try {
+//     // db.ref('/users/')
+//     // db.ref("users/" + contactId + "/notifications/token")
+//     //       .once("value")
+//     //       .then((snapshot) => {
+//     //         const receiverToken = snapshot.val();
+//     //         const notification = {
+//     //           to: receiverToken,
+//     //           sound: "default",
+//     //           title: displayName,
+//     //           body: message,
+//     //           _displayInForeground: true,
+//     //         };
+//     //         fetch("https://exp.host/--/api/v2/push/send", {
+//     //           method: "POST",
+//     //           headers: {
+//     //             Accept: "application/json",
+//     //             "Accept-encoding": "gzip, deflate",
+//     //             "Content-Type": "application/json",
+//     //           },
+//     //           body: JSON.stringify(notification),
+//     //         });
+//     //       });
+//   } catch (err) {
+//     console.error("Error sending notification: ", err);
+//   }
+// };
 // ---------- INITIAL STATE ---------- //
 
-const defaultMessages = { messages: [] };
+const defaultMessages = {
+  messages: [],
+  sendMessageError: "",
+};
 
 // ---------- REDUCER ---------- //
 const messagesReducer = (state = defaultMessages, action) => {
   switch (action.type) {
     case GET_MESSAGES:
-      return action.messages;
+      return { ...state, messages: action.messages };
     case ADD_MESSAGE:
       return {
+        ...state,
         messages: state.messages
           .filter((msg) => msg._id !== action.message._id)
           .concat(action.message),
@@ -161,7 +152,9 @@ const messagesReducer = (state = defaultMessages, action) => {
     case SEND_MESSAGE:
       return { ...state };
     case RECEIVE_MESSAGE:
-      return { messages: state.messages.concat(action.message) };
+      return { ...state, messages: state.messages.concat(action.message) };
+    case SEND_MESSAGE_ERROR:
+      return { ...state, sendMessageError: action.message };
     default:
       return state;
   }

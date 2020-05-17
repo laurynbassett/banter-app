@@ -9,7 +9,7 @@ import ContactNavigator from './ContactNavigator';
 
 const BottomTab = createBottomTabNavigator();
 
-export default function BottomTabNavigator() {
+export default function BottomTabNavigator({ state }) {
 	return (
 		<BottomTab.Navigator initialRouteName={'Chats'}>
 			<BottomTab.Screen

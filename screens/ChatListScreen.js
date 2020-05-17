@@ -1,38 +1,36 @@
 import React from "react";
 import { connect } from "react-redux";
 import { FlatList } from "react-native";
-
-import ChatListItem from "../components/ChatListItem";
-import { fetchAllChats, setCurrentChat } from "../store/chats";
-import { fetchUser, fetchChatrooms } from "../store/user";
+import { db } from "../Firebase";
+import { ChatListItem } from "../components";
+import {
+  fetchAllChats,
+  setCurrentChat,
+  fetchUser,
+  fetchChatrooms,
+} from "../store";
 
 class ChatListScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.goToSingleChat = this.goToSingleChat.bind(this);
-  }
-
   componentDidMount() {
     this.props.fetchUser();
     this.props.fetchChatrooms();
     this.props.fetchAllChats();
   }
 
-  goToSingleChat(chatId) {
-    // set current chatroom in redux
-    this.props.setCurrentChat(chatId);
-
-    // navigate to single chat page
-    this.props.navigation.navigate("SingleChat");
+  componentWillUnmount() {
+    db.ref(`users/${this.props.userId}/chatrooms`).off("child_added");
   }
 
   render() {
-    console.log("RENDER", this.props.chatrooms);
     return (
       <FlatList
         data={this.props.chats}
         renderItem={({ item }) => (
-          <ChatListItem item={item} goToSingleChat={this.goToSingleChat} />
+          <ChatListItem
+            navigation={this.props.navigation}
+            setCurrentChat={this.props.setCurrentChat}
+            item={item}
+          />
         )}
         keyExtractor={(item, index) => index.toString()}
       />
@@ -42,6 +40,7 @@ class ChatListScreen extends React.Component {
 
 const mapState = (state) => ({
   chats: state.chats.chats,
+  userId: state.firebase.auth.uid,
 });
 
 const mapDispatch = (dispatch) => ({

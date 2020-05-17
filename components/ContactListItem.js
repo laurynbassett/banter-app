@@ -1,30 +1,28 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Image, Platform, StyleSheet, Text, TouchableHighlight, View, FlatList } from 'react-native';
+import { Image, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
-import { fetchCurrentChatId } from '../store/chats';
+import { fetchCurrentChatId } from '../store';
+import AvatarIcon from './AvatarIcon';
 
 const ContactListItem = props => {
-	console.log('ContactListItem PROPS', props);
-
 	const goToSingleChat = async () => {
-		console.log('CLICKED ON CONTACT', props.id);
 		// set current chatroom in redux
-		await props.fetchCurrentChatId(props.id, props.uid);
-		console.log('AWAITED NOW NAVIGATING');
-
-		// navigate to single chat page
-		props.navigation.navigate('SingleChat', {
-			contactId: props.id,
-			name: props.name
-		});
+		await props.fetchCurrentChatId(
+			{ contactId: props.id, name: props.name },
+			{ uid: props.uid, userName: props.userName },
+			props.navigation
+		);
 	};
 
-	const defaultUrl = 'https://i.picsum.photos/id/14/536/354.jpg';
 	return (
 		<TouchableHighlight onPress={goToSingleChat}>
 			<View style={styles.container}>
-				<Image source={{ uri: props.imageUrl || defaultUrl }} style={styles.image} />
+				{props.imageUrl ? (
+					<Image source={{ uri: props.imageUrl || defaultUrl }} style={styles.image} />
+				) : (
+					<AvatarIcon style={styles.image} name={props.name} />
+				)}
 				<View style={styles.contactWrapper}>
 					<View style={styles.contactNameWrapper}>
 						<Text style={styles.contactName}>{props.name}</Text>
@@ -44,11 +42,12 @@ const ContactListItem = props => {
 };
 
 const mapState = state => ({
-	uid: state.firebase.auth.uid
+	uid: state.firebase.auth.uid,
+	userName: state.firebase.auth.displayName
 });
 
 const mapDispatch = dispatch => ({
-	fetchCurrentChatId: (contactId, uid) => dispatch(fetchCurrentChatId(contactId, uid))
+	fetchCurrentChatId: (contact, user, navigation) => dispatch(fetchCurrentChatId(contact, user, navigation))
 });
 
 export default connect(mapState, mapDispatch)(ContactListItem);
@@ -56,11 +55,11 @@ export default connect(mapState, mapDispatch)(ContactListItem);
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#fff',
 		flexDirection: 'row',
 		padding: 15,
 		borderBottomWidth: 1,
-		borderColor: '#b7b7b7'
+		borderColor: '#b7b7b7',
+		backgroundColor: '#fff'
 	},
 	image: {
 		width: 50,
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
 		marginLeft: 10
 	},
 	contactName: {
-		fontSize: 23,
+		fontSize: 20,
 		fontWeight: 'bold'
 	},
 	contactInfoWrapper: {

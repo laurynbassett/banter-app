@@ -64,7 +64,7 @@ class LoginScreen extends Component {
           title="Login with Google"
           onPress={() => {
             this.props.loginWithGoogle();
-            this.props.requestPushNotification();
+            // this.props.requestPushNotification();
           }}
         >
           <Text style={styles.buttonText}>Login with Google</Text>

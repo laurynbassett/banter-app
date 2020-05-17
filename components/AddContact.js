@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { connect } from 'react-redux';
 
-import { addNewContact, fetchUser } from '../store/user';
+import { addNewContact, fetchUser } from '../store';
 
 const AddContact = props => {
 	const [ name, setName ] = useState('');
 	const [ email, setEmail ] = useState('');
-	const [ phone, setPhone ] = useState('');
 
 	const fetchData = async () => {
 		await props.fetchUser;
@@ -18,8 +17,9 @@ const AddContact = props => {
 	});
 
 	const handleAdd = () => {
-		props.addNewContact({ name, email, phone });
-		props.navigation.navigate('Contacts');
+		props.addNewContact({ name, email }, props.navigation);
+		setName('');
+		setEmail('');
 	};
 
 	return (
@@ -42,15 +42,6 @@ const AddContact = props => {
 						onChangeText={value => setEmail(value)}
 					/>
 				</View>
-				<View style={styles.input}>
-					<TextInput
-						autoCapitalize='none'
-						placeholder='Phone'
-						style={styles.text}
-						value={phone}
-						onChangeText={value => setPhone(value)}
-					/>
-				</View>
 			</View>
 			<View style={styles.buttonTextWrapper}>
 				<Button title='Add Contact' style={styles.button} onPress={handleAdd} />
@@ -64,11 +55,11 @@ const AddContact = props => {
 
 const mapState = state => ({
 	user: state.user,
-	addContactError: state.user.error
+	addContactError: state.user.addContactError
 });
 
 const mapDispatch = dispatch => ({
-	addNewContact: contact => dispatch(addNewContact(contact)),
+	addNewContact: (contact, navigation) => dispatch(addNewContact(contact, navigation)),
 	fetchUser: () => dispatch(fetchUser())
 });
 
