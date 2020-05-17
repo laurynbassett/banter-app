@@ -7,9 +7,9 @@ const Stack = createStackNavigator();
 
 export default function ChatNavigator({ navigation, route }) {
 	return (
-		<Stack.Navigator initialRouteName='Chat'>
+		<Stack.Navigator initialRouteName='Chats'>
 			<Stack.Screen
-				name='Chat'
+				name='Chats'
 				component={ChatListScreen}
 				options={({ navigation }) => ({
 					title: 'Chats',
@@ -21,8 +21,9 @@ export default function ChatNavigator({ navigation, route }) {
 				component={SingleChatScreen}
 				options={{
 					title: 'Single Chat',
+					gestureEnabled: false,
 					// headerTitle: () => <SingleChatHeaderCenter />,
-					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} route={route} back='Chat' />,
+					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} route={route} back='Chats' />,
 					headerStyle: { height: 130 }
 				}}
 			/>

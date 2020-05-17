@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { SingleChatScreen } from '../screens';
-import { SingleChatHeaderCenter, SingleChatHeaderLeft } from '../components';
+import { ChatListScreen, SingleChatScreen } from '../screens';
+import { ChatListHeaderRight, SingleChatHeaderCenter, SingleChatHeaderLeft } from '../components';
 import BottomTabNavigator from './BottomTabNavigator';
 
 const Stack = createStackNavigator();
 
 export default function RootNavigator({ navigation, route }) {
 	return (
-		<Stack.Navigator initialRouteName='Chat'>
+		<Stack.Navigator initialRouteName='Chats'>
 			<Stack.Screen
-				name='Chat'
+				name='BottomTabNavigator'
 				component={BottomTabNavigator}
 				options={{
 					headerShown: false
@@ -19,12 +19,13 @@ export default function RootNavigator({ navigation, route }) {
 			<Stack.Screen
 				name='SingleChat'
 				component={SingleChatScreen}
-				options={({ navigation, route }) => ({
+				options={{
 					title: 'Single Chat',
+					// gestureEnabled: false,
 					headerTitle: () => <SingleChatHeaderCenter />,
-					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} route={route} back='Chats' />,
+					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} back='Chats' />,
 					headerStyle: { height: 130 }
-				})}
+				}}
 			/>
 		</Stack.Navigator>
 	);

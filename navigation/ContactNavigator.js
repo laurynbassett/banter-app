@@ -24,15 +24,16 @@ export default function ContactNavigator({ navigation, route }) {
 					title: 'Add Contact'
 				}}
 			/>
-			<Stack.Screen
+			{/* <Stack.Screen
 				name='SingleChat'
 				component={SingleChatScreen}
 				options={{
 					title: 'Single Chat',
+					gestureEnabled: false,
 					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} route={route} back='Contact' />,
 					headerStyle: { height: 130 }
 				}}
-			/>
+			/> */}
 		</Stack.Navigator>
 	);
 }

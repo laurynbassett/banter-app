@@ -9,12 +9,14 @@ import { fetchMemberNames, getMessages, setCurrentChat } from '../store';
 
 const UnconnectedSingleChatHeaderLeft = props => {
 	const goBack = () => {
+		console.log('CLICKED LEFT', props);
 		// remove current chat
 		props.setCurrentChat('');
 		props.getMessages([]);
 		// go back to all chats
 		props.navigation.navigate(props.back);
 	};
+
 	return (
 		<TouchableOpacity style={styles.left} onPress={goBack} hitSlop={{ top: 10, left: 10, bottom: 10, right: 10 }}>
 			<Ionicons name='ios-arrow-back' size={25} color={Colors.tabIconSelected} />

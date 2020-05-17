@@ -101,6 +101,7 @@ const defaultMessages = {
 const messagesReducer = (state = defaultMessages, action) => {
 	switch (action.type) {
 		case GET_MESSAGES:
+			console.log('GOT', state);
 			return { ...state, messages: action.messages };
 		case ADD_MESSAGE:
 			return {

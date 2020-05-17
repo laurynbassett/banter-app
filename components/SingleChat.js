@@ -17,6 +17,7 @@ class SingleChat extends Component {
 	async componentDidMount() {
 		// fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
 		await this.props.fetchMessages();
+		console.log('FETCHED', this.props.messages);
 		this.setState({ messages: this.props.messages });
 	}
 
