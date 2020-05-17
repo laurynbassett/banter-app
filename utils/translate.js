@@ -18,3 +18,7 @@ export const getLangKey = (lang) => {
     (key) => languages[key] === lang.toLowerCase()
   );
 };
+
+export const getLangValue = (langKey) => {
+  return languages[langKey];
+};

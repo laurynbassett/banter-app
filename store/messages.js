@@ -6,6 +6,8 @@ import { createCurrentChatId, addNewMembers } from "./chats";
 import { addNewChatroom } from "./user";
 import { GOOGLE_API_KEY } from "react-native-dotenv";
 
+import { getLangValue } from "../utils/translate";
+
 const messagesRef = db.ref("messages");
 const chatsRef = db.ref("chats");
 
@@ -43,7 +45,11 @@ export const fetchMessages = () => (dispatch, getState) => {
           createdAt: snapshot.val().timestamp,
         };
 
-        console.log("USER LANGUAGE:", getState().firebase.auth.language);
+        console.log(
+          "USER LANGUAGE:",
+          getState().firebase.auth.language,
+          snapshot.val()
+        );
         const userLanguage = "French";
 
         // if the message was sent by the user it will not be translated
@@ -63,9 +69,11 @@ export const fetchMessages = () => (dispatch, getState) => {
                 return response.json();
               })
               .then((data) => {
-                console.log(data);
-
                 newMessage.text = data.data.translations[0].translatedText;
+                newMessage.translatedFrom = getLangValue(
+                  data.data.translations[0].detectedSourceLanguage
+                );
+
                 dispatch(addMessage(newMessage));
               });
             //${getLangKey(userLanguage)}
@@ -82,6 +90,8 @@ export const fetchMessages = () => (dispatch, getState) => {
 // SEND NEW MESSAGE
 export const postMessage = (text) => async (dispatch) => {
   try {
+    console.log("POSTING MESSAGE:", text);
+
     const {
       uid,
       displayName,
@@ -126,9 +136,6 @@ export const postMessage = (text) => async (dispatch) => {
               original: message,
             },
           });
-      })
-      .then(() => {
-        dispatch(fetchMessages());
       })
       .catch((err) =>
         console.log("Error posting message to chats and messages", err)

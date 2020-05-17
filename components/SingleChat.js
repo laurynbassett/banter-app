@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat, MessageText, Message } from "react-native-gifted-chat";
 import { connect } from "react-redux";
 
 import Layout from "../constants/Layout";
@@ -16,15 +16,10 @@ class SingleChat extends Component {
 
   async componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
-    await this.props.fetchMessages();
-    this.setState({ messages: this.props.messages });
+    this.props.fetchMessages();
   }
 
   handleSendMessage(messages) {
-    this.setState((previousState) => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
-
     const { currentChat, displayName, postMessage, route, uid } = this.props;
     const contactId = route.params.contactId;
     const contactName = route.params.name;
@@ -47,7 +42,7 @@ class SingleChat extends Component {
       <View style={styles.container}>
         <Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
         <GiftedChat
-          messages={this.state.messages}
+          messages={this.props.messages}
           user={{
             _id: this.props.uid,
             name: this.props.displayName,
@@ -58,6 +53,20 @@ class SingleChat extends Component {
           showUserAvatar={true}
           showAvatarForEveryMessage={true}
           placeholder="Type a message..."
+          inverted={false}
+          renderMessageText={(params) => {
+            console.log(params.currentMessage);
+            return (
+              <View>
+                {this.props.uid !== params.currentMessage.user._id && (
+                  <Text style={styles.messageBox}>
+                    Translated From: {params.currentMessage.translatedFrom}
+                  </Text>
+                )}
+                <MessageText {...params} />
+              </View>
+            );
+          }}
         />
       </View>
     );
@@ -90,7 +99,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fafafa",
     paddingLeft: 16,
     paddingRight: 16,
-    paddingTop: 4,
+    paddingTop: 1,
     paddingBottom: 4,
+  },
+  messageBox: {
+    color: "grey",
+    fontSize: 12,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 1,
   },
 });
