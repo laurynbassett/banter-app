@@ -27,7 +27,8 @@ class SingleChat extends Component {
 
     const { currentChat, displayName, postMessage, route, uid } = this.props;
     const contactId = route.params.contactId;
-    console.log("displayName", displayName);
+    console.log("CONTACT ID -- SINGLE CHAT", contactId);
+
     const contactName = route.params.name;
     const message = messages[messages.length - 1].text;
     const timestamp = Date.now();

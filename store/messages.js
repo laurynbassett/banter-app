@@ -65,7 +65,7 @@ export const postMessage = (text) => async (dispatch) => {
       [contactId]: contactName,
     };
 
-    console.log("MEMBERS", members);
+    console.log("CONTACT ID ", contactId);
     let chatId = currChatId;
 
     // if chatId doesn't exist, create id, new chatroom and add members
@@ -92,12 +92,11 @@ export const postMessage = (text) => async (dispatch) => {
           senderName: displayName,
           timestamp,
         });
+
+        dispatch(notify(contactId, displayName, message));
       })
       .then(() => {
         dispatch(fetchMessages());
-      })
-      .then(() => {
-        dispatch(notify(contactId, displayName, message));
       })
       .catch((err) =>
         console.log("Error posting message to chats and messages", err)
@@ -114,6 +113,9 @@ export const notify = (contactId, senderName, message) => async (dispatch) => {
       .once("value");
 
     const receiverToken = snapshot.val();
+    console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
+    console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
+    console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
 
     if (receiverToken) {
       const notification = {
