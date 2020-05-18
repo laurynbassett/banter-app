@@ -7,7 +7,6 @@ import AvatarIcon from './AvatarIcon';
 
 const ContactListItem = props => {
 	const goToSingleChat = async () => {
-		console.log('GO TO SINGLE CHAT PROPS:', props);
 		// set current chatroom in redux
 		await props.fetchCurrentChatId(
 			{ contactId: props.id, name: props.name },

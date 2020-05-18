@@ -31,16 +31,12 @@ export const fetchChats = () => async dispatch => {
 
 		// get each chatId via user, adding listener for any additional chat rooms added
 		db.ref(`users/${userId}/chatrooms`).on('child_added', snapshot => {
-			console.log('SNAPSHOT 1', snapshot);
 			db.ref(`chats/${snapshot.key}`).once('value').then(snapshot => {
-				console.log('SNAPSHOT 2', snapshot);
 				// add id to chat object
 				let newChat = snapshot.val();
 				newChat.id = snapshot.key;
-
 				// add new chat to state
 				dispatch(addChat(newChat));
-
 				// add listener for changes
 				db.ref(`chats/${snapshot.key}`).on('child_changed', function(updatedSnapshot) {
 					// add id to chat object
@@ -113,6 +109,7 @@ const defaultChats = {
 const chatsReducer = (state = defaultChats, action) => {
 	switch (action.type) {
 		case ADD_CHAT:
+			console.log('STATE', state);
 			return { ...state, chats: [ ...state.chats, action.chat ] };
 		case UPDATE_CHAT:
 			return {
@@ -130,7 +127,7 @@ const chatsReducer = (state = defaultChats, action) => {
 				currentChat: state.chats.find(chat => chat.id === action.chatId)
 			};
 		case SET_CURRENT_CHAT_PROPS:
-			return { ...state, currentChat: action.chat };
+			return { ...state, currentChat: Object.assign({}, state.currentChat, action.chat) };
 		case SET_MEMBERS:
 			return { ...state, currentChat: { members: members } };
 		case ADD_MEMBERS:

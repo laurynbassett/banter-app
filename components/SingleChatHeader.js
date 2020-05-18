@@ -61,8 +61,8 @@ const SingleChatHeaderCenter = props => {
 
 const mapState = state => {
 	const chat = state.chats.currentChat;
-	const getMemberNames = chat && chat.members ? memberNameHelper(Object.values(chat.members)) : [];
-	const getMemberImgs = chat && chat.members ? memberImgHelper(Object.keys(chat.members), state.user.contacts) : [];
+	const getMemberNames = chat ? memberNameHelper(Object.values(chat.members)) : [];
+	const getMemberImgs = chat ? memberImgHelper(Object.keys(chat.members), state.user.contacts) : [];
 	return {
 		memberNames: getMemberNames,
 		memberImgs: getMemberImgs
