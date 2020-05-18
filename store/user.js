@@ -213,7 +213,8 @@ export const registerForPushNotificationsAsync = () => async (
   // isDevice checks that user is not on a simulator, but actually on a real device
   try {
     const uid = getState().firebase.auth.uid;
-    console.log("UID", uid);
+    const status = getState().user.notification.status;
+
     if (Constants.isDevice) {
       // status returns either "undetermined", "granted", or "denied"
       // "undetermined" means the user has not either granted or denied when prompted
@@ -237,12 +238,12 @@ export const registerForPushNotificationsAsync = () => async (
         finalStatus = status;
         console.log("FINAL STATUS OF NOTIFICATION", finalStatus);
         // if finalStatus !== existingStatus --> update users/uid/notifications/status
-        if (finalStatus !== existingStatus) {
-          await firebase
-            .database()
-            .ref("/users/" + uid + "/notifications")
-            .update({ status: finalStatus });
-        }
+
+        await firebase
+          .database()
+          .ref("/users/" + uid + "/notifications/")
+          .update({ status: finalStatus });
+
         dispatch(setNotificationStatus(finalStatus));
       }
 
@@ -254,7 +255,7 @@ export const registerForPushNotificationsAsync = () => async (
       let token = await Notifications.getExpoPushTokenAsync();
       await firebase
         .database()
-        .ref(`/users/${uid}/notifications`)
+        .ref(`/users/${uid}/notifications/`)
         .update({ token: token });
 
       // TODO: Persist token to store

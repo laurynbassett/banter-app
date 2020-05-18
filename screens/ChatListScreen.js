@@ -9,15 +9,24 @@ import {
   fetchUser,
   fetchChatrooms,
 } from "../store";
+import { registerForPushNotificationsAsync } from "../store/user";
 
 class ChatListScreen extends React.Component {
+  _isMounted = false;
+
   componentDidMount() {
-    this.props.fetchUser();
-    this.props.fetchChatrooms();
-    this.props.fetchAllChats();
+    this._isMounted = true;
+
+    if (this._isMounted) {
+      this.props.fetchUser();
+      this.props.fetchChatrooms();
+      this.props.fetchAllChats();
+      this.props.requestPushNotification();
+    }
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
     db.ref(`users/${this.props.userId}/chatrooms`).off("child_added");
   }
 
@@ -48,6 +57,7 @@ const mapDispatch = (dispatch) => ({
   fetchChatrooms: () => dispatch(fetchChatrooms()),
   fetchAllChats: () => dispatch(fetchAllChats()),
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
+  requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);

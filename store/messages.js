@@ -64,6 +64,8 @@ export const postMessage = (text) => async (dispatch) => {
       [uid]: displayName,
       [contactId]: contactName,
     };
+
+    console.log("MEMBERS", members);
     let chatId = currChatId;
 
     // if chatId doesn't exist, create id, new chatroom and add members
