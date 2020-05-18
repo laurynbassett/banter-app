@@ -120,7 +120,7 @@ class SingleChat extends Component {
                     <Text style={styles.messageBox}>
                       {params.currentMessage.translatedFrom !== false
                         ? `Translated From: ${params.currentMessage.translatedFrom}`
-                        : "Not Translated"}
+                        : "No Translation Available"}
                     </Text>
                   </>
                 )}
@@ -128,9 +128,6 @@ class SingleChat extends Component {
               </View>
             );
           }}
-          // renderChatEmpty={() => {
-          //   return <Text>no messages</Text>;
-          // }}
         />
       </View>
     );

@@ -39,7 +39,6 @@ export const fetchMessages = () => (dispatch, getState) => {
           },
           createdAt: snapshot.val().timestamp,
           original: snapshot.val().translations.original,
-          showOriginal: false,
         };
 
         const userLanguage = getState().user.language;
