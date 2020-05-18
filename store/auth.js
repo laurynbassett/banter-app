@@ -24,7 +24,7 @@ export const signUpWithEP = (
       if (user) {
         // console.log("NEW USER CREATED: ", email, password, user);
         await db.ref("/users/" + user.uid).set({
-          email: email,
+          email: email.toLowerCase(),
           name: `${firstName} ${lastName}`,
           language: language,
           created_at: Date.now(),
@@ -96,7 +96,7 @@ const onSignIn = (googleUser) => {
               .database()
               .ref("/users/" + result.user.uid)
               .set({
-                email: result.user.email,
+                email: result.user.email.toLowerCase(),
                 name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
                 created_at: Date.now(),
                 notifications: { token: null, status: "undetermined" },
