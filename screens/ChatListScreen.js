@@ -39,6 +39,7 @@ class ChatListScreen extends React.Component {
             navigation={this.props.navigation}
             setCurrentChat={this.props.setCurrentChat}
             item={item}
+            userId={this.props.userId}
           />
         )}
         keyExtractor={(item, index) => index.toString()}

@@ -96,6 +96,9 @@ export const postMessage = (text) => async (dispatch) => {
       .then(() => {
         dispatch(fetchMessages());
       })
+      .then(() => {
+        dispatch(notify(contactId, displayName, message));
+      })
       .catch((err) =>
         console.log("Error posting message to chats and messages", err)
       );
@@ -104,34 +107,36 @@ export const postMessage = (text) => async (dispatch) => {
   }
 };
 
-// export const notify = (chatroomId) => async (dispatch) => {
-//   try {
-//     // db.ref('/users/')
-//     // db.ref("users/" + contactId + "/notifications/token")
-//     //       .once("value")
-//     //       .then((snapshot) => {
-//     //         const receiverToken = snapshot.val();
-//     //         const notification = {
-//     //           to: receiverToken,
-//     //           sound: "default",
-//     //           title: displayName,
-//     //           body: message,
-//     //           _displayInForeground: true,
-//     //         };
-//     //         fetch("https://exp.host/--/api/v2/push/send", {
-//     //           method: "POST",
-//     //           headers: {
-//     //             Accept: "application/json",
-//     //             "Accept-encoding": "gzip, deflate",
-//     //             "Content-Type": "application/json",
-//     //           },
-//     //           body: JSON.stringify(notification),
-//     //         });
-//     //       });
-//   } catch (err) {
-//     console.error("Error sending notification: ", err);
-//   }
-// };
+export const notify = (contactId, senderName, message) => async (dispatch) => {
+  try {
+    const snapshot = await db
+      .ref("/users/" + contactId + "/notifications/token")
+      .once("value");
+
+    const receiverToken = snapshot.val();
+
+    if (receiverToken) {
+      const notification = {
+        to: receiverToken,
+        sound: "default",
+        title: senderName,
+        body: message,
+        _displayInForeground: true,
+      };
+      fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-encoding": "gzip, deflate",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(notification),
+      });
+    }
+  } catch (err) {
+    console.error("Error sending notification: ", err);
+  }
+};
 // ---------- INITIAL STATE ---------- //
 
 const defaultMessages = {
