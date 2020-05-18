@@ -6,8 +6,9 @@ import {
   SingleChatScreen,
   ContactListScreen,
 } from "../screens";
-import SingleChatHeaderCenter, {
+import {
   ContactsHeaderRight,
+  SingleChatHeaderCenter,
   SingleChatHeaderLeft,
 } from "../components";
 
