@@ -118,6 +118,27 @@ export const postMessage = text => async dispatch => {
 	}
 };
 
+// SEND AUDIO
+export const postAudio = (file, text) => async dispatch => {
+	try {
+		let message = text;
+
+		let fileRef = "";
+		const audioRef = storageRef.child("audio");
+		audioRef.put(file).then(snapshot => {
+			console.log("Uploaded audio file", snapshot);
+			fileRef = snapshot.key;
+			console.log("FILEREF", fileRef);
+			message.audio = fileRef;
+			console.log("POST AUDIO MSG", message);
+			// dispatch(postMessage(message, true))
+		});
+	} catch (err) {
+		console.log("Error uploading audio file: ", err);
+	}
+};
+
+// NOTIFICATION
 export const notify = (contactId, senderName, message) => async () => {
 	try {
 		const snapshot = await db.ref("/users/" + contactId + "/notifications/token").once("value");
