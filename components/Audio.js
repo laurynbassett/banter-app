@@ -9,7 +9,7 @@ import * as FileSystem from "expo-file-system";
 
 import Layout from "../constants/Layout";
 import { fetchMessages, postMessage, postAudio } from "../store";
-import { formatText } from "../utils";
+import { formatText, recordingCallback, setAudioMode } from "../utils";
 
 class SingleChat extends Component {
 	constructor(props) {
@@ -22,23 +22,17 @@ class SingleChat extends Component {
 			isPlaying: false,
 			isLoading: false,
 			isPlaybackAllowed: false,
-			muted: false,
 			soundPosition: null,
 			soundDuration: null,
-			recordingDuration: null,
 			audioUrl: null
 		};
 		this.recording = null;
 		this.sound = null;
-		this.recordingSettings = JSON.parse(JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY));
 		this.renderActions = this.renderActions.bind(this);
 		this.renderBubble = this.renderBubble.bind(this);
 		this.renderAudio = this.renderAudio.bind(this);
 		this.handleSendAudio = this.handleSendAudio.bind(this);
 		this.handleSendMessage = this.handleSendMessage.bind(this);
-		this.updateScreenForSoundStatus = this.updateScreenForSoundStatus.bind(this);
-		this.updateScreenForRecordingStatus = this.updateScreenForRecordingStatus.bind(this);
-		this.setAudioMode = this.setAudioMode.bind(this);
 		this.startRecording = this.startRecording.bind(this);
 		this.stopRecording = this.stopRecording.bind(this);
 		this.handleRecordPressed = this.handleRecordPressed.bind(this);
@@ -72,10 +66,10 @@ class SingleChat extends Component {
 				/>
 				{this.recording && (
 					<FontAwesome
-						name={this.state.isPlaying ? "stop" : "play"}
+						name={this.state.isPlaying ? "pause" : "play"}
 						size={23}
 						style={styles.microphone}
-						color={this.state.isPlaying ? "red" : "#7a7a7a"}
+						color='#7a7a7a'
 						onPress={this.handlePlayPausePressed}
 						hitSlop={styles.hitSlop}
 					/>
@@ -109,94 +103,42 @@ class SingleChat extends Component {
 	};
 
 	async handleSendAudio() {
-		if (!this.state.isRecording) {
-			this.setState({ isRecording: true });
-			this.startRecording();
-		} else {
-			this.setState({ isRecording: true });
-			this.stopRecording();
-			const { audioUrl } = this.state;
-			const fileName = `${genUUID()}.aac`;
-			const file = {
-				name: fileName,
-				type: "audio/aac",
-				uri: Platform.OS === "ios" ? audioUrl : `file://${audioUrl}`
-			};
-			const text = formatText(this.props);
-			dispatch(postAudio(file, text));
-		}
-	}
-
-	updateScreenForSoundStatus = status => {
-		if (status.isLoaded) {
-			this.setState({
-				soundDuration: status.durationMillis,
-				soundPosition: status.positionMillis,
-				shouldPlay: status.shouldPlay,
-				isPlaying: status.isPlaying,
-				rate: status.rate,
-				muted: status.isMuted,
-				volume: status.volume,
-				shouldCorrectPitch: status.shouldCorrectPitch,
-				isPlaybackAllowed: true
-			});
-		} else {
-			this.setState({
-				soundDuration: null,
-				soundPosition: null,
-				isPlaybackAllowed: false
-			});
-			if (status.error) {
-				console.log(`FATAL PLAYER ERROR: ${status.error}`);
-			}
-		}
-	};
-
-	updateScreenForRecordingStatus = status => {
-		if (status.canRecord) {
-			this.setState({
-				isRecording: status.isRecording,
-				recordingDuration: status.durationMillis
-			});
-		} else if (status.isDoneRecording) {
-			this.setState({
-				isRecording: false,
-				recordingDuration: status.durationMillis
-			});
-			if (!this.state.isLoading) {
-				this.stopRecording();
-			}
-		}
-	};
-
-	// customizes the audio experience on iOS and Android
-	async setAudioMode({ allowsRecordingIOS }) {
-		try {
-			await Audio.setAudioModeAsync({
-				allowsRecordingIOS,
-				interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-				playsInSilentModeIOS: true,
-				shouldDuckAndroid: true,
-				interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-				playThroughEarpieceAndroid: false,
-				staysActiveInBackground: true
-			});
-		} catch (err) {
-			console.log("Error setting audio mode: ", err);
-		}
+		const { audioUrl } = this.state;
+		const fileName = `${genUUID()}.aac`;
+		const file = {
+			name: fileName,
+			type: "audio/aac",
+			uri: Platform.OS === "ios" ? audioUrl : `file://${audioUrl}`
+		};
+		const text = formatText(this.props);
+		dispatch(postAudio(file, text));
 	}
 
 	// on start recording click
 	async startRecording() {
 		try {
-			this.setAudioMode({ allowsRecordingIOS: true });
+			this.setState({
+				isLoading: true
+			});
 
+			// if existing sound, unload the media from memory
+			if (this.sound !== null) {
+				await this.sound.unloadAsync();
+				this.sound.setOnPlaybackStatusUpdate(null);
+				this.sound = null;
+			}
+			// customizes audio experience on iOS and Android
+			await setAudioMode({ allowsRecordingIOS: true });
+			// create new Audio instance
 			const recording = new Audio.Recording();
-			await recording.prepareToRecordAsync(this.recordingSettings);
-			recording.setOnRecordingStatusUpdate(this.updateScreenForRecordingStatus);
-
+			// Sets a cb to be called regularly w/ the status of the recording
+			recording.setOnRecordingStatusUpdate(recordingCallback);
+			// loads the recorder into memory and prepares it for recording
+			await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+			// set recording in constructor
 			this.recording = recording;
-			await this.recording.startAsync(); // Will call this.updateScreenForRecordingStatus to update the screen.
+			// begin recording
+			await this.recording.startAsync();
 			this.setState({
 				isLoading: false
 			});
@@ -211,31 +153,30 @@ class SingleChat extends Component {
 			this.setState({
 				isLoading: true
 			});
+			// stops recording and deallocates recorder from memory
 			await this.recording.stopAndUnloadAsync();
-			this.setAudioMode({ allowsRecordingIOS: false });
+			// customizes audio experience on iOS and Android
+			await setAudioMode({ allowsRecordingIOS: false });
 
 			if (this.recording) {
 				const audioUrl = this.recording.getURI();
 				this.recording.setOnRecordingStatusUpdate(null);
 				this.setState({ audioUrl });
+				// creates and loads a new sound object to play back the recording
 				const { sound, status } = await this.recording.createNewLoadedSoundAsync(
-					{
-						isLooping: true,
-						isMuted: this.state.muted,
-						volume: this.state.volume,
-						rate: this.state.rate,
-						shouldCorrectPitch: this.state.shouldCorrectPitch
-					},
-					this._updateScreenForSoundStatus
+					{ isLooping: false },
+					this.updateScreenForSoundStatus
 				);
 				this.sound = sound;
 			}
+
 			console.log("STOPPED RECORDING", this.state);
+
 			this.setState({
 				isLoading: false
 			});
 		} catch (err) {
-			console.log(err);
+			console.log("Error stopping recording: ", err);
 		}
 	}
 

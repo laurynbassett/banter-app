@@ -71,7 +71,7 @@ export const fetchMessages = () => (dispatch, getState) => {
 };
 
 // SEND NEW MESSAGE
-export const postMessage = text => async dispatch => {
+export const postMessage = (text, isAudio) => async dispatch => {
 	try {
 		const { uid, displayName, contactId, contactName, currChatId, message, timestamp } = text;
 		const members = {

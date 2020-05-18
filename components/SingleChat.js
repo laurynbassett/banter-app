@@ -22,13 +22,9 @@ class SingleChat extends Component {
 
 	handleSendMessage(messages) {
 		let text = formatText(this.props);
-		if (this.recording) {
-			text.audio = messages[messages.length - 1].audio;
-			text.messageType = "audio";
-		} else {
-			text.message = messages[messages.length - 1].text;
-			text.messageType = "message";
-		}
+		text.message = messages[messages.length - 1].text;
+		text.messageType = "message";
+
 		postMessage(text);
 	}
 
