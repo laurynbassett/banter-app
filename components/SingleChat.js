@@ -14,6 +14,10 @@ class SingleChat extends Component {
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
 
+  static navigationOptions = ({ navigation }) => ({
+    tabBarVisible: false,
+  });
+
   async componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
     await this.props.fetchMessages();
@@ -85,7 +89,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fafafa",
     width: Layout.window.width,
-    height: Layout.window.height * 0.75,
+    height: Layout.window.height * 0.85,
   },
   headerContainer: {
     flexDirection: "row",

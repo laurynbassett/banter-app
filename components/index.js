@@ -5,6 +5,6 @@ export { ChatListHeaderRight, ChatListHeader } from './ChatListHeader';
 export { default as ChatListItem } from './ChatListItem';
 export { default as ContactListItem } from './ContactListItem';
 export { default as SingleChat } from './SingleChat';
-export { SingleChatHeaderLeft } from './SingleChatHeader';
+export { default as SingleChatHeaderCenter, SingleChatHeaderLeft } from './SingleChatHeader';
 export { default as StyledText } from './StyledText';
 export { default as TabBarIcon } from './TabBarIcon';

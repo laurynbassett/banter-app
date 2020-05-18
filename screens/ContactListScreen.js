@@ -3,13 +3,8 @@ import { FlatList } from 'react-native';
 import { connect } from 'react-redux';
 
 import { ContactListItem } from '../components';
-import { fetchContacts } from '../store';
 
 class ContactListScreen extends Component {
-	async componentDidMount() {
-		await this.props.fetchContacts();
-	}
-
 	render() {
 		return (
 			<FlatList
@@ -25,8 +20,4 @@ const mapState = state => ({
 	contacts: state.user.contacts
 });
 
-const mapDispatch = dispatch => ({
-	fetchContacts: () => dispatch(fetchContacts())
-});
-
-export default connect(mapState, mapDispatch)(ContactListScreen);
+export default connect(mapState)(ContactListScreen);

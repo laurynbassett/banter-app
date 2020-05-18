@@ -2,7 +2,7 @@ import firebase, { auth, db } from "../Firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 import Constants from "expo-constants";
-import { fetchAllChats } from "./chats";
+import { fetchChats } from "./chats";
 import { formatNameHelper } from "../utils";
 
 const usersRef = db.ref("users");
@@ -11,9 +11,8 @@ const usersRef = db.ref("users");
 const GET_USER = "GET_USER";
 const UPDATE_USER_NAME = "UPDATE_USER_NAME";
 const UPDATE_LANG = "UPDATE_LANG";
-const GET_CHATROOMS = "GET_CHATROOMS";
-const ADD_CONTACT = "ADD_CONTACT";
 const ADD_CHATROOM = "ADD_CHATROOM";
+const ADD_CONTACT = "ADD_CONTACT";
 const GET_CONTACTS = "GET_CONTACTS";
 const ADD_CONTACT_ERROR = "ADD_CONTACT_ERROR";
 const SET_NOTIFICATION_TOKEN = "SET_NOTIFICATION_TOKEN";
@@ -23,7 +22,6 @@ const SET_NOTIFICATION_STATUS = "SET_NOTIFICATION_STATUS";
 const getUser = (user) => ({ type: GET_USER, user });
 const updateUserName = (name) => ({ type: UPDATE_USER_NAME, name });
 const updateLang = (lang) => ({ type: UPDATE_LANG, lang });
-const getChatrooms = (chatrooms) => ({ type: GET_CHATROOMS, chatrooms });
 const getContacts = (contacts) => ({ type: GET_CONTACTS, contacts });
 const addContact = (contact) => ({ type: ADD_CONTACT, contact });
 const addContactError = (message) => ({ type: ADD_CONTACT_ERROR, message });
@@ -43,13 +41,18 @@ const setNotificationStatus = (status) => ({
 export const fetchUser = () => async (dispatch, getState) => {
   try {
     const uid = getState().firebase.auth.uid;
-
-    const snapshot = await firebase
-      .database()
-      .ref("/users/" + uid)
-      .once("value");
-
-    dispatch(getUser(snapshot.val()));
+    const snapshot = db.ref(`users/${uid}`);
+    snapshot.on("value", (snapshot) => {
+      const user = snapshot.val();
+      console.log("USER 0", user);
+      user.id = snapshot.key;
+      const chatrooms = Object.keys(user.chatrooms);
+      user.chatrooms = chatrooms;
+      delete user.contacts;
+      console.log("USER", user);
+      dispatch(getUser(user));
+      return true;
+    });
   } catch (err) {
     console.log("Error adding new contact: ", err);
   }
@@ -261,7 +264,7 @@ export const registerForPushNotificationsAsync = () => async (
       // TODO: Persist token to store
       dispatch(setNotificationToken(token));
     } else {
-      alert("Must use physical device for Push Notifications");
+      console.log("Must use physical device for Push Notifications");
     }
   } catch (err) {
     console.error(err);
@@ -289,21 +292,14 @@ const userReducer = (state = defaultUser, action) => {
     case GET_USER:
       return {
         ...state,
-        id: action.user.id,
-        name: action.user.name,
-        email: action.user.email,
-        phone: action.user.phone,
-        imageUrl: action.user.imageUrl,
-        created_at: action.user.created_at,
-        language: action.user.language,
+        ...action.user,
       };
     case UPDATE_USER_NAME:
       return { ...state, name: action.name };
     case UPDATE_LANG:
       return { ...state, language: action.lang };
-    case GET_CHATROOMS:
-      return { ...state, chatrooms: action.chatrooms };
     case GET_CONTACTS:
+      console.log("IN GET CONTACTS", state);
       return { ...state, contacts: action.contacts };
     case ADD_CONTACT:
       return {

@@ -3,14 +3,13 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { auth } from "../Firebase";
 import AvatarIcon from "./AvatarIcon";
-import { memberHelper } from "../utils";
+import { memberNameHelper } from "../utils";
 
 export default function ChatListItem(props) {
-  console.log("rendering chatlistitem", props);
   let members = props.item.members;
   delete members[props.userId];
 
-  members = memberHelper(Object.values(members));
+  members = memberNameHelper(Object.values(members));
   const avatarName = members[0];
 
   const goToSingleChat = (chatId) => {
@@ -22,13 +21,12 @@ export default function ChatListItem(props) {
       name: props.name,
     });
   };
-  console.log("MEMBERS", members);
 
   return (
     <TouchableOpacity onPress={() => goToSingleChat(props.item.id)}>
       <View style={styles.itemView}>
         {props.imageUrl ? (
-          <Image source={{ uri: props.imageUrl }} style={styles.image} />
+          <AvatarIcon src={props.imageUrl} style={styles.image} />
         ) : (
           <AvatarIcon style={styles.image} name={avatarName} />
         )}
@@ -67,8 +65,9 @@ const styles = StyleSheet.create({
     color: "#aaa",
   },
   image: {
-    width: 20,
-    height: 80,
+    width: 50,
+    height: 50,
+    borderRadius: 100,
   },
   detailsWrapper: {
     marginLeft: 10,
