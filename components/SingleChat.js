@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { GiftedChat, MessageText, Message } from "react-native-gifted-chat";
 import { connect } from "react-redux";
+import { db } from "../Firebase";
 
 import Layout from "../constants/Layout";
 import { fetchMessages, postMessage } from "../store";
@@ -17,6 +18,11 @@ class SingleChat extends Component {
   async componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
     this.props.fetchMessages();
+  }
+
+  componentWillUnmount() {
+    console.log("CURENT CHAT ON UNMOUNT", this.props.currentChat);
+    // db.ref(`messages/${this.props.currentChat.id}`).off("child_added");
   }
 
   handleSendMessage(messages) {
@@ -58,15 +64,29 @@ class SingleChat extends Component {
             console.log(params.currentMessage);
             return (
               <View>
+                {/* {params.currentMessage.showOriginal && (
+                  <Text style={styles.messageBox}>
+                    {params.currentMessage.original}
+                  </Text>
+                )}
+                <Button
+                  title={"Show"}
+                  style={styles.showButton}
+                /> */}
                 {this.props.uid !== params.currentMessage.user._id && (
                   <Text style={styles.messageBox}>
-                    Translated From: {params.currentMessage.translatedFrom}
+                    {params.currentMessage.translatedFrom !== false
+                      ? `Translated From: ${params.currentMessage.translatedFrom}`
+                      : "Not Translated"}
                   </Text>
                 )}
                 <MessageText {...params} />
               </View>
             );
           }}
+          // renderChatEmpty={() => {
+          //   return <Text>no messages</Text>;
+          // }}
         />
       </View>
     );
@@ -91,8 +111,9 @@ export default connect(mapState, mapDispatch)(SingleChat);
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fafafa",
-    width: Layout.window.width,
-    height: Layout.window.height * 0.75,
+    flex: 1,
+    // width: Layout.window.width,
+    // height: Layout.window.height * 0.75,
   },
   headerContainer: {
     flexDirection: "row",
@@ -109,5 +130,8 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingTop: 5,
     paddingBottom: 1,
+  },
+  showButton: {
+    fontSize: 7,
   },
 });

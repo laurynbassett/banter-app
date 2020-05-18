@@ -6,7 +6,7 @@ import { createCurrentChatId, addNewMembers } from "./chats";
 import { addNewChatroom } from "./user";
 import { GOOGLE_API_KEY } from "react-native-dotenv";
 
-import { getLangValue } from "../utils/translate";
+import { getLangValue, getLangKey } from "../utils/translate";
 
 const messagesRef = db.ref("messages");
 const chatsRef = db.ref("chats");
@@ -43,14 +43,11 @@ export const fetchMessages = () => (dispatch, getState) => {
             name: snapshot.val().senderName,
           },
           createdAt: snapshot.val().timestamp,
+          original: snapshot.val().translations.original,
+          showOriginal: false,
         };
 
-        console.log(
-          "USER LANGUAGE:",
-          getState().firebase.auth.language,
-          snapshot.val()
-        );
-        const userLanguage = "French";
+        const userLanguage = getState().user.language;
 
         // if the message was sent by the user it will not be translated
         if (snapshot.val().senderId !== getState().firebase.auth.uid) {
@@ -60,19 +57,27 @@ export const fetchMessages = () => (dispatch, getState) => {
             dispatch(addMessage(newMessage));
           } else {
             // translate the original message to the language of the user
+            console.log("lang key!!", getLangKey(userLanguage));
             fetch(
               `https://translation.googleapis.com/language/translate/v2?q=${
                 snapshot.val().message
-              }&target=fr&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
+              }&target=${getLangKey(
+                userLanguage
+              )}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
             )
               .then((response) => {
                 return response.json();
               })
               .then((data) => {
+                console.log(data);
                 newMessage.text = data.data.translations[0].translatedText;
-                newMessage.translatedFrom = getLangValue(
-                  data.data.translations[0].detectedSourceLanguage
-                );
+                newMessage.translatedFrom =
+                  data.data.translations[0].translatedText !==
+                  snapshot.val().message
+                    ? getLangValue(
+                        data.data.translations[0].detectedSourceLanguage
+                      )
+                    : false;
 
                 dispatch(addMessage(newMessage));
               });
@@ -166,12 +171,30 @@ const messagesReducer = (state = defaultMessages, action) => {
     case GET_MESSAGES:
       return { ...state, messages: action.messages };
     case ADD_MESSAGE:
-      return {
-        ...state,
-        messages: state.messages
-          .filter((msg) => msg._id !== action.message._id)
-          .concat(action.message),
-      };
+      console.log("INSERTINDEX");
+      let insertIndex = -1;
+      for (let i = 0; i < state.messages.length; i++) {
+        if (state.messages[i].timestamp > action.message.timestamp) {
+          insertIndex = i;
+          console.log("INSERTINDEX", i);
+          break;
+        }
+      }
+      if (insertIndex !== -1) {
+        return {
+          ...state,
+          messages: [
+            ...state.messages.slice(0, insertIndex),
+            action.message,
+            ...state.messages.slice(insertIndex),
+          ],
+        };
+      } else {
+        return {
+          ...state,
+          messages: state.messages.concat(action.message),
+        };
+      }
     case SEND_MESSAGE:
       return { ...state };
     case RECEIVE_MESSAGE:
