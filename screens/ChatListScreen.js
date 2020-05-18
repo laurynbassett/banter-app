@@ -1,15 +1,21 @@
 import React from "react";
 import { connect } from "react-redux";
 import { FlatList } from "react-native";
-
-import { db } from "../Firebase";
 import { ChatListItem } from "../components";
-import { fetchChats, fetchContacts, setCurrentChat, fetchUser } from "../store";
+import {
+  fetchChats,
+  fetchContacts,
+  setCurrentChat,
+  fetchUser,
+  registerForPushNotificationsAsync,
+} from "../store";
+
 class ChatListScreen extends React.Component {
   componentDidMount() {
     this.props.fetchUser();
     this.props.fetchContacts();
     this.props.fetchChats();
+    this.props.requestPushNotification();
   }
 
   render() {
@@ -21,6 +27,7 @@ class ChatListScreen extends React.Component {
             navigation={this.props.navigation}
             setCurrentChat={this.props.setCurrentChat}
             item={item}
+            userId={this.props.userId}
           />
         )}
         keyExtractor={(item, index) => index.toString()}
@@ -39,6 +46,7 @@ const mapDispatch = (dispatch) => ({
   fetchChats: () => dispatch(fetchChats()),
   fetchContacts: () => dispatch(fetchContacts()),
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
+  requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);

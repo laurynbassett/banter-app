@@ -1,12 +1,15 @@
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { auth } from "../Firebase";
 import AvatarIcon from "./AvatarIcon";
 import { memberNameHelper } from "../utils";
 
 export default function ChatListItem(props) {
-  const members = memberNameHelper(Object.values(props.item.members));
-  // set avatar img to member image (only works for 1-1 chat)
+  let members = props.item.members;
+  delete members[props.userId];
+
+  members = memberNameHelper(Object.values(members));
   const avatarName = members[0];
 
   const goToSingleChat = (chatId) => {
