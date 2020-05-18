@@ -1,48 +1,52 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { FlatList } from 'react-native';
+import React from "react";
+import { connect } from "react-redux";
+import { FlatList } from "react-native";
+import { ChatListItem } from "../components";
+import {
+  fetchChats,
+  fetchContacts,
+  setCurrentChat,
+  fetchUser,
+  registerForPushNotificationsAsync,
+} from "../store";
 
-import { db } from '../Firebase';
-import { ChatListItem } from '../components';
-import { fetchAllChats, setCurrentChat, fetchUser, fetchChatrooms } from '../store';
 class ChatListScreen extends React.Component {
-	componentDidMount() {
-		this.props.fetchUser();
-		this.props.fetchChatrooms();
-		this.props.fetchAllChats();
-	}
+  componentDidMount() {
+    this.props.fetchUser();
+    this.props.fetchContacts();
+    this.props.fetchChats();
+    this.props.requestPushNotification();
+  }
 
-	componentWillUnmount() {
-		db.ref(`users/${this.props.userId}/chatrooms`).off('child_added');
-	}
-
-	render() {
-		return (
-			<FlatList
-				data={this.props.chats}
-				renderItem={({ item }) => (
-					<ChatListItem
-						navigation={this.props.navigation}
-						setCurrentChat={this.props.setCurrentChat}
-						item={item}
-					/>
-				)}
-				keyExtractor={(item, index) => index.toString()}
-			/>
-		);
-	}
+  render() {
+    return (
+      <FlatList
+        data={this.props.chats}
+        renderItem={({ item }) => (
+          <ChatListItem
+            navigation={this.props.navigation}
+            setCurrentChat={this.props.setCurrentChat}
+            item={item}
+            userId={this.props.userId}
+          />
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    );
+  }
 }
 
-const mapState = state => ({
-	chats: state.chats.chats,
-	userId: state.firebase.auth.uid
+const mapState = (state) => ({
+  chats: state.chats.chats,
+  userId: state.firebase.auth.uid,
 });
 
-const mapDispatch = dispatch => ({
-	fetchUser: () => dispatch(fetchUser()),
-	fetchChatrooms: () => dispatch(fetchChatrooms()),
-	fetchAllChats: () => dispatch(fetchAllChats()),
-	setCurrentChat: chatId => dispatch(setCurrentChat(chatId))
+const mapDispatch = (dispatch) => ({
+  fetchUser: () => dispatch(fetchUser()),
+  fetchChats: () => dispatch(fetchChats()),
+  fetchContacts: () => dispatch(fetchContacts()),
+  setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
+  requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);

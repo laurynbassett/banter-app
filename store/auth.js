@@ -1,71 +1,77 @@
-import { auth, db } from '../Firebase';
-import * as Google from 'expo-google-app-auth';
-import { GOOGLE_IOS_CLIENT_ID } from 'react-native-dotenv';
-import firebase from 'firebase/app';
+import { auth, db } from "../Firebase";
+import * as Google from "expo-google-app-auth";
+import { GOOGLE_IOS_CLIENT_ID } from "react-native-dotenv";
+import firebase from "firebase/app";
 
-const SET_USER_LOGIN = 'SET_USER_LOGIN';
+const SET_USER_LOGIN = "SET_USER_LOGIN";
 
-const setUserLogin = isLoggedIn => ({ type: SET_USER_LOGIN, isLoggedIn });
+const setUserLogin = (isLoggedIn) => ({ type: SET_USER_LOGIN, isLoggedIn });
 
-export const signUpWithEP = (email, password, firstName, lastName, language) => {
-	return async dispatch => {
-		try {
-			const { user } = await auth.createUserWithEmailAndPassword(email, password);
+export const signUpWithEP = (
+  email,
+  password,
+  firstName,
+  lastName,
+  language
+) => {
+  return async (dispatch) => {
+    try {
+      const { user } = await auth.createUserWithEmailAndPassword(
+        email,
+        password
+      );
 
-			if (user) {
-				// console.log("NEW USER CREATED: ", email, password, user);
-				await db.ref('/users/' + user.uid).set({
-					email: email,
-					name: `${firstName} ${lastName}`,
-					language: language,
-					created_at: Date.now()
-				});
-			}
-			await auth.signInWithEmailAndPassword(email, password);
+      if (user) {
+        // console.log("NEW USER CREATED: ", email, password, user);
+        await db.ref("/users/" + user.uid).set({
+          email: email,
+          name: `${firstName} ${lastName}`,
+          language: language,
+          created_at: Date.now(),
+          notifications: { token: null, status: "undetermined" },
+        });
+      }
+      await auth.signInWithEmailAndPassword(email, password);
 
-			dispatch(setUserLogin(true));
-		} catch (err) {
-			const errMessage = err.message;
-			console.log('Signup Error: ', errMessage);
-		}
-	};
+      // dispatch(setUserLogin(true));
+    } catch (err) {
+      const errMessage = err.message;
+      console.log("Signup Error: ", errMessage);
+    }
+  };
 };
 
 // Email Password Login
 export const loginWithEP = (email, password) => {
-	return async dispatch => {
-		try {
-			await auth.signInWithEmailAndPassword(email, password);
-			dispatch(setUserLogin({ isLoggedIn: true }));
-		} catch (err) {
-			const errMessage = err.message;
-			console.log('Login Error: ', errMessage);
-		}
-	};
+  return async (dispatch) => {
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      dispatch(setUserLogin({ isLoggedIn: true }));
+    } catch (err) {
+      const errMessage = err.message;
+      console.log("Login Error: ", errMessage);
+    }
+  };
 };
 
 export const loginWithGoogle = () => {
-	return async dispatch => {
-		try {
-			const result = await Google.logInAsync({
-				iosClientId: GOOGLE_IOS_CLIENT_ID,
-				scopes: [ 'profile', 'email' ]
-			});
+  return async (dispatch) => {
+    try {
+      const result = await Google.logInAsync({
+        iosClientId: GOOGLE_IOS_CLIENT_ID,
+        scopes: ["profile", "email"],
+      });
 
-			if (result.type === 'success') {
-				console.log('LoginScreen.js.js 21 | ', result.user.givenName);
-				const user = onSignIn(result);
-				console.log('what is being returned from onSignIn', user);
-
-				dispatch(setUserLogin({ isLoggedIn: true }));
-			}
-		} catch (e) {
-			console.log('LoginScreen.js.js 30 | Error with login', e);
-			return { error: true };
-		}
-	};
+      if (result.type === "success") {
+        onSignIn(result);
+        // dispatch(setUserLogin({ isLoggedIn: true }));
+      }
+    } catch (e) {
+      console.log("LoginScreen.js.js 30 | Error with login", e);
+      return { error: true };
+    }
+  };
 };
-
 
 const onSignIn = (googleUser) => {
   console.log("Google Auth Response", googleUser);
@@ -93,10 +99,12 @@ const onSignIn = (googleUser) => {
                 email: result.user.email,
                 name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
                 created_at: Date.now(),
-              })
-              .then(function (snapshot) {
-                console.log("Snapshot", snapshot);
+                notifications: { token: null, status: "undetermined" },
+                language: "English",
               });
+            // .then(function (snapshot) {
+            //   console.log("Snapshot", snapshot);
+            // });
           } else {
             firebase
               .database()
@@ -126,33 +134,34 @@ const onSignIn = (googleUser) => {
 };
 
 const isUserEqual = (googleUser, firebaseUser) => {
-	if (firebaseUser) {
-		var providerData = firebaseUser.providerData;
-		for (var i = 0; i < providerData.length; i++) {
-			if (
-				providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
-				providerData[i].uid === googleUser.getBasicProfile().getId()
-			) {
-				// We don't need to reauth the Firebase connection.
-				return true;
-			}
-		}
-	}
-	return false;
+  if (firebaseUser) {
+    var providerData = firebaseUser.providerData;
+    for (var i = 0; i < providerData.length; i++) {
+      if (
+        providerData[i].providerId ===
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+        providerData[i].uid === googleUser.getBasicProfile().getId()
+      ) {
+        // We don't need to reauth the Firebase connection.
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 // Check Errors
 export const checkErrors = (email, password) => {
-	switch ((email, password)) {
-		case email === '' && password === '':
-			return console.log('empty email and password');
-		case email !== '' && password === '':
-			return console.log('empty password');
-		case email === '' && password !== '':
-			return console.log('empty email');
-		default:
-			return console.log('no errors');
-	}
+  switch ((email, password)) {
+    case email === "" && password === "":
+      return console.log("empty email and password");
+    case email !== "" && password === "":
+      return console.log("empty password");
+    case email === "" && password !== "":
+      return console.log("empty email");
+    default:
+      return console.log("no errors");
+  }
 };
 
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
