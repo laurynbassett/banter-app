@@ -1,25 +1,25 @@
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
-import { GiftedChat, InputToolbar } from 'react-native-gifted-chat';
-import { connect } from 'react-redux';
-import { FontAwesome } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
-import * as Permissions from 'expo-permissions';
-import * as FileSystem from 'expo-file-system';
+import React, { Component } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import { GiftedChat, InputToolbar } from "react-native-gifted-chat";
+import { connect } from "react-redux";
+import { FontAwesome } from "@expo/vector-icons";
+import { Audio } from "expo-av";
+import * as Permissions from "expo-permissions";
+import * as FileSystem from "expo-file-system";
 
-import Layout from '../constants/Layout';
-import { fetchMessages, postMessage, postAudio } from '../store';
-import { formatText } from '../utils';
+import Layout from "../constants/Layout";
+import { fetchMessages, postMessage, postAudio } from "../store";
+import { formatText } from "../utils";
 
 class SingleChat extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			messages: [],
+			currentChatId: this.props.currentChat.id,
+			originalsShown: {},
 			audioPermission: false,
 			isRecording: false,
 			isPlaying: false,
-			playAudio: false,
 			isLoading: false,
 			isPlaybackAllowed: false,
 			muted: false,
@@ -55,7 +55,7 @@ class SingleChat extends Component {
 	getPermissions = async () => {
 		const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
 		this.setState({
-			audioPermission: response.status === 'granted'
+			audioPermission: response.status === "granted"
 		});
 	};
 
@@ -66,16 +66,16 @@ class SingleChat extends Component {
 					name='microphone'
 					size={23}
 					style={styles.microphone}
-					color={this.state.isRecording ? 'red' : '#7a7a7a'}
+					color={this.state.isRecording ? "red" : "#7a7a7a"}
 					onPress={this.handleRecordPressed}
 					hitSlop={styles.hitSlop}
 				/>
 				{this.recording && (
 					<FontAwesome
-						name={this.state.isPlaying ? 'stop' : 'play'}
+						name={this.state.isPlaying ? "stop" : "play"}
 						size={23}
 						style={styles.microphone}
-						color={this.state.isPlaying ? 'red' : '#7a7a7a'}
+						color={this.state.isPlaying ? "red" : "#7a7a7a"}
 						onPress={this.handlePlayPausePressed}
 						hitSlop={styles.hitSlop}
 					/>
@@ -85,7 +85,7 @@ class SingleChat extends Component {
 	}
 
 	renderBubble(props) {
-		console.log('RENDER BUBBLE PROPS', props);
+		console.log("RENDER BUBBLE PROPS", props);
 		return (
 			<View>
 				{this.renderAudio(props)}
@@ -101,21 +101,12 @@ class SingleChat extends Component {
 			<FontAwesome
 				name='play'
 				size={35}
-				color={this.state.playAudio ? 'red' : 'black'}
+				color={this.state.isPlaying ? "red" : "black"}
 				style={style.audio}
 				onPress={this.handlePlayPausePressed}
 			/>
 		);
 	};
-
-	handleSendMessage(messages) {
-		this.setState(previousState => ({
-			messages: GiftedChat.append(previousState.messages, messages)
-		}));
-		let text = formatText(this.props);
-		text.message = messages[messages.length - 1].text;
-		postMessage(text);
-	}
 
 	async handleSendAudio() {
 		if (!this.state.isRecording) {
@@ -128,8 +119,8 @@ class SingleChat extends Component {
 			const fileName = `${genUUID()}.aac`;
 			const file = {
 				name: fileName,
-				type: 'audio/aac',
-				uri: Platform.OS === 'ios' ? audioUrl : `file://${audioUrl}`
+				type: "audio/aac",
+				uri: Platform.OS === "ios" ? audioUrl : `file://${audioUrl}`
 			};
 			const text = formatText(this.props);
 			dispatch(postAudio(file, text));
@@ -191,7 +182,7 @@ class SingleChat extends Component {
 				staysActiveInBackground: true
 			});
 		} catch (err) {
-			console.log('Error setting audio mode: ', err);
+			console.log("Error setting audio mode: ", err);
 		}
 	}
 
@@ -210,7 +201,7 @@ class SingleChat extends Component {
 				isLoading: false
 			});
 		} catch (err) {
-			console.log('Error setting audio mode: ', err);
+			console.log("Error setting audio mode: ", err);
 		}
 	}
 
@@ -239,7 +230,7 @@ class SingleChat extends Component {
 				);
 				this.sound = sound;
 			}
-			console.log('STOPPED RECORDING', this.state);
+			console.log("STOPPED RECORDING", this.state);
 			this.setState({
 				isLoading: false
 			});
@@ -269,7 +260,7 @@ class SingleChat extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Text style={{ color: 'red' }}>{this.props.sendMessageError}</Text>
+				<Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
 				<GiftedChat
 					messages={this.state.messages}
 					user={{
@@ -308,25 +299,25 @@ export default connect(mapState, mapDispatch)(SingleChat);
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: '#fafafa',
+		backgroundColor: "#fafafa",
 		width: Layout.window.width,
 		height: Layout.window.height * 0.85
 	},
 	headerContainer: {
-		flexDirection: 'row',
-		backgroundColor: '#fafafa',
+		flexDirection: "row",
+		backgroundColor: "#fafafa",
 		paddingLeft: 16,
 		paddingRight: 16,
 		paddingTop: 4,
 		paddingBottom: 4
 	},
 	inputContainer: {
-		flexDirection: 'row',
+		flexDirection: "row",
 		height: 55
 	},
 	microphone: {
 		marginLeft: 15,
-		alignSelf: 'center'
+		alignSelf: "center"
 	},
 	inputToolbar: {
 		// width: Layout.window.width *  0.8
@@ -339,10 +330,10 @@ const styles = StyleSheet.create({
 	},
 	audio: {
 		left: 90,
-		position: 'relative',
-		shadowColor: '#000',
+		position: "relative",
+		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 0 },
 		shadowOpacity: 0.5,
-		backgroundColor: 'transparent'
+		backgroundColor: "transparent"
 	}
 });

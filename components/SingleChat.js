@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { GiftedChat, MessageText, Message } from 'react-native-gifted-chat';
-import { connect } from 'react-redux';
-import { db } from '../Firebase';
+import React, { Component } from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { GiftedChat, MessageText, Message } from "react-native-gifted-chat";
+import { connect } from "react-redux";
 
-import Layout from '../constants/Layout';
-import { fetchMessages, postMessage } from '../store';
+import Layout from "../constants/Layout";
+import { fetchMessages, postMessage, postAudio } from "../store";
 class SingleChat extends Component {
 	constructor(props) {
 		super(props);
@@ -22,29 +21,21 @@ class SingleChat extends Component {
 	}
 
 	handleSendMessage(messages) {
-		const { currentChat, displayName, postMessage, route, uid } = this.props;
-
-		// console.log("ROUTE", Object.keys(this.props.currentChat.members));
-		const contactId = route.params.contactId || Object.keys(this.props.currentChat.members);
-		const contactName = route.params.name;
-		const message = messages[messages.length - 1].text;
-		const timestamp = Date.now();
-		const currChatId = currentChat ? currentChat.id : '';
-		postMessage({
-			uid,
-			displayName,
-			contactId,
-			contactName,
-			currChatId,
-			message,
-			timestamp
-		});
+		let text = formatText(this.props);
+		if (this.recording) {
+			text.audio = messages[messages.length - 1].audio;
+			text.messageType = "audio";
+		} else {
+			text.message = messages[messages.length - 1].text;
+			text.messageType = "message";
+		}
+		postMessage(text);
 	}
 
 	render() {
 		return (
 			<View style={styles.container}>
-				<Text style={{ color: 'red' }}>{this.props.sendMessageError}</Text>
+				<Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
 				<GiftedChat
 					messages={this.props.messages}
 					user={{
@@ -76,8 +67,7 @@ class SingleChat extends Component {
 															originalsShown: {
 																...prevState.originalsShown,
 																...{
-																	[params.currentMessage._id]: !this.state
-																		.originalsShown[params.currentMessage._id]
+																	[params.currentMessage._id]: !this.state.originalsShown[params.currentMessage._id]
 																}
 															}
 														};
@@ -94,11 +84,7 @@ class SingleChat extends Component {
 												}
 											}}
 										>
-											{this.state.originalsShown[params.currentMessage._id] ? (
-												'Hide Original'
-											) : (
-												'Show Original'
-											)}
+											{this.state.originalsShown[params.currentMessage._id] ? "Hide Original" : "Show Original"}
 										</Text>
 									</TouchableOpacity>
 								)}
@@ -106,7 +92,7 @@ class SingleChat extends Component {
 									{params.currentMessage.translatedFrom !== false ? (
 										`Translated From: ${params.currentMessage.translatedFrom}`
 									) : (
-										'No Translation Available'
+										"No Translation Available"
 									)}
 								</Text>
 								)}
@@ -137,7 +123,7 @@ export default connect(mapState, mapDispatch)(SingleChat);
 
 const styles = StyleSheet.create({
 	messageBox: {
-		color: 'grey',
+		color: "grey",
 		fontSize: 14,
 		paddingLeft: 10,
 		paddingRight: 10,
@@ -145,7 +131,7 @@ const styles = StyleSheet.create({
 		paddingBottom: 1
 	},
 	originalMessage: {
-		color: 'black',
+		color: "black",
 		fontSize: 14,
 		paddingLeft: 10,
 		paddingRight: 10,
@@ -153,7 +139,7 @@ const styles = StyleSheet.create({
 		paddingBottom: 1
 	},
 	showButton: {
-		color: 'rgb(102, 153, 255)',
+		color: "rgb(102, 153, 255)",
 		fontSize: 12,
 		paddingLeft: 10,
 		paddingRight: 10,
@@ -162,13 +148,13 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		backgroundColor: '#fafafa'
+		backgroundColor: "#fafafa"
 		// width: Layout.window.width,
 		// height: Layout.window.height * 0.85,
 	},
 	headerContainer: {
-		flexDirection: 'row',
-		backgroundColor: '#fafafa',
+		flexDirection: "row",
+		backgroundColor: "#fafafa",
 		paddingLeft: 16,
 		paddingRight: 16,
 		paddingTop: 4,
