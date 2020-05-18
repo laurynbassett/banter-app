@@ -11,7 +11,7 @@ class SingleChat extends Component {
     super(props);
     this.state = {
       currentChatId: this.props.currentChat.id,
-      messagesShown: {},
+      originalsShown: {},
     };
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
@@ -67,10 +67,9 @@ class SingleChat extends Component {
           placeholder="Type a message..."
           inverted={false}
           renderMessageText={(params) => {
-            console.log(params.currentMessage);
             return (
               <View>
-                {this.state.messagesShown[params.currentMessage._id] && (
+                {this.state.originalsShown[params.currentMessage._id] && (
                   <Text style={styles.originalMessage}>
                     {params.currentMessage.original}
                   </Text>
@@ -83,17 +82,17 @@ class SingleChat extends Component {
                           style={styles.showButton}
                           onPress={() => {
                             if (
-                              this.state.messagesShown[
+                              this.state.originalsShown[
                                 params.currentMessage._id
                               ]
                             ) {
                               this.setState((prevState) => {
                                 return {
-                                  messagesShown: {
-                                    ...prevState.messagesShown,
+                                  originalsShown: {
+                                    ...prevState.originalsShown,
                                     ...{
                                       [params.currentMessage._id]: !this.state
-                                        .messagesShown[
+                                        .originalsShown[
                                         params.currentMessage._id
                                       ],
                                     },
@@ -103,8 +102,8 @@ class SingleChat extends Component {
                             } else {
                               this.setState((prevState) => {
                                 return {
-                                  messagesShown: {
-                                    ...prevState.messagesShown,
+                                  originalsShown: {
+                                    ...prevState.originalsShown,
                                     ...{ [params.currentMessage._id]: true },
                                   },
                                 };
@@ -112,7 +111,7 @@ class SingleChat extends Component {
                             }
                           }}
                         >
-                          {this.state.messagesShown[params.currentMessage._id]
+                          {this.state.originalsShown[params.currentMessage._id]
                             ? "Hide Original"
                             : "Show Original"}
                         </Text>
@@ -163,7 +162,7 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
   },
   originalMessage: {
-    color: "grey",
+    color: "black",
     fontSize: 14,
     paddingLeft: 10,
     paddingRight: 10,
