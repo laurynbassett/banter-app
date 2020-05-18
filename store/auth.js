@@ -101,10 +101,10 @@ const onSignIn = (googleUser) => {
                 created_at: Date.now(),
                 notifications: { token: null, status: "undetermined" },
                 language: "English",
-              })
-              .then(function (snapshot) {
-                console.log("Snapshot", snapshot);
               });
+            // .then(function (snapshot) {
+            //   console.log("Snapshot", snapshot);
+            // });
           } else {
             firebase
               .database()

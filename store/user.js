@@ -2,7 +2,7 @@ import firebase, { auth, db } from "../Firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 import Constants from "expo-constants";
-import { fetchChats } from './chats';
+import { fetchChats } from "./chats";
 import { formatNameHelper } from "../utils";
 
 const usersRef = db.ref("users");
@@ -17,7 +17,6 @@ const GET_CONTACTS = "GET_CONTACTS";
 const ADD_CONTACT_ERROR = "ADD_CONTACT_ERROR";
 const SET_NOTIFICATION_TOKEN = "SET_NOTIFICATION_TOKEN";
 const SET_NOTIFICATION_STATUS = "SET_NOTIFICATION_STATUS";
-
 
 // ---------- ACTION CREATORS ---------- //
 const getUser = (user) => ({ type: GET_USER, user });
@@ -40,23 +39,26 @@ const setNotificationStatus = (status) => ({
 
 // GET USER
 export const fetchUser = () => async (dispatch, getState) => {
-	try {
-		const uid = getState().firebase.auth.uid;
-		const snapshot = db.ref(`users/${uid}`);
-		snapshot.on('value', snapshot => {
-			const user = snapshot.val();
-			console.log('USER 0', user);
-			user.id = snapshot.key;
-			const chatrooms = Object.keys(user.chatrooms);
-			user.chatrooms = chatrooms;
-			delete user.contacts;
-			console.log('USER', user);
-			dispatch(getUser(user));
-			return true;
-		});
-	} catch (err) {
-		console.log('Error adding new contact: ', err);
-	}
+  try {
+    const uid = getState().firebase.auth.uid;
+    const snapshot = db.ref(`users/${uid}`);
+    snapshot.once("value", (snapshot) => {
+      const user = snapshot.val();
+      // console.log("USER 0", user);
+      user.id = snapshot.key;
+
+      if (user.chatrooms) {
+        const chatrooms = Object.keys(user.chatrooms);
+        user.chatrooms = chatrooms;
+      }
+      delete user.contacts;
+      // console.log("USER", user);
+      dispatch(getUser(user));
+      return true;
+    });
+  } catch (err) {
+    console.log("Error adding new contact: ", err);
+  }
 };
 
 // UPDATE USERNAME
@@ -140,16 +142,18 @@ export const fetchContacts = () => async (dispatch, getState) => {
     // get contacts via the user node
     db.ref(`users/${uid}/contacts`).on("value", (contacts) => {
       // for each contact, get additional info from their user node
-      Object.keys(contacts.val()).forEach((contact) => {
-        // push to array of promises
-        promises.push(
-          db.ref(`users/${contact}`).once("value", (snapshot) => {
-            let newContact = snapshot.val();
-            newContact.id = snapshot.key;
-            allContacts.push(newContact);
-          })
-        );
-      });
+      if (contacts.val()) {
+        Object.keys(contacts.val()).forEach((contact) => {
+          // push to array of promises
+          promises.push(
+            db.ref(`users/${contact}`).once("value", (snapshot) => {
+              let newContact = snapshot.val();
+              newContact.id = snapshot.key;
+              allContacts.push(newContact);
+            })
+          );
+        });
+      }
     });
 
     // wait for promises to resolve before dispatching getContacts
@@ -217,7 +221,8 @@ export const registerForPushNotificationsAsync = () => async (
   // isDevice checks that user is not on a simulator, but actually on a real device
   try {
     const uid = getState().firebase.auth.uid;
-    console.log("UID", uid);
+    const status = getState().user.notification.status;
+
     if (Constants.isDevice) {
       // status returns either "undetermined", "granted", or "denied"
       // "undetermined" means the user has not either granted or denied when prompted
@@ -229,7 +234,7 @@ export const registerForPushNotificationsAsync = () => async (
         Permissions.NOTIFICATIONS
       );
       let finalStatus = existingStatus;
-      console.log("EXISTING STATUS OF NOTIFICATION", existingStatus);
+      // console.log("EXISTING STATUS OF NOTIFICATION", existingStatus);
       // Don't want to ask the user every time they login
       if (existingStatus !== "granted") {
         //This command initiates notification popup
@@ -239,14 +244,14 @@ export const registerForPushNotificationsAsync = () => async (
 
         //IF permission is granted, finalStatus will === "granted"
         finalStatus = status;
-        console.log("FINAL STATUS OF NOTIFICATION", finalStatus);
+        // console.log("FINAL STATUS OF NOTIFICATION", finalStatus);
         // if finalStatus !== existingStatus --> update users/uid/notifications/status
-        if (finalStatus !== existingStatus) {
-          await firebase
-            .database()
-            .ref("/users/" + uid + "/notifications")
-            .update({ status: finalStatus });
-        }
+
+        await firebase
+          .database()
+          .ref("/users/" + uid + "/notifications/")
+          .update({ status: finalStatus });
+
         dispatch(setNotificationStatus(finalStatus));
       }
 
@@ -258,13 +263,13 @@ export const registerForPushNotificationsAsync = () => async (
       let token = await Notifications.getExpoPushTokenAsync();
       await firebase
         .database()
-        .ref(`/users/${uid}/notifications`)
+        .ref(`/users/${uid}/notifications/`)
         .update({ token: token });
 
       // TODO: Persist token to store
       dispatch(setNotificationToken(token));
     } else {
-      alert("Must use physical device for Push Notifications");
+      console.log("Must use physical device for Push Notifications");
     }
   } catch (err) {
     console.error(err);
@@ -288,26 +293,26 @@ const defaultUser = {
 
 // ---------- REDUCER ---------- //
 const userReducer = (state = defaultUser, action) => {
-	switch (action.type) {
+  switch (action.type) {
     case GET_USER:
       return {
         ...state,
-				...action.user
-			};
-		case UPDATE_USER_NAME:
-			return { ...state, name: action.name };
-		case UPDATE_LANG:
-			return { ...state, language: action.lang };
-		case GET_CONTACTS:
-			console.log('IN GET CONTACTS', state);
-			return { ...state, contacts: action.contacts };
-		case ADD_CONTACT:
-			return {
-				...state,
-				contacts: [ ...state.contacts, action.contact ]
-			};
-		case ADD_CONTACT_ERROR:
-			return { ...state, addContactError: action.message };
+        ...action.user,
+      };
+    case UPDATE_USER_NAME:
+      return { ...state, name: action.name };
+    case UPDATE_LANG:
+      return { ...state, language: action.lang };
+    case GET_CONTACTS:
+      // console.log("IN GET CONTACTS", state);
+      return { ...state, contacts: action.contacts };
+    case ADD_CONTACT:
+      return {
+        ...state,
+        contacts: [...state.contacts, action.contact],
+      };
+    case ADD_CONTACT_ERROR:
+      return { ...state, addContactError: action.message };
     case SET_NOTIFICATION_TOKEN:
       return {
         ...state,
@@ -318,8 +323,8 @@ const userReducer = (state = defaultUser, action) => {
         ...state,
         notification: { ...state.notification, status: action.status },
       };
-		default:
-			return state;
-	}
+    default:
+      return state;
+  }
 };
 export default userReducer;

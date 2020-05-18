@@ -11,6 +11,7 @@ class SingleChat extends Component {
     super(props);
     this.state = {
       currentChatId: this.props.currentChat.id,
+      messages: [],
     };
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
@@ -31,7 +32,10 @@ class SingleChat extends Component {
 
   handleSendMessage(messages) {
     const { currentChat, displayName, postMessage, route, uid } = this.props;
-    const contactId = route.params.contactId;
+
+    // console.log("ROUTE", Object.keys(this.props.currentChat.members));
+    const contactId =
+      route.params.contactId || Object.keys(this.props.currentChat.members);
     const contactName = route.params.name;
     const message = messages[messages.length - 1].text;
     const timestamp = Date.now();
@@ -65,7 +69,7 @@ class SingleChat extends Component {
           placeholder="Type a message..."
           inverted={false}
           renderMessageText={(params) => {
-            console.log(params.currentMessage);
+            // console.log(params.currentMessage);
             return (
               <View>
                 {/* {params.currentMessage.showOriginal && (
@@ -100,7 +104,7 @@ class SingleChat extends Component {
 const mapState = (state) => ({
   messages: state.messages.messages,
   uid: state.firebase.auth.uid,
-  displayName: state.firebase.auth.displayName,
+  displayName: state.user.name,
   currentChat: state.chats.currentChat,
   sendMessageError: state.messages.sendMessageError,
 });

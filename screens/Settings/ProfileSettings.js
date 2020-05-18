@@ -15,7 +15,6 @@ export class ProfileSettings extends React.Component {
   }
 
   componentDidMount() {
-    console.log("USER NAME:", this.props.name);
     const [firstName, lastName] = this.props.name.split(" ");
     this.setState({ firstName, lastName });
   }
