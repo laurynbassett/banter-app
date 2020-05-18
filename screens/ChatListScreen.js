@@ -3,25 +3,15 @@ import { connect } from "react-redux";
 import { FlatList } from "react-native";
 import { db } from "../Firebase";
 import { ChatListItem } from "../components";
-import {
-  fetchAllChats,
-  setCurrentChat,
-  fetchUser,
-  fetchChatrooms,
-} from "../store";
-
+import { fetchChats, fetchContacts, setCurrentChat, fetchUser } from '../store';
 class ChatListScreen extends React.Component {
-  componentDidMount() {
-    this.props.fetchUser();
-    this.props.fetchChatrooms();
-    this.props.fetchAllChats();
-  }
+	componentDidMount() {
+		this.props.fetchUser();
+		this.props.fetchContacts();
+		this.props.fetchChats();
+	}
 
-  componentWillUnmount() {
-    db.ref(`users/${this.props.userId}/chatrooms`).off("child_added");
-  }
-
-  render() {
+render() {
     return (
       <FlatList
         data={this.props.chats}
@@ -38,16 +28,17 @@ class ChatListScreen extends React.Component {
   }
 }
 
+  
 const mapState = (state) => ({
   chats: state.chats.chats,
   userId: state.firebase.auth.uid,
 });
 
-const mapDispatch = (dispatch) => ({
-  fetchUser: () => dispatch(fetchUser()),
-  fetchChatrooms: () => dispatch(fetchChatrooms()),
-  fetchAllChats: () => dispatch(fetchAllChats()),
-  setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
+const mapDispatch = dispatch => ({
+	fetchUser: () => dispatch(fetchUser()),
+	fetchChats: () => dispatch(fetchChats()),
+	fetchContacts: () => dispatch(fetchContacts()),
+	setCurrentChat: chatId => dispatch(setCurrentChat(chatId))
 });
 
 export default connect(mapState, mapDispatch)(ChatListScreen);

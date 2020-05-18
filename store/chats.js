@@ -7,22 +7,16 @@ const ADD_CHAT = 'ADD_CHAT';
 const UPDATE_CHAT = 'UPDATE_CHAT';
 const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
 const SET_CURRENT_CHAT_PROPS = 'SET_CURRENT_CHAT_PROPS';
-const ADD_MEMBERS = 'ADD_MEMBERS';
-const SET_MEMBER = 'SET_MEMBER';
 
 // ---------- ACTION CREATORS ---------- //
 const addChat = chat => ({ type: ADD_CHAT, chat });
 const updateChat = chat => ({ type: UPDATE_CHAT, chat });
 export const setCurrentChat = chatId => ({ type: SET_CURRENT_CHAT, chatId });
 export const setCurrentChatProps = chat => ({ type: SET_CURRENT_CHAT_PROPS, chat });
-const addMembers = members => ({ type: ADD_MEMBERS, members });
-// for setting current chat header bar
-export const setMember = member => ({ type: SET_MEMBER, member });
-
 // ---------- THUNK CREATORS ---------- //
 
 // GET ALL CHATS
-export const fetchAllChats = () => async dispatch => {
+export const fetchChats = () => async dispatch => {
 	try {
 		const userId = auth.currentUser.uid;
 
@@ -126,16 +120,6 @@ const chatsReducer = (state = defaultChats, action) => {
 			};
 		case SET_CURRENT_CHAT_PROPS:
 			return { ...state, currentChat: action.chat };
-		case SET_MEMBER:
-			return { ...state, currentChat: { members: member } };
-		case ADD_MEMBERS:
-			return {
-				...state,
-				currentChat: {
-					...state.currentChat,
-					members: Object.assign({}, state.currentChat.members, action.members)
-				}
-			};
 		default:
 			return state;
 	}

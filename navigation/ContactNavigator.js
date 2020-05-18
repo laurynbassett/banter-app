@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { AddContactScreen, SingleChatScreen, ContactListScreen } from '../screens';
-import { ContactsHeaderRight, SingleChatHeaderLeft } from '../components';
+import { ContactsHeaderRight, SingleChatHeaderLeft, SingleChatHeaderCenter } from '../components';
 
 const Stack = createStackNavigator();
 
@@ -29,6 +29,8 @@ export default function ContactNavigator({ navigation, route }) {
 				component={SingleChatScreen}
 				options={{
 					title: 'Single Chat',
+					gestureEnabled: false,
+					headerTitle: () => <SingleChatHeaderCenter />,
 					headerLeft: () => <SingleChatHeaderLeft navigation={navigation} route={route} back='Contact' />,
 					headerStyle: { height: 130 }
 				}}

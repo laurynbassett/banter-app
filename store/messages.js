@@ -4,23 +4,18 @@ import firebase, { auth, db } from "../Firebase";
 import { createCurrentChatId, addNewMembers } from "./chats";
 import { addNewChatroom } from "./user";
 
-const messagesRef = db.ref("messages");
 const chatsRef = db.ref("chats");
 
 // ---------- ACTION TYPES ---------- //
-export const GET_MESSAGES = "GET_MESSAGES";
-export const ADD_MESSAGE = "ADD_MESSAGE";
-export const SEND_MESSAGE = "SEND_MESSAGE";
-export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
-const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
+export const GET_MESSAGES = 'GET_MESSAGES';
+export const ADD_MESSAGE = 'ADD_MESSAGE';
+const SEND_MESSAGE_ERROR = 'SEND_MESSAGE_ERROR';
 
 // ---------- ACTION CREATORS ---------- //
 
-export const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
-const addMessage = (message) => ({ type: ADD_MESSAGE, message });
-const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
-const receiveMessage = (message) => ({ type: RECEIVE_MESSAGE, message });
-const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
+export const getMessages = messages => ({ type: GET_MESSAGES, messages });
+const addMessage = message => ({ type: ADD_MESSAGE, message });
+const sendMessageError = message => ({ type: ADD_CONTACT_ERROR, message });
 
 // ---------- THUNK CREATORS ---------- //
 
@@ -139,25 +134,20 @@ const defaultMessages = {
 
 // ---------- REDUCER ---------- //
 const messagesReducer = (state = defaultMessages, action) => {
-  switch (action.type) {
-    case GET_MESSAGES:
-      return { ...state, messages: action.messages };
-    case ADD_MESSAGE:
-      return {
-        ...state,
-        messages: state.messages
-          .filter((msg) => msg._id !== action.message._id)
-          .concat(action.message),
-      };
-    case SEND_MESSAGE:
-      return { ...state };
-    case RECEIVE_MESSAGE:
-      return { ...state, messages: state.messages.concat(action.message) };
-    case SEND_MESSAGE_ERROR:
-      return { ...state, sendMessageError: action.message };
-    default:
-      return state;
-  }
+	switch (action.type) {
+		case GET_MESSAGES:
+			console.log('GOT', state);
+			return { ...state, messages: action.messages };
+		case ADD_MESSAGE:
+			return {
+				...state,
+				messages: state.messages.filter(msg => msg._id !== action.message._id).concat(action.message)
+			};
+		case SEND_MESSAGE_ERROR:
+			return { ...state, sendMessageError: action.message };
+		default:
+			return state;
+	}
 };
 
 export default messagesReducer;
