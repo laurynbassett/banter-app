@@ -6,6 +6,8 @@ import {
   TextInput,
   View,
   Dimensions,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { connect } from "react-redux";
 import { signUpWithEP } from "../store/auth";
@@ -55,9 +57,12 @@ class SignUpScreen extends Component {
       loading,
     } = this.state;
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
         <TextInput
-          style={styles.inputBox}
+          style={styles.firstName}
           type="First Name"
           value={firstName}
           placeholder="First Name"
@@ -95,7 +100,7 @@ class SignUpScreen extends Component {
           hideIcon={true}
         />
         <TextInput
-          style={styles.inputBox}
+          style={styles.firstName}
           type="email"
           value={email}
           placeholder="Email"
@@ -131,7 +136,7 @@ class SignUpScreen extends Component {
         >
           <Text style={styles.buttonText}>Login with existing account</Text>
         </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -166,6 +171,16 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     textAlign: "center",
+  },
+  firstName: {
+    width: "85%",
+    margin: 10,
+    padding: 15,
+    fontSize: 16,
+    borderColor: "#d3d3d3",
+    borderWidth: 1,
+    textAlign: "left",
+    marginBottom: 0,
   },
 });
 
