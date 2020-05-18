@@ -46,8 +46,11 @@ export const fetchUser = () => async (dispatch, getState) => {
       const user = snapshot.val();
       console.log("USER 0", user);
       user.id = snapshot.key;
-      const chatrooms = Object.keys(user.chatrooms);
-      user.chatrooms = chatrooms;
+
+      if (user.chatrooms) {
+        const chatrooms = Object.keys(user.chatrooms);
+        user.chatrooms = chatrooms;
+      }
       delete user.contacts;
       console.log("USER", user);
       dispatch(getUser(user));
@@ -139,16 +142,18 @@ export const fetchContacts = () => async (dispatch, getState) => {
     // get contacts via the user node
     db.ref(`users/${uid}/contacts`).on("value", (contacts) => {
       // for each contact, get additional info from their user node
-      Object.keys(contacts.val()).forEach((contact) => {
-        // push to array of promises
-        promises.push(
-          db.ref(`users/${contact}`).once("value", (snapshot) => {
-            let newContact = snapshot.val();
-            newContact.id = snapshot.key;
-            allContacts.push(newContact);
-          })
-        );
-      });
+      if (contacts.val()) {
+        Object.keys(contacts.val()).forEach((contact) => {
+          // push to array of promises
+          promises.push(
+            db.ref(`users/${contact}`).once("value", (snapshot) => {
+              let newContact = snapshot.val();
+              newContact.id = snapshot.key;
+              allContacts.push(newContact);
+            })
+          );
+        });
+      }
     });
 
     // wait for promises to resolve before dispatching getContacts
