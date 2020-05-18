@@ -17,6 +17,7 @@ const reducer = combineReducers({
 });
 
 // ---------- MIDDLEWARE ---------- //
+// const middleware = composeWithDevTools(applyMiddleware(thunkMiddleware, loggerMiddleware));
 const middleware = composeWithDevTools(applyMiddleware(thunkMiddleware));
 
 // ---------- STORE ---------- //
