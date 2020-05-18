@@ -1,16 +1,11 @@
 import UserAvatar from 'react-native-user-avatar';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 export default function AvatarIcon(props) {
-	return <UserAvatar name={props.name} size={32} style={styles.avatar} bgColor='#A9A9A9' />;
+	return (
+		<View style={props.containerStyle}>
+			<UserAvatar name={props.name} src={props.src} size={32} style={props.style} bgColor='#A9A9A9' />
+		</View>
+	);
 }
-
-const styles = StyleSheet.create({
-	avatar: {
-		marginBottom: -3,
-		borderRadius: 100,
-		width: 50,
-		height: 50
-	}
-});

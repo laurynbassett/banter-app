@@ -8,22 +8,17 @@ import { GOOGLE_API_KEY } from "react-native-dotenv";
 
 import { getLangValue, getLangKey } from "../utils/translate";
 
-const messagesRef = db.ref("messages");
 const chatsRef = db.ref("chats");
 
 // ---------- ACTION TYPES ---------- //
 export const GET_MESSAGES = "GET_MESSAGES";
 export const ADD_MESSAGE = "ADD_MESSAGE";
-export const SEND_MESSAGE = "SEND_MESSAGE";
-export const RECEIVE_MESSAGE = "RECEIVE_MESSAGE";
 const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
 
 // ---------- ACTION CREATORS ---------- //
 
 export const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
 const addMessage = (message) => ({ type: ADD_MESSAGE, message });
-const sendMessage = (message, user) => ({ type: SEND_MESSAGE, message });
-const receiveMessage = (message) => ({ type: RECEIVE_MESSAGE, message });
 const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
 
 // ---------- THUNK CREATORS ---------- //
@@ -57,7 +52,6 @@ export const fetchMessages = () => (dispatch, getState) => {
             dispatch(addMessage(newMessage));
           } else {
             // translate the original message to the language of the user
-            console.log("lang key!!", getLangKey(userLanguage));
             fetch(
               `https://translation.googleapis.com/language/translate/v2?q=${
                 snapshot.val().message
@@ -69,7 +63,6 @@ export const fetchMessages = () => (dispatch, getState) => {
                 return response.json();
               })
               .then((data) => {
-                console.log(data);
                 newMessage.text = data.data.translations[0].translatedText;
                 newMessage.translatedFrom =
                   data.data.translations[0].translatedText !==
@@ -81,7 +74,6 @@ export const fetchMessages = () => (dispatch, getState) => {
 
                 dispatch(addMessage(newMessage));
               });
-            //${getLangKey(userLanguage)}
           }
         } else {
           newMessage.text = snapshot.val().translations.original;
@@ -95,8 +87,6 @@ export const fetchMessages = () => (dispatch, getState) => {
 // SEND NEW MESSAGE
 export const postMessage = (text) => async (dispatch) => {
   try {
-    console.log("POSTING MESSAGE:", text);
-
     const {
       uid,
       displayName,
@@ -199,23 +189,20 @@ const messagesReducer = (state = defaultMessages, action) => {
     case GET_MESSAGES:
       return { ...state, messages: action.messages };
     case ADD_MESSAGE:
-      console.log("INSERTINDEX");
       let insertIndex = -1;
       for (let i = 0; i < state.messages.length; i++) {
-        if (state.messages[i].timestamp > action.message.timestamp) {
+        if (state.messages[i].createdAt > action.message.createdAt) {
           insertIndex = i;
-          console.log("INSERTINDEX", i);
           break;
         }
       }
       if (insertIndex !== -1) {
         return {
           ...state,
-          messages: [
-            ...state.messages.slice(0, insertIndex),
-            action.message,
-            ...state.messages.slice(insertIndex),
-          ],
+          messages: state.messages
+            .slice(0, insertIndex)
+            .concat(action.message)
+            .concat(state.messages.slice(insertIndex)),
         };
       } else {
         return {
@@ -223,10 +210,6 @@ const messagesReducer = (state = defaultMessages, action) => {
           messages: state.messages.concat(action.message),
         };
       }
-    case SEND_MESSAGE:
-      return { ...state };
-    case RECEIVE_MESSAGE:
-      return { ...state, messages: state.messages.concat(action.message) };
     case SEND_MESSAGE_ERROR:
       return { ...state, sendMessageError: action.message };
     default:

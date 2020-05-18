@@ -1,18 +1,25 @@
 import * as React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { ChatListScreen, SingleChatScreen } from "../screens";
-import { ChatListHeaderRight, SingleChatHeaderLeft } from "../components";
+import {
+  ChatListHeaderRight,
+  SingleChatHeaderLeft,
+  SingleChatHeaderCenter,
+} from "../components";
 
 const Stack = createStackNavigator();
 
 export default function ChatNavigator({ navigation, route }) {
   return (
-    <Stack.Navigator initialRouteName="Chat">
+    <Stack.Navigator
+      initialRouteName="Chat"
+      navigationOptions={{ tabBarVisible: false }}
+    >
       <Stack.Screen
         name="Chat"
         component={ChatListScreen}
         options={({ navigation }) => ({
-          title: "Chats",
+          title: "All Chats",
           headerRight: () => <ChatListHeaderRight navigation={navigation} />,
         })}
       />
@@ -21,7 +28,8 @@ export default function ChatNavigator({ navigation, route }) {
         component={SingleChatScreen}
         options={{
           title: "Single Chat",
-          // headerTitle: () => <SingleChatHeaderCenter />,
+          gestureEnabled: false,
+          headerTitle: () => <SingleChatHeaderCenter />,
           headerLeft: () => (
             <SingleChatHeaderLeft
               navigation={navigation}
@@ -29,7 +37,9 @@ export default function ChatNavigator({ navigation, route }) {
               back="Chat"
             />
           ),
+          headerStyle: { height: 130 },
         }}
+        navigationOptions={{ tabBarVisible: false }}
       />
     </Stack.Navigator>
   );

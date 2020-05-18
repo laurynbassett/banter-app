@@ -25,7 +25,7 @@ export const setMember = (member) => ({ type: SET_MEMBER, member });
 // ---------- THUNK CREATORS ---------- //
 
 // GET ALL CHATS
-export const fetchAllChats = () => async (dispatch) => {
+export const fetchChats = () => async (dispatch) => {
   try {
     const userId = auth.currentUser.uid;
 

@@ -4,21 +4,12 @@ import { FlatList } from "react-native";
 
 import { db } from "../Firebase";
 import { ChatListItem } from "../components";
-import {
-  fetchAllChats,
-  setCurrentChat,
-  fetchUser,
-  fetchChatrooms,
-} from "../store";
+import { fetchChats, fetchContacts, setCurrentChat, fetchUser } from "../store";
 class ChatListScreen extends React.Component {
   componentDidMount() {
     this.props.fetchUser();
-    // this.props.fetchChatrooms();
-    this.props.fetchAllChats();
-  }
-
-  componentWillUnmount() {
-    db.ref(`users/${this.props.userId}/chatrooms`).off("child_added");
+    this.props.fetchContacts();
+    this.props.fetchChats();
   }
 
   render() {
@@ -45,8 +36,8 @@ const mapState = (state) => ({
 
 const mapDispatch = (dispatch) => ({
   fetchUser: () => dispatch(fetchUser()),
-  fetchChatrooms: () => dispatch(fetchChatrooms()),
-  fetchAllChats: () => dispatch(fetchAllChats()),
+  fetchChats: () => dispatch(fetchChats()),
+  fetchContacts: () => dispatch(fetchContacts()),
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
 });
 

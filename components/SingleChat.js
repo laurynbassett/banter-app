@@ -10,10 +10,14 @@ class SingleChat extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: [],
+      currentChatId: this.props.currentChat.id,
     };
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
+
+  static navigationOptions = ({ navigation }) => ({
+    tabBarVisible: false,
+  });
 
   async componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
@@ -21,8 +25,8 @@ class SingleChat extends Component {
   }
 
   componentWillUnmount() {
-    console.log("CURENT CHAT ON UNMOUNT", this.props.currentChat);
-    // db.ref(`messages/${this.props.currentChat.id}`).off("child_added");
+    // turn off the new message listener for the chat
+    db.ref(`messages/${this.state.currentChatId}`).off("child_added");
   }
 
   handleSendMessage(messages) {
@@ -109,20 +113,6 @@ const mapDispatch = (dispatch) => ({
 export default connect(mapState, mapDispatch)(SingleChat);
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fafafa",
-    flex: 1,
-    // width: Layout.window.width,
-    // height: Layout.window.height * 0.75,
-  },
-  headerContainer: {
-    flexDirection: "row",
-    backgroundColor: "#fafafa",
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 1,
-    paddingBottom: 4,
-  },
   messageBox: {
     color: "grey",
     fontSize: 12,
@@ -133,5 +123,18 @@ const styles = StyleSheet.create({
   },
   showButton: {
     fontSize: 7,
+  },
+  container: {
+    backgroundColor: "#fafafa",
+    width: Layout.window.width,
+    height: Layout.window.height * 0.85,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fafafa",
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
 });
