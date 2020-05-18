@@ -1,14 +1,14 @@
-import { db } from '../Firebase';
-import { createCurrentChatId, addNewMembers } from './chats';
-import { addNewChatroom } from './user';
-import { getLangValue, getLangKey } from '../utils/translate';
+import { db } from "../Firebase";
+import { createCurrentChatId, addNewMembers } from "./chats";
+import { addNewChatroom } from "./user";
+import { getLangValue, getLangKey } from "../utils/translate";
 
-const chatsRef = db.ref('chats');
+const chatsRef = db.ref("chats");
 
 // ---------- ACTION TYPES ---------- //
-export const GET_MESSAGES = 'GET_MESSAGES';
-export const ADD_MESSAGE = 'ADD_MESSAGE';
-const SEND_MESSAGE_ERROR = 'SEND_MESSAGE_ERROR';
+export const GET_MESSAGES = "GET_MESSAGES";
+export const ADD_MESSAGE = "ADD_MESSAGE";
+const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
 
 // ---------- ACTION CREATORS ---------- //
 
@@ -22,7 +22,7 @@ const addMessage = message => ({ type: ADD_MESSAGE, message });
 export const fetchMessages = () => (dispatch, getState) => {
 	// query for all messages for the current chat, and add listener on child_added for new messages
 	if (getState().chats.currentChat) {
-		db.ref(`messages/${getState().chats.currentChat.id}`).on('child_added', function(snapshot) {
+		db.ref(`messages/${getState().chats.currentChat.id}`).on("child_added", function(snapshot) {
 			// format a message object compatible with GiftedChat, message text not added yet
 			const newMessage = {
 				_id: snapshot.key,
@@ -45,8 +45,9 @@ export const fetchMessages = () => (dispatch, getState) => {
 				} else {
 					// translate the original message to the language of the user
 					fetch(
-						`https://translation.googleapis.com/language/translate/v2?q=${snapshot.val()
-							.message}&target=${getLangKey(userLanguage)}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
+						`https://translation.googleapis.com/language/translate/v2?q=${snapshot.val().message}&target=${getLangKey(
+							userLanguage
+						)}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
 					)
 						.then(response => {
 							return response.json();
@@ -106,20 +107,20 @@ export const postMessage = text => async dispatch => {
 						original: message
 					}
 				});
-				console.log('CONTACTID:', contactId);
-				console.log('DisplayName:', displayName);
-				console.log('message:', message);
+				console.log("CONTACTID:", contactId);
+				console.log("DisplayName:", displayName);
+				console.log("message:", message);
 				dispatch(notify(contactId, displayName, message));
 			})
-			.catch(err => console.log('Error posting message to chats and messages', err));
+			.catch(err => console.log("Error posting message to chats and messages", err));
 	} catch (err) {
-		console.error('Error adding msg to db: ', err);
+		console.error("Error adding msg to db: ", err);
 	}
 };
 
 export const notify = (contactId, senderName, message) => async () => {
 	try {
-		const snapshot = await db.ref('/users/' + contactId + '/notifications/token').once('value');
+		const snapshot = await db.ref("/users/" + contactId + "/notifications/token").once("value");
 
 		const receiverToken = snapshot.val();
 		// console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
@@ -129,30 +130,30 @@ export const notify = (contactId, senderName, message) => async () => {
 		if (receiverToken) {
 			const notification = {
 				to: receiverToken,
-				sound: 'default',
+				sound: "default",
 				title: senderName,
 				body: message,
 				_displayInForeground: true
 			};
-			fetch('https://exp.host/--/api/v2/push/send', {
-				method: 'POST',
+			fetch("https://exp.host/--/api/v2/push/send", {
+				method: "POST",
 				headers: {
-					Accept: 'application/json',
-					'Accept-encoding': 'gzip, deflate',
-					'Content-Type': 'application/json'
+					Accept: "application/json",
+					"Accept-encoding": "gzip, deflate",
+					"Content-Type": "application/json"
 				},
 				body: JSON.stringify(notification)
 			});
 		}
 	} catch (err) {
-		console.error('Error sending notification: ', err);
+		console.error("Error sending notification: ", err);
 	}
 };
 // ---------- INITIAL STATE ---------- //
 
 const defaultMessages = {
 	messages: [],
-	sendMessageError: ''
+	sendMessageError: ""
 };
 
 // ---------- REDUCER ---------- //

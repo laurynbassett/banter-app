@@ -1,15 +1,15 @@
-import firebase, { auth, db } from '../Firebase';
-import { fetchMessages } from './messages';
+import firebase, { auth, db } from "../Firebase";
+import { fetchMessages } from "./messages";
 
-const chatsRef = db.ref('chats');
+const chatsRef = db.ref("chats");
 
 // ---------- ACTION TYPES ---------- //
-const ADD_CHAT = 'ADD_CHAT';
-const UPDATE_CHAT = 'UPDATE_CHAT';
-const SET_CURRENT_CHAT = 'SET_CURRENT_CHAT';
-const SET_CURRENT_CHAT_PROPS = 'SET_CURRENT_CHAT_PROPS';
-const ADD_MEMBERS = 'ADD_MEMBERS';
-const SET_MEMBERS = 'SET_MEMBERS';
+const ADD_CHAT = "ADD_CHAT";
+const UPDATE_CHAT = "UPDATE_CHAT";
+const SET_CURRENT_CHAT = "SET_CURRENT_CHAT";
+const SET_CURRENT_CHAT_PROPS = "SET_CURRENT_CHAT_PROPS";
+const ADD_MEMBERS = "ADD_MEMBERS";
+const SET_MEMBERS = "SET_MEMBERS";
 
 // ---------- ACTION CREATORS ---------- //
 const addChat = chat => ({ type: ADD_CHAT, chat });
@@ -31,15 +31,15 @@ export const fetchChats = () => async dispatch => {
 		const userId = auth.currentUser.uid;
 
 		// get each chatId via user, adding listener for any additional chat rooms added
-		db.ref(`users/${userId}/chatrooms`).on('child_added', snapshot => {
-			db.ref(`chats/${snapshot.key}`).once('value').then(snapshot => {
+		db.ref(`users/${userId}/chatrooms`).on("child_added", snapshot => {
+			db.ref(`chats/${snapshot.key}`).once("value").then(snapshot => {
 				// add id to chat object
 				let newChat = snapshot.val();
 				newChat.id = snapshot.key;
 				// add new chat to state
 				dispatch(addChat(newChat));
 				// add listener for changes
-				db.ref(`chats/${snapshot.key}`).on('child_changed', function(updatedSnapshot) {
+				db.ref(`chats/${snapshot.key}`).on("child_changed", function(updatedSnapshot) {
 					// add id to chat object
 					let updatedChat = { [updatedSnapshot.key]: updatedSnapshot.val() };
 					updatedChat.id = snapshot.key;
@@ -50,7 +50,7 @@ export const fetchChats = () => async dispatch => {
 			});
 		});
 	} catch (err) {
-		console.log('Error fetching all chats: ', err);
+		console.log("Error fetching all chats: ", err);
 	}
 };
 
@@ -60,7 +60,7 @@ export const fetchCurrentChatId = ({ contactId, name }, { uid, userName }, navig
 	getState
 ) => {
 	try {
-		let currChatId = '';
+		let currChatId = "";
 		// check if chat exists w/ contact
 		const chat = getState().chats.chats.find(chat => Object.keys(chat.members).includes(contactId));
 
@@ -73,9 +73,9 @@ export const fetchCurrentChatId = ({ contactId, name }, { uid, userName }, navig
 			dispatch(setCurrentChatProps({ members: { [uid]: userName, [contactId]: name } }));
 		}
 		// navigate to single chat screen
-		navigation.navigate('SingleChat', { contactId, name });
+		navigation.navigate("SingleChat", { contactId, name });
 	} catch (err) {
-		console.log('Error fetching current chat ID: ', err);
+		console.log("Error fetching current chat ID: ", err);
 	}
 };
 
@@ -88,16 +88,16 @@ export const createCurrentChatId = () => async dispatch => {
 		dispatch(fetchMessages());
 		return newChatId;
 	} catch (err) {
-		console.log('Error creating current chat ID: ', err);
+		console.log("Error creating current chat ID: ", err);
 	}
 };
 
 // ADD MEMBERS TO CURRENT CHAT
 export const addNewMembers = (chatId, members) => async () => {
 	try {
-		db.ref(`chats/${chatId}`).child('members').set(members);
+		db.ref(`chats/${chatId}`).child("members").set(members);
 	} catch (err) {
-		console.log('Error adding new members: ', err);
+		console.log("Error adding new members: ", err);
 	}
 };
 
@@ -111,7 +111,7 @@ const defaultChats = {
 const chatsReducer = (state = defaultChats, action) => {
 	switch (action.type) {
 		case ADD_CHAT:
-			console.log('STATE', state);
+			console.log("STATE", state);
 			return { ...state, chats: [ ...state.chats, action.chat ] };
 		case UPDATE_CHAT:
 			return {
