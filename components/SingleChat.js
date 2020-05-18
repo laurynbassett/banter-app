@@ -77,41 +77,47 @@ class SingleChat extends Component {
                 )}
                 {this.props.uid !== params.currentMessage.user._id && (
                   <>
-                    <TouchableOpacity>
-                      <Text
-                        style={styles.showButton}
-                        onPress={() => {
-                          if (
-                            this.state.messagesShown[params.currentMessage._id]
-                          ) {
-                            this.setState((prevState) => {
-                              return {
-                                messagesShown: {
-                                  ...prevState.messagesShown,
-                                  ...{
-                                    [params.currentMessage._id]: !this.state
-                                      .messagesShown[params.currentMessage._id],
+                    {params.currentMessage.translatedFrom !== false && (
+                      <TouchableOpacity>
+                        <Text
+                          style={styles.showButton}
+                          onPress={() => {
+                            if (
+                              this.state.messagesShown[
+                                params.currentMessage._id
+                              ]
+                            ) {
+                              this.setState((prevState) => {
+                                return {
+                                  messagesShown: {
+                                    ...prevState.messagesShown,
+                                    ...{
+                                      [params.currentMessage._id]: !this.state
+                                        .messagesShown[
+                                        params.currentMessage._id
+                                      ],
+                                    },
                                   },
-                                },
-                              };
-                            });
-                          } else {
-                            this.setState((prevState) => {
-                              return {
-                                messagesShown: {
-                                  ...prevState.messagesShown,
-                                  ...{ [params.currentMessage._id]: true },
-                                },
-                              };
-                            });
-                          }
-                        }}
-                      >
-                        {this.state.messagesShown[params.currentMessage._id]
-                          ? "Hide Original"
-                          : "Show Original"}
-                      </Text>
-                    </TouchableOpacity>
+                                };
+                              });
+                            } else {
+                              this.setState((prevState) => {
+                                return {
+                                  messagesShown: {
+                                    ...prevState.messagesShown,
+                                    ...{ [params.currentMessage._id]: true },
+                                  },
+                                };
+                              });
+                            }
+                          }}
+                        >
+                          {this.state.messagesShown[params.currentMessage._id]
+                            ? "Hide Original"
+                            : "Show Original"}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                     <Text style={styles.messageBox}>
                       {params.currentMessage.translatedFrom !== false
                         ? `Translated From: ${params.currentMessage.translatedFrom}`
@@ -173,9 +179,10 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
   },
   container: {
+    flex: 1,
     backgroundColor: "#fafafa",
-    width: Layout.window.width,
-    height: Layout.window.height * 0.85,
+    // width: Layout.window.width,
+    // height: Layout.window.height * 0.85,
   },
   headerContainer: {
     flexDirection: "row",
