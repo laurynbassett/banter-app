@@ -32,7 +32,10 @@ class SingleChat extends Component {
 
   handleSendMessage(messages) {
     const { currentChat, displayName, postMessage, route, uid } = this.props;
-    const contactId = route.params.contactId;
+
+    // console.log("ROUTE", Object.keys(this.props.currentChat.members));
+    const contactId =
+      route.params.contactId || Object.keys(this.props.currentChat.members);
     const contactName = route.params.name;
     const message = messages[messages.length - 1].text;
     const timestamp = Date.now();

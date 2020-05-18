@@ -1,11 +1,6 @@
-import React from "react";
-import base64 from "base-64";
-
 import { db } from "../Firebase";
 import { createCurrentChatId, addNewMembers } from "./chats";
 import { addNewChatroom } from "./user";
-import { GOOGLE_API_KEY } from "react-native-dotenv";
-
 import { getLangValue, getLangKey } from "../utils/translate";
 
 const chatsRef = db.ref("chats");
@@ -19,7 +14,7 @@ const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
 
 export const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
 const addMessage = (message) => ({ type: ADD_MESSAGE, message });
-const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
+// const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
 
 // ---------- THUNK CREATORS ---------- //
 
@@ -132,6 +127,9 @@ export const postMessage = (text) => async (dispatch) => {
               original: message,
             },
           });
+        console.log("CONTACTID:", contactId);
+        console.log("DisplayName:", displayName);
+        console.log("message:", message);
 
         dispatch(notify(contactId, displayName, message));
       })
@@ -143,16 +141,16 @@ export const postMessage = (text) => async (dispatch) => {
   }
 };
 
-export const notify = (contactId, senderName, message) => async (dispatch) => {
+export const notify = (contactId, senderName, message) => async () => {
   try {
     const snapshot = await db
       .ref("/users/" + contactId + "/notifications/token")
       .once("value");
 
     const receiverToken = snapshot.val();
-    console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
-    console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
-    console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
+    // console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
+    // console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
+    // console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
 
     if (receiverToken) {
       const notification = {
@@ -189,6 +187,7 @@ const messagesReducer = (state = defaultMessages, action) => {
     case GET_MESSAGES:
       return { ...state, messages: action.messages };
     case ADD_MESSAGE:
+      // eslint-disable-next-line no-case-declarations
       let insertIndex = -1;
       for (let i = 0; i < state.messages.length; i++) {
         if (state.messages[i].createdAt > action.message.createdAt) {

@@ -21,6 +21,7 @@ export default function ContactNavigator({ navigation, route }) {
         component={ContactListScreen}
         options={{
           title: "Contacts",
+          // eslint-disable-next-line react/display-name
           headerRight: () => <ContactsHeaderRight navigation={navigation} />,
         }}
       />
@@ -37,7 +38,9 @@ export default function ContactNavigator({ navigation, route }) {
         options={{
           title: "Single Chat",
           gestureEnabled: false,
+          // eslint-disable-next-line react/display-name
           headerTitle: () => <SingleChatHeaderCenter />,
+          // eslint-disable-next-line react/display-name
           headerLeft: () => (
             <SingleChatHeaderLeft
               navigation={navigation}
