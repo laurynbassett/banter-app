@@ -79,7 +79,6 @@ export const postMessage = text => async dispatch => {
 		};
 
 		let chatId = currChatId;
-
 		// if chatId doesn't exist, create id, new chatroom and add members
 		if (!chatId) {
 			chatId = await dispatch(createCurrentChatId());
@@ -110,7 +109,6 @@ export const postMessage = text => async dispatch => {
 				console.log('CONTACTID:', contactId);
 				console.log('DisplayName:', displayName);
 				console.log('message:', message);
-				dispatch(fetchMessages());
 				dispatch(notify(contactId, displayName, message));
 			})
 			.catch(err => console.log('Error posting message to chats and messages', err));

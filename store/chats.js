@@ -1,4 +1,5 @@
 import firebase, { auth, db } from '../Firebase';
+import { fetchMessages } from './messages';
 
 const chatsRef = db.ref('chats');
 
@@ -84,6 +85,7 @@ export const createCurrentChatId = () => async dispatch => {
 		const newChatRef = await chatsRef.push();
 		const newChatId = newChatRef.key;
 		dispatch(setCurrentChatProps({ id: newChatId }));
+		dispatch(fetchMessages());
 		return newChatId;
 	} catch (err) {
 		console.log('Error creating current chat ID: ', err);
