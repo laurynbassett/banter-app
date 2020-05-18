@@ -44,7 +44,7 @@ export const fetchUser = () => async (dispatch, getState) => {
     const snapshot = db.ref(`users/${uid}`);
     snapshot.once("value", (snapshot) => {
       const user = snapshot.val();
-      console.log("USER 0", user);
+      // console.log("USER 0", user);
       user.id = snapshot.key;
 
       if (user.chatrooms) {
@@ -52,7 +52,7 @@ export const fetchUser = () => async (dispatch, getState) => {
         user.chatrooms = chatrooms;
       }
       delete user.contacts;
-      console.log("USER", user);
+      // console.log("USER", user);
       dispatch(getUser(user));
       return true;
     });
@@ -234,7 +234,7 @@ export const registerForPushNotificationsAsync = () => async (
         Permissions.NOTIFICATIONS
       );
       let finalStatus = existingStatus;
-      console.log("EXISTING STATUS OF NOTIFICATION", existingStatus);
+      // console.log("EXISTING STATUS OF NOTIFICATION", existingStatus);
       // Don't want to ask the user every time they login
       if (existingStatus !== "granted") {
         //This command initiates notification popup
@@ -244,7 +244,7 @@ export const registerForPushNotificationsAsync = () => async (
 
         //IF permission is granted, finalStatus will === "granted"
         finalStatus = status;
-        console.log("FINAL STATUS OF NOTIFICATION", finalStatus);
+        // console.log("FINAL STATUS OF NOTIFICATION", finalStatus);
         // if finalStatus !== existingStatus --> update users/uid/notifications/status
 
         await firebase
@@ -304,7 +304,7 @@ const userReducer = (state = defaultUser, action) => {
     case UPDATE_LANG:
       return { ...state, language: action.lang };
     case GET_CONTACTS:
-      console.log("IN GET CONTACTS", state);
+      // console.log("IN GET CONTACTS", state);
       return { ...state, contacts: action.contacts };
     case ADD_CONTACT:
       return {

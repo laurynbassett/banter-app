@@ -66,7 +66,7 @@ class SingleChat extends Component {
           placeholder="Type a message..."
           inverted={false}
           renderMessageText={(params) => {
-            console.log(params.currentMessage);
+            // console.log(params.currentMessage);
             return (
               <View>
                 {/* {params.currentMessage.showOriginal && (
