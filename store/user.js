@@ -42,7 +42,7 @@ export const fetchUser = () => async (dispatch, getState) => {
   try {
     const uid = getState().firebase.auth.uid;
     const snapshot = db.ref(`users/${uid}`);
-    snapshot.on("value", (snapshot) => {
+    snapshot.once("value", (snapshot) => {
       const user = snapshot.val();
       console.log("USER 0", user);
       user.id = snapshot.key;

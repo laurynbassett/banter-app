@@ -13,8 +13,10 @@ export const translateText = async (text, lang) => {
   }
 };
 
-export const getLangKey = async (lang) => {
-  return Object.keys(languages).find(
-    (key) => languages[key] === lang.toLowerCase()
-  );
+export const getLangKey = (lang) => {
+  return Object.keys(languages).find((key) => languages[key] === lang);
+};
+
+export const getLangValue = (langKey) => {
+  return languages[langKey];
 };
