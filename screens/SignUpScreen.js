@@ -99,6 +99,7 @@ class SignUpScreen extends Component {
           type="email"
           value={email}
           placeholder="Email"
+          autoCapitalize="none"
           onChangeText={(email) => this.setState({ email })}
         />
         <TextInput
@@ -106,6 +107,7 @@ class SignUpScreen extends Component {
           type="password"
           value={password}
           placeholder="Password"
+          autoCapitalize="none"
           onChangeText={(password) => this.setState({ password })}
         />
         <TouchableOpacity
