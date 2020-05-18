@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { GiftedChat, MessageText, Message } from "react-native-gifted-chat";
 import { connect } from "react-redux";
 import { db } from "../Firebase";
@@ -11,6 +11,7 @@ class SingleChat extends Component {
     super(props);
     this.state = {
       currentChatId: this.props.currentChat.id,
+      messagesShown: {},
     };
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
@@ -48,6 +49,7 @@ class SingleChat extends Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <View style={styles.container}>
         <Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
@@ -68,21 +70,54 @@ class SingleChat extends Component {
             console.log(params.currentMessage);
             return (
               <View>
-                {/* {params.currentMessage.showOriginal && (
-                  <Text style={styles.messageBox}>
+                {this.state.messagesShown[params.currentMessage._id] && (
+                  <Text style={styles.originalMessage}>
                     {params.currentMessage.original}
                   </Text>
                 )}
-                <Button
-                  title={"Show"}
-                  style={styles.showButton}
-                /> */}
                 {this.props.uid !== params.currentMessage.user._id && (
-                  <Text style={styles.messageBox}>
-                    {params.currentMessage.translatedFrom !== false
-                      ? `Translated From: ${params.currentMessage.translatedFrom}`
-                      : "Not Translated"}
-                  </Text>
+                  <>
+                    <TouchableOpacity>
+                      <Text
+                        style={styles.showButton}
+                        onPress={() => {
+                          if (
+                            this.state.messagesShown[params.currentMessage._id]
+                          ) {
+                            this.setState((prevState) => {
+                              return {
+                                messagesShown: {
+                                  ...prevState.messagesShown,
+                                  ...{
+                                    [params.currentMessage._id]: !this.state
+                                      .messagesShown[params.currentMessage._id],
+                                  },
+                                },
+                              };
+                            });
+                          } else {
+                            this.setState((prevState) => {
+                              return {
+                                messagesShown: {
+                                  ...prevState.messagesShown,
+                                  ...{ [params.currentMessage._id]: true },
+                                },
+                              };
+                            });
+                          }
+                        }}
+                      >
+                        {this.state.messagesShown[params.currentMessage._id]
+                          ? "Hide Original"
+                          : "Show Original"}
+                      </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.messageBox}>
+                      {params.currentMessage.translatedFrom !== false
+                        ? `Translated From: ${params.currentMessage.translatedFrom}`
+                        : "Not Translated"}
+                    </Text>
+                  </>
                 )}
                 <MessageText {...params} />
               </View>
@@ -115,14 +150,27 @@ export default connect(mapState, mapDispatch)(SingleChat);
 const styles = StyleSheet.create({
   messageBox: {
     color: "grey",
-    fontSize: 12,
+    fontSize: 14,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 1,
+    paddingBottom: 1,
+  },
+  originalMessage: {
+    color: "grey",
+    fontSize: 14,
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 5,
     paddingBottom: 1,
   },
   showButton: {
-    fontSize: 7,
+    color: "rgb(102, 153, 255)",
+    fontSize: 12,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 1,
   },
   container: {
     backgroundColor: "#fafafa",
