@@ -6,6 +6,7 @@ import {
   SingleChatHeaderLeft,
   SingleChatHeaderCenter,
 } from "../components";
+import NewChat from "../components/NewChat";
 
 const Stack = createStackNavigator();
 
@@ -41,6 +42,8 @@ export default function ChatNavigator({ navigation, route }) {
         }}
         navigationOptions={{ tabBarVisible: false }}
       />
+
+      <Stack.Screen name="NewChat" component={NewChat} />
     </Stack.Navigator>
   );
 }

@@ -10,7 +10,7 @@ import AppNavigation from "./navigation";
 import firebase from "firebase/app";
 import { ReactReduxFirebaseProvider } from "react-redux-firebase";
 import useLinking from "./navigation/useLinking";
-import NewChat from "./components/NewChat";
+
 // react-redux-firebase config
 const rrfConfig = {
   userProfile: "users",
@@ -61,13 +61,12 @@ export default function App(props) {
         <ReactReduxFirebaseProvider {...rrfProps}>
           <View style={styles.container}>
             {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-            <NewChat />
-            {/* <NavigationContainer
+            <NavigationContainer
               ref={containerRef}
               initialState={initialNavigationState}
             >
               <AppNavigation />
-            </NavigationContainer> */}
+            </NavigationContainer>
           </View>
         </ReactReduxFirebaseProvider>
       </Provider>
