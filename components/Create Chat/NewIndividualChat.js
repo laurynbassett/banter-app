@@ -2,12 +2,13 @@ import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
+  Button,
   ScrollView,
   SectionList,
   ListView,
   View,
 } from "react-native";
-import { Button, ListItem } from "react-native-elements";
+import { ListItem } from "react-native-elements";
 import { Entypo } from "@expo/vector-icons";
 import { connect } from "react-redux";
 
@@ -21,7 +22,7 @@ const getHeaders = (contacts) => {
   return uniques.map((letter) => ({ title: letter, data: [] }));
 };
 
-export class NewChat extends Component {
+export class NewIndividualChat extends Component {
   constructor() {
     super();
     this.state = {
@@ -41,7 +42,18 @@ export class NewChat extends Component {
       obj.checked = false;
       data[index].data.push(obj);
     });
+
     this.setState({ data });
+
+    this.props.navigation.setOptions({
+      headerRight: () => (
+        <Button
+          title="Create Group"
+          onPress={() => console.log("pressed")}
+        ></Button>
+      ),
+      // headerLeft: () => <Button title="Cancel"></Button>,
+    });
   }
 
   indexOfSectionArray(name, data) {
@@ -68,6 +80,20 @@ export class NewChat extends Component {
     data[section].data[name].checked = !data[section].data[name].checked;
 
     this.setState({ data });
+  }
+
+  getSelected() {
+    let selected = [];
+
+    this.state.data.forEach((section) => {
+      section.forEach((contact) => {
+        if (contact.checked === true) {
+          selected.push(contact);
+        }
+      });
+    });
+
+    return selected;
   }
 
   render() {
@@ -147,4 +173,4 @@ const mapState = (state) => ({
   contacts: state.user.contacts,
 });
 
-export default connect(mapState)(NewChat);
+export default connect(mapState)(NewIndividualChat);

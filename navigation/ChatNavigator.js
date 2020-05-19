@@ -6,7 +6,10 @@ import {
   SingleChatHeaderLeft,
   SingleChatHeaderCenter,
 } from "../components";
-import NewChat from "../components/NewChat";
+import NewIndividualChat from "../components/Create Chat/NewIndividualChat";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { StyleSheet, Text, View, Button } from "react-native";
+import Layout from "../constants/Layout";
 
 const Stack = createStackNavigator();
 
@@ -43,7 +46,13 @@ export default function ChatNavigator({ navigation, route }) {
         navigationOptions={{ tabBarVisible: false }}
       />
 
-      <Stack.Screen name="NewChat" component={NewChat} />
+      <Stack.Screen
+        name="NewChat"
+        component={NewIndividualChat}
+        options={{
+          title: "New Chat",
+        }}
+      />
     </Stack.Navigator>
   );
 }
