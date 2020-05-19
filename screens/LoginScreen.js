@@ -37,12 +37,14 @@ class LoginScreen extends Component {
           type="email"
           value={email}
           placeholder="Email"
+          autoCapitalize="none"
           onChangeText={(email) => this.setState({ email })}
         />
         <TextInput
           style={styles.inputBox}
           type="password"
           value={password}
+          autoCapitalize="none"
           onChangeText={(password) => this.setState({ password })}
           placeholder="Password"
         />
