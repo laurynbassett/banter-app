@@ -2,6 +2,7 @@ import { db } from "../Firebase";
 import { createCurrentChatId, addNewMembers } from "./chats";
 import { addNewChatroom } from "./user";
 import { getLangValue, getLangKey } from "../utils/translate";
+import { GOOGLE_API_KEY } from "react-native-dotenv";
 
 const chatsRef = db.ref("chats");
 
@@ -54,9 +55,7 @@ export const fetchMessages = () => (dispatch, getState) => {
             fetch(
               `https://translation.googleapis.com/language/translate/v2?q=${
                 snapshot.val().message
-              }&target=${getLangKey(
-                userLanguage
-              )}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
+              }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
             )
               .then((response) => {
                 return response.json();
