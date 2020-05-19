@@ -1,26 +1,8 @@
 import React, { Component } from "react";
-import {
-  StyleSheet,
-  Text,
-  Button,
-  ScrollView,
-  SectionList,
-  ListView,
-  View,
-} from "react-native";
+import { StyleSheet, Text, Button, SectionList, View } from "react-native";
 import { ListItem } from "react-native-elements";
-import { Entypo } from "@expo/vector-icons";
 import { connect } from "react-redux";
-
-const getHeaders = (contacts) => {
-  let letters = contacts
-    .map((contactObj) => contactObj.name[0].toUpperCase())
-    .sort();
-
-  const uniques = [...new Set(letters)];
-
-  return uniques.map((letter) => ({ title: letter, data: [] }));
-};
+import { createSectionedData, findIndices } from "../../utils";
 
 export class NewGroupChat extends Component {
   constructor() {
@@ -28,23 +10,15 @@ export class NewGroupChat extends Component {
     this.state = {
       data: [],
     };
-    this.checked = this.checked.bind(this);
-    this.indexOfNamesArray = this.indexOfNamesArray.bind(this);
-    this.indexOfSectionArray = this.indexOfSectionArray.bind(this);
+    this.checkItem = this.checkItem.bind(this);
   }
 
   componentDidMount() {
-    let contacts = this.props.contacts;
-    const data = getHeaders(contacts);
-    contacts.forEach((obj) => {
-      const firstLetter = obj.name[0].toUpperCase();
-      const index = data.findIndex((obj) => obj.title === firstLetter);
-      obj.checked = false;
-      data[index].data.push(obj);
-    });
-
+    // Transforming contacts data into correct format for SectionList
+    const data = createSectionedData(this.props.contacts);
     this.setState({ data });
 
+    // Overriding header buttons
     this.props.navigation.setOptions({
       headerRight: () => (
         <Button title="Create Group" onPress={() => console.log("pressed")} />
@@ -58,28 +32,23 @@ export class NewGroupChat extends Component {
     });
   }
 
-  indexOfSectionArray(name, data) {
-    const firstLetter = name[0].toUpperCase();
-    return data.findIndex((obj) => obj.title === firstLetter);
-  }
+  checkItem(itemName, itemId) {
+    const { sectionIndex, nameIndex } = findIndices(
+      itemName,
+      itemId,
+      this.state.data
+    );
 
-  indexOfNamesArray(userId, data, sectionIndex) {
-    return data[sectionIndex].data.findIndex((obj) => obj.id === userId);
-  }
-
-  checked(itemName, itemId) {
-    const section = this.indexOfSectionArray(itemName, this.state.data);
-    const name = this.indexOfNamesArray(itemId, this.state.data, section);
-
-    return this.state.data[section].data[name].checked;
+    return this.state.data[sectionIndex].data[nameIndex].checked;
   }
 
   handlePress(itemName, itemId) {
-    const section = this.indexOfSectionArray(itemName, this.state.data);
-    const name = this.indexOfNamesArray(itemId, this.state.data, section);
-
     const data = this.state.data;
-    data[section].data[name].checked = !data[section].data[name].checked;
+    const { sectionIndex, nameIndex } = findIndices(itemName, itemId, data);
+
+    data[sectionIndex].data[nameIndex].checked = !data[sectionIndex].data[
+      nameIndex
+    ].checked;
 
     this.setState({ data });
   }
@@ -100,20 +69,16 @@ export class NewGroupChat extends Component {
 
   render() {
     return (
-      <View
-        style={styles.container}
-        // contentContainerStyle={styles.contentContainer}
-      >
+      <View style={styles.container}>
         <SectionList
           sections={this.state.data}
           renderItem={({ item }) => (
-            // <Text style={styles.item}>{item.name}</Text>
             <ListItem
               title={item.name}
               bottomDivider
               checkBox={{
                 onIconPress: () => this.handlePress(item.name, item.id),
-                checked: this.checked(item.name, item.id),
+                checked: this.checkItem(item.name, item.id),
               }}
             />
           )}
@@ -133,10 +98,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
-  contentContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
   sectionHeader: {
     paddingTop: 2,
     paddingLeft: 10,
@@ -145,12 +106,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     backgroundColor: "rgba(247,247,247,1.0)",
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
-    backgroundColor: "white",
   },
 });
 

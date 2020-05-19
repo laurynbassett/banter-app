@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import * as React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { ChatListScreen, SingleChatScreen } from "../screens";
@@ -5,12 +6,9 @@ import {
   ChatListHeaderRight,
   SingleChatHeaderLeft,
   SingleChatHeaderCenter,
+  NewIndividualChat,
+  NewGroupChat,
 } from "../components";
-import NewIndividualChat from "../components/Create Chat/NewIndividualChat";
-import NewGroupChat from "../components/Create Chat/NewGroupChat";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { StyleSheet, Text, View, Button } from "react-native";
-import Layout from "../constants/Layout";
 
 const Stack = createStackNavigator();
 
