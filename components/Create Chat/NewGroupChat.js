@@ -22,12 +22,15 @@ const getHeaders = (contacts) => {
   return uniques.map((letter) => ({ title: letter, data: [] }));
 };
 
-export class NewIndividualChat extends Component {
+export class NewGroupChat extends Component {
   constructor() {
     super();
     this.state = {
       data: [],
     };
+    this.checked = this.checked.bind(this);
+    this.indexOfNamesArray = this.indexOfNamesArray.bind(this);
+    this.indexOfSectionArray = this.indexOfSectionArray.bind(this);
   }
 
   componentDidMount() {
@@ -43,6 +46,9 @@ export class NewIndividualChat extends Component {
     this.setState({ data });
 
     this.props.navigation.setOptions({
+      headerRight: () => (
+        <Button title="Create Group" onPress={() => console.log("pressed")} />
+      ),
       headerLeft: () => (
         <Button
           title="Cancel"
@@ -52,7 +58,45 @@ export class NewIndividualChat extends Component {
     });
   }
 
-  handlePress() {}
+  indexOfSectionArray(name, data) {
+    const firstLetter = name[0].toUpperCase();
+    return data.findIndex((obj) => obj.title === firstLetter);
+  }
+
+  indexOfNamesArray(userId, data, sectionIndex) {
+    return data[sectionIndex].data.findIndex((obj) => obj.id === userId);
+  }
+
+  checked(itemName, itemId) {
+    const section = this.indexOfSectionArray(itemName, this.state.data);
+    const name = this.indexOfNamesArray(itemId, this.state.data, section);
+
+    return this.state.data[section].data[name].checked;
+  }
+
+  handlePress(itemName, itemId) {
+    const section = this.indexOfSectionArray(itemName, this.state.data);
+    const name = this.indexOfNamesArray(itemId, this.state.data, section);
+
+    const data = this.state.data;
+    data[section].data[name].checked = !data[section].data[name].checked;
+
+    this.setState({ data });
+  }
+
+  getSelected() {
+    let selected = [];
+
+    this.state.data.forEach((section) => {
+      section.forEach((contact) => {
+        if (contact.checked === true) {
+          selected.push(contact);
+        }
+      });
+    });
+
+    return selected;
+  }
 
   render() {
     return (
@@ -60,26 +104,18 @@ export class NewIndividualChat extends Component {
         style={styles.container}
         // contentContainerStyle={styles.contentContainer}
       >
-        <ListItem
-          title={"New Group"}
-          leftIcon={() => <Entypo name="users" size={20} style={styles.icon} />}
-          bottomDivider
-          onPress={() => this.props.navigation.navigate("NewGroupChat")}
-        />
-        <ListItem
-          title={"New Contact"}
-          leftIcon={() => (
-            <Entypo name="add-user" size={20} style={styles.icon} />
-          )}
-          bottomDivider
-          onPress={() => console.log("pressed")}
-        />
-
         <SectionList
           sections={this.state.data}
           renderItem={({ item }) => (
             // <Text style={styles.item}>{item.name}</Text>
-            <ListItem title={item.name} bottomDivider />
+            <ListItem
+              title={item.name}
+              bottomDivider
+              checkBox={{
+                onIconPress: () => this.handlePress(item.name, item.id),
+                checked: this.checked(item.name, item.id),
+              }}
+            />
           )}
           renderSectionHeader={({ section }) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
@@ -122,4 +158,4 @@ const mapState = (state) => ({
   contacts: state.user.contacts,
 });
 
-export default connect(mapState)(NewIndividualChat);
+export default connect(mapState)(NewGroupChat);

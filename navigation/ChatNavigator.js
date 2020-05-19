@@ -7,6 +7,7 @@ import {
   SingleChatHeaderCenter,
 } from "../components";
 import NewIndividualChat from "../components/Create Chat/NewIndividualChat";
+import NewGroupChat from "../components/Create Chat/NewGroupChat";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { StyleSheet, Text, View, Button } from "react-native";
 import Layout from "../constants/Layout";
@@ -51,6 +52,14 @@ export default function ChatNavigator({ navigation, route }) {
         component={NewIndividualChat}
         options={{
           title: "New Chat",
+        }}
+      />
+
+      <Stack.Screen
+        name="NewGroupChat"
+        component={NewGroupChat}
+        options={{
+          title: "New Group",
         }}
       />
     </Stack.Navigator>
