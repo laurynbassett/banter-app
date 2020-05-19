@@ -11,14 +11,44 @@ import { Button, ListItem } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 
+const getHeaders = (contacts) => {
+  let letters = contacts
+    .map((contactObj) => contactObj.name[0].toUpperCase())
+    .sort();
+
+  const uniques = [...new Set(letters)];
+
+  return uniques.map((letter) => ({ title: letter, data: [] }));
+};
+
 export class NewChat extends Component {
+  constructor() {
+    super();
+    this.state = {
+      data: [],
+    };
+  }
+
+  componentDidMount() {
+    let contacts = this.props.contacts;
+    const data = getHeaders(contacts);
+    console.log(data);
+    contacts.forEach((obj) => {
+      const firstLetter = obj.name[0].toUpperCase();
+      const index = data.findIndex((obj) => obj.title === firstLetter);
+
+      data[index].data.push(obj);
+    });
+    this.setState({ data });
+  }
+
   render() {
+    console.log(this.state.data);
     return (
       <View
         style={styles.container}
         // contentContainerStyle={styles.contentContainer}
       >
-        <Text>New Chat</Text>
         <ListItem
           title={"New Group"}
           // leftIcon={() => <Ionicons name="people-outline" />}
@@ -34,26 +64,15 @@ export class NewChat extends Component {
         />
 
         <SectionList
-          sections={[
-            { title: "D", data: ["Devin", "Dan", "Dominic"] },
-            {
-              title: "J",
-              data: [
-                "Jackson",
-                "James",
-                "Jillian",
-                "Jimmy",
-                "Joel",
-                "John",
-                "Julie",
-              ],
-            },
-          ]}
-          renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+          sections={this.state.data}
+          renderItem={({ item }) => (
+            <Text style={styles.item}>{item.name}</Text>
+          )}
           renderSectionHeader={({ section }) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
           )}
           keyExtractor={(item, index) => index}
+          checkmark
         />
       </View>
     );
