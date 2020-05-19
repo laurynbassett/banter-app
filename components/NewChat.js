@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { Button, ListItem } from "react-native-elements";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { connect } from "react-redux";
 
 const getHeaders = (contacts) => {
@@ -78,13 +78,16 @@ export class NewChat extends Component {
       >
         <ListItem
           title={"New Group"}
-          // leftIcon={() => <Ionicons name="people-outline" />}
+          leftIcon={() => <Entypo name="users" size={20} style={styles.icon} />}
           bottomDivider
           // onPress={() =>
           // }
         />
         <ListItem
           title={"New Contact"}
+          leftIcon={() => (
+            <Entypo name="add-user" size={20} style={styles.icon} />
+          )}
           bottomDivider
           // onPress={() =>
           // }
