@@ -27,23 +27,50 @@ export class NewChat extends Component {
     this.state = {
       data: [],
     };
+    this.checked = this.checked.bind(this);
+    this.indexOfNamesArray = this.indexOfNamesArray.bind(this);
+    this.indexOfSectionArray = this.indexOfSectionArray.bind(this);
   }
 
   componentDidMount() {
     let contacts = this.props.contacts;
     const data = getHeaders(contacts);
-    console.log(data);
     contacts.forEach((obj) => {
       const firstLetter = obj.name[0].toUpperCase();
       const index = data.findIndex((obj) => obj.title === firstLetter);
-
+      obj.checked = false;
       data[index].data.push(obj);
     });
     this.setState({ data });
   }
 
+  indexOfSectionArray(name, data) {
+    const firstLetter = name[0].toUpperCase();
+    return data.findIndex((obj) => obj.title === firstLetter);
+  }
+
+  indexOfNamesArray(userId, data, sectionIndex) {
+    return data[sectionIndex].data.findIndex((obj) => obj.id === userId);
+  }
+
+  checked(itemName, itemId) {
+    const section = this.indexOfSectionArray(itemName, this.state.data);
+    const name = this.indexOfNamesArray(itemId, this.state.data, section);
+
+    return this.state.data[section].data[name].checked;
+  }
+
+  handlePress(itemName, itemId) {
+    const section = this.indexOfSectionArray(itemName, this.state.data);
+    const name = this.indexOfNamesArray(itemId, this.state.data, section);
+
+    const data = this.state.data;
+    data[section].data[name].checked = !data[section].data[name].checked;
+
+    this.setState({ data });
+  }
+
   render() {
-    console.log(this.state.data);
     return (
       <View
         style={styles.container}
@@ -66,13 +93,21 @@ export class NewChat extends Component {
         <SectionList
           sections={this.state.data}
           renderItem={({ item }) => (
-            <Text style={styles.item}>{item.name}</Text>
+            // <Text style={styles.item}>{item.name}</Text>
+            <ListItem
+              title={item.name}
+              bottomDivider
+              checkBox={{
+                onIconPress: () => this.handlePress(item.name, item.id),
+                checked: this.checked(item.name, item.id),
+              }}
+            />
           )}
           renderSectionHeader={({ section }) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
           )}
           keyExtractor={(item, index) => index}
-          checkmark
+          stickySectionHeadersEnabled
         />
       </View>
     );
@@ -82,7 +117,7 @@ export class NewChat extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5FCFF",
+    backgroundColor: "white",
   },
   contentContainer: {
     justifyContent: "center",
