@@ -22,7 +22,9 @@ export const ChatListHeader = () => {
 export const ChatListHeaderRight = (props) => {
   return (
     <View style={styles.left}>
-      <TouchableOpacity onPress={() => props.navigation.navigate("NewChat")}>
+      <TouchableOpacity
+        onPress={() => props.navigation.navigate("NewIndividualChat")}
+      >
         <Entypo name="new-message" size={20} style={styles.icon} />
       </TouchableOpacity>
     </View>

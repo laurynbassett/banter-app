@@ -47,7 +47,7 @@ export default function ChatNavigator({ navigation, route }) {
       />
 
       <Stack.Screen
-        name="NewChat"
+        name="NewIndividualChat"
         component={NewIndividualChat}
         options={{
           title: "New Chat",
