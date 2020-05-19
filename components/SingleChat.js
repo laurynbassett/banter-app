@@ -20,14 +20,23 @@ class SingleChat extends Component {
     tabBarVisible: false,
   });
 
-  async componentDidMount() {
+  componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
-    this.props.fetchMessages();
+    this.focusUnsubscribe = this.props.navigation.addListener("focus", () => {
+      // fetch messages for current chat when in focus
+      this.props.fetchMessages();
+    });
+
+    this.blurUnsubscribe = this.props.navigation.addListener("blur", () => {
+      // unsubscribe from firebase listener when chat is not in focus
+      db.ref(`messages/${this.state.currentChatId}`).off("child_added");
+    });
   }
 
   componentWillUnmount() {
-    // turn off the new message listener for the chat
-    db.ref(`messages/${this.state.currentChatId}`).off("child_added");
+    // turn off navigation listeners
+    this.focusUnsubscribe();
+    this.blurUnsubscribe();
   }
 
   handleSendMessage(messages) {
@@ -123,7 +132,7 @@ class SingleChat extends Component {
                     <Text style={styles.messageBox}>
                       {params.currentMessage.translatedFrom !== false
                         ? `Translated From: ${params.currentMessage.translatedFrom}`
-                        : "No Translation Available"}
+                        : "Not Translated"}
                     </Text>
                   </>
                 )}
