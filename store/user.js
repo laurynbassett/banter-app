@@ -2,7 +2,6 @@ import firebase, { auth, db } from "../Firebase";
 import { Notifications } from "expo";
 import * as Permissions from "expo-permissions";
 import Constants from "expo-constants";
-import { fetchChats } from "./chats";
 import { formatNameHelper } from "../utils";
 
 const usersRef = db.ref("users");

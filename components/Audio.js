@@ -21,9 +21,6 @@ class SingleChat extends Component {
 			isRecording: false,
 			isPlaying: false,
 			isLoading: false,
-			isPlaybackAllowed: false,
-			soundPosition: null,
-			soundDuration: null,
 			audioUrl: null
 		};
 		this.recording = null;
@@ -93,9 +90,9 @@ class SingleChat extends Component {
 			<View />
 		) : (
 			<FontAwesome
-				name='play'
+				name={this.state.isPlaying ? "pause" : "play"}
 				size={35}
-				color={this.state.isPlaying ? "red" : "black"}
+				color='#7a7a7a'
 				style={style.audio}
 				onPress={this.handlePlayPausePressed}
 			/>
@@ -111,6 +108,9 @@ class SingleChat extends Component {
 			uri: Platform.OS === "ios" ? audioUrl : `file://${audioUrl}`
 		};
 		const text = formatText(this.props);
+		text.messageType = "audio";
+		console.log("DISPATCHED AUDIO FILE", file);
+		console.log("DISPATCHED AUDIO TEXT", text);
 		dispatch(postAudio(file, text));
 	}
 
@@ -129,6 +129,12 @@ class SingleChat extends Component {
 			}
 			// customizes audio experience on iOS and Android
 			await setAudioMode({ allowsRecordingIOS: true });
+
+			// sets interval that onRecordingStatusUpdate is called on while the recording can record
+			if (this.recording !== null) {
+				this.recording.setOnRecordingStatusUpdate(null);
+				this.recording = null;
+			}
 			// create new Audio instance
 			const recording = new Audio.Recording();
 			// Sets a cb to be called regularly w/ the status of the recording
@@ -143,7 +149,7 @@ class SingleChat extends Component {
 				isLoading: false
 			});
 		} catch (err) {
-			console.log("Error setting audio mode: ", err);
+			console.log("Error starting recording: ", err);
 		}
 	}
 
@@ -162,13 +168,13 @@ class SingleChat extends Component {
 				const audioUrl = this.recording.getURI();
 				this.recording.setOnRecordingStatusUpdate(null);
 				this.setState({ audioUrl });
-				// creates and loads a new sound object to play back the recording
-				const { sound, status } = await this.recording.createNewLoadedSoundAsync(
-					{ isLooping: false },
-					this.updateScreenForSoundStatus
-				);
-				this.sound = sound;
 			}
+			// creates and loads a new sound object to play back the recording
+			const { sound, status } = await this.recording.createNewLoadedSoundAsync(
+				{ isLooping: false },
+				this.updateScreenForSoundStatus
+			);
+			this.sound = sound;
 
 			console.log("STOPPED RECORDING", this.state);
 
@@ -210,6 +216,7 @@ class SingleChat extends Component {
 					}}
 					onSend={this.handleSendMessage}
 					renderActions={this.renderActions}
+					renderBubble={this.renderBubble}
 					inverted={false}
 					alignTop={true}
 					isTyping={true}

@@ -1,9 +1,9 @@
-import { db } from "../Firebase";
-import { createCurrentChatId, addNewMembers } from "./chats";
-import { addNewChatroom } from "./user";
-import { getLangValue, getLangKey } from "../utils/translate";
+import { db, storage } from "../Firebase";
+import { addNewChatroom, addNewMembers, createCurrentChatId } from ".";
+import { getLangValue, getLangKey } from "../utils";
 
 const chatsRef = db.ref("chats");
+const audioRef = storage.ref().child("audio");
 
 // ---------- ACTION TYPES ---------- //
 export const GET_MESSAGES = "GET_MESSAGES";
@@ -20,196 +20,246 @@ const addMessage = message => ({ type: ADD_MESSAGE, message });
 
 // GET MESSAGES FOR CURRENT CHAT
 export const fetchMessages = () => (dispatch, getState) => {
-	// query for all messages for the current chat, and add listener on child_added for new messages
-	if (getState().chats.currentChat) {
-		db.ref(`messages/${getState().chats.currentChat.id}`).on("child_added", function(snapshot) {
-			// format a message object compatible with GiftedChat, message text not added yet
-			const newMessage = {
-				_id: snapshot.key,
-				user: {
-					_id: snapshot.val().senderId,
-					name: snapshot.val().senderName
-				},
-				createdAt: snapshot.val().timestamp,
-				original: snapshot.val().translations.original
-			};
+  // query for all messages for the current chat, and add listener on child_added for new messages
+  if (getState().chats.currentChat) {
+    db.ref(`messages/${getState().chats.currentChat.id}`).on("child_added", function(snapshot) {
+      // format a message object compatible with GiftedChat, message text not added yet
+      const newMessage = {
+        _id: snapshot.key,
+        user: {
+          _id: snapshot.val().senderId,
+          name: snapshot.val().senderName
+        },
+        createdAt: snapshot.val().timestamp,
+        original: snapshot.val().translations.original,
+        messageType: snapshot.val().messageType
+      };
 
-			const userLanguage = getState().user.language;
+      const userLanguage = getState().user.language;
 
-			// if the message was sent by the user it will not be translated
-			if (snapshot.val().senderId !== getState().firebase.auth.uid) {
-				// check if translation to user's language exists
-				if (snapshot.val().translations[userLanguage]) {
-					newMessage.text = snapshot.val().translations[userLanguage];
-					dispatch(addMessage(newMessage));
-				} else {
-					// translate the original message to the language of the user
-					fetch(
-						`https://translation.googleapis.com/language/translate/v2?q=${snapshot.val().message}&target=${getLangKey(
-							userLanguage
-						)}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
-					)
-						.then(response => {
-							return response.json();
-						})
-						.then(data => {
-							newMessage.text = data.data.translations[0].translatedText;
-							newMessage.translatedFrom =
-								data.data.translations[0].translatedText !== snapshot.val().message
-									? getLangValue(data.data.translations[0].detectedSourceLanguage)
-									: false;
+      // if the message was sent by the user it will not be translated
+      // check if message type is text
+      if (snapshot.val().senderId !== getState().firebase.auth.uid && messageType === "message") {
+        // check if translation to user's language exists
+        if (snapshot.val().translations[userLanguage]) {
+          newMessage.text = snapshot.val().translations[userLanguage];
+          dispatch(addMessage(newMessage));
+        } else {
+          // translate the original message to the language of the user
+          fetch(
+            `https://translation.googleapis.com/language/translate/v2?q=${snapshot.val().message}&target=${getLangKey(
+              userLanguage
+            )}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
+          )
+            .then(response => {
+              return response.json();
+            })
+            .then(data => {
+              newMessage.text = data.data.translations[0].translatedText;
+              newMessage.translatedFrom =
+                data.data.translations[0].translatedText !== snapshot.val().message
+                  ? getLangValue(data.data.translations[0].detectedSourceLanguage)
+                  : false;
 
-							dispatch(addMessage(newMessage));
-						});
-				}
-			} else {
-				newMessage.text = snapshot.val().translations.original;
-				dispatch(addMessage(newMessage));
-			}
-		});
-	}
+              dispatch(addMessage(newMessage));
+            });
+        }
+      } else {
+        // case: message file
+        if (newMessage.messageType === "message") {
+          newMessage.text = snapshot.val().translations.original;
+          // case: audio file
+        } else if (newMessage.messageType === "audio") {
+          newMessage.audio = snapshot.val().audio;
+          // case: image file
+        } else if (newMessage.messageType === "image") {
+          newMessage.image = snapshot.val().image;
+        }
+        console.log("FETCH MESSAGES DISPATCH NEW MESSAGE", newMessage);
+        dispatch(addMessage(newMessage));
+      }
+    });
+  }
 };
 
 // SEND NEW MESSAGE
-export const postMessage = (text, isAudio) => async dispatch => {
-	try {
-		const { uid, displayName, contactId, contactName, currChatId, message, timestamp } = text;
-		const members = {
-			[uid]: displayName,
-			[contactId]: contactName
-		};
+export const postMessage = ({
+  uid,
+  displayName,
+  contactId,
+  contactName,
+  currChatId,
+  timestamp,
+  message = "",
+  audio = "",
+  image = "",
+  messageType
+}) => async dispatch => {
+  try {
+    console.log("IN POST MESSAGE", props);
+    const members = {
+      [uid]: displayName,
+      [contactId]: contactName
+    };
 
-		let chatId = currChatId;
-		// if chatId doesn't exist, create id, new chatroom and add members
-		if (!chatId) {
-			chatId = await dispatch(createCurrentChatId());
-			await dispatch(addNewChatroom(chatId, uid));
-			await dispatch(addNewChatroom(chatId, contactId));
-			await dispatch(addNewMembers(chatId, members));
-		}
+    let chatId = currChatId;
+    // if chatId doesn't exist, create id, new chatroom and add members
+    if (!chatId) {
+      chatId = await dispatch(createCurrentChatId());
+      await dispatch(addNewChatroom(chatId, uid));
+      await dispatch(addNewChatroom(chatId, contactId));
+      await dispatch(addNewMembers(chatId, members));
+    }
 
-		// update chats node
-		chatsRef
-			.child(chatId)
-			.update({
-				lastMessage: message,
-				senderId: uid,
-				timestamp
-			})
-			.then(() => {
-				// update messages node
-				db.ref(`messages/${chatId}`).push().set({
-					message,
-					senderId: uid,
-					senderName: displayName,
-					timestamp,
-					translations: {
-						original: message
-					}
-				});
-				console.log("CONTACTID:", contactId);
-				console.log("DisplayName:", displayName);
-				console.log("message:", message);
-				dispatch(notify(contactId, displayName, message));
-			})
-			.catch(err => console.log("Error posting message to chats and messages", err));
-	} catch (err) {
-		console.error("Error adding msg to db: ", err);
-	}
+    // update chats node
+    chatsRef
+      .child(chatId)
+      .update({
+        lastMessage: uid + ": " + (message || audio || image),
+        senderId: uid,
+        timestamp
+      })
+      .then(() => {
+        // create message object to push to firebase
+        let newMessage = {
+          senderId: uid,
+          senderName: displayName,
+          timestamp,
+          messageType
+        };
+        if (messageType === "message") {
+          newMessage.translations = {
+            original: message
+          };
+        } else if (messageType === "audio") {
+          newMessage.audio = audio;
+        } else if (messageType === "image") {
+          newMessage.image = image;
+        }
+        // update messages node
+        db.ref(`messages/${chatId}`).push().set(newMessage);
+        console.log("ADD MESSAGE DISPATCH NEW MESSAGE", newMessage);
+        dispatch(notify(contactId, displayName, message));
+      })
+      .catch(err => console.log("Error posting message to chats and messages", err));
+  } catch (err) {
+    console.error("Error adding msg to db: ", err);
+  }
 };
 
 // SEND AUDIO
 export const postAudio = (file, text) => async dispatch => {
-	try {
-		let message = text;
+  try {
+    let message = text;
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function(e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", file.uri, true);
+      xhr.send(null);
+    });
 
-		let fileRef = "";
-		const audioRef = storageRef.child("audio");
-		audioRef.put(file).then(snapshot => {
-			console.log("Uploaded audio file", snapshot);
-			fileRef = snapshot.key;
-			console.log("FILEREF", fileRef);
-			message.audio = fileRef;
-			console.log("POST AUDIO MSG", message);
-			// dispatch(postMessage(message, true))
-		});
-	} catch (err) {
-		console.log("Error uploading audio file: ", err);
-	}
+    console.log("BLOB", blob);
+
+    const fileRef = audioRef.child(file.name);
+    console.log("FILEREF", fileRef);
+
+    const snapshot = await fileRef.put(blob);
+    console.log("SNAPSHOT", snapshot);
+    console.log("SNAPSHOT KEY", snapshot.key);
+
+    const fileRefUrl = await fileRef.getDownloadURL();
+    console.log("FILE REF URL", fileRefUrl);
+
+    console.log("POST AUDIO TEXT", text);
+    // dispatch(postMessage(text));
+    // });
+    const url = await snapshot.ref.getDownloadURL();
+    console.log("DOWNLOAD URL", url);
+    blob.close();
+  } catch (err) {
+    console.log("Error uploading audio file: ", err);
+  }
 };
 
 // NOTIFICATION
 export const notify = (contactId, senderName, message) => async () => {
-	try {
-		const snapshot = await db.ref("/users/" + contactId + "/notifications/token").once("value");
+  try {
+    const snapshot = await db.ref("/users/" + contactId + "/notifications/token").once("value");
 
-		const receiverToken = snapshot.val();
-		// console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
-		// console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
-		// console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
+    const receiverToken = snapshot.val();
+    // console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
+    // console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
+    // console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
 
-		if (receiverToken) {
-			const notification = {
-				to: receiverToken,
-				sound: "default",
-				title: senderName,
-				body: message,
-				_displayInForeground: true
-			};
-			fetch("https://exp.host/--/api/v2/push/send", {
-				method: "POST",
-				headers: {
-					Accept: "application/json",
-					"Accept-encoding": "gzip, deflate",
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify(notification)
-			});
-		}
-	} catch (err) {
-		console.error("Error sending notification: ", err);
-	}
+    if (receiverToken) {
+      const notification = {
+        to: receiverToken,
+        sound: "default",
+        title: senderName,
+        body: message,
+        _displayInForeground: true
+      };
+      fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-encoding": "gzip, deflate",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(notification)
+      });
+    }
+  } catch (err) {
+    console.error("Error sending notification: ", err);
+  }
 };
 // ---------- INITIAL STATE ---------- //
 
 const defaultMessages = {
-	messages: [],
-	sendMessageError: ""
+  messages: [],
+  sendMessageError: ""
 };
 
 // ---------- REDUCER ---------- //
 const messagesReducer = (state = defaultMessages, action) => {
-	switch (action.type) {
-		case GET_MESSAGES:
-			return { ...state, messages: action.messages };
-		case ADD_MESSAGE:
-			// eslint-disable-next-line no-case-declarations
-			let insertIndex = -1;
-			for (let i = 0; i < state.messages.length; i++) {
-				if (state.messages[i].createdAt > action.message.createdAt) {
-					insertIndex = i;
-					break;
-				}
-			}
-			if (insertIndex !== -1) {
-				return {
-					...state,
-					messages: state.messages
-						.slice(0, insertIndex)
-						.concat(action.message)
-						.concat(state.messages.slice(insertIndex))
-				};
-			} else {
-				return {
-					...state,
-					messages: state.messages.concat(action.message)
-				};
-			}
-		case SEND_MESSAGE_ERROR:
-			return { ...state, sendMessageError: action.message };
-		default:
-			return state;
-	}
+  switch (action.type) {
+    case GET_MESSAGES:
+      return { ...state, messages: action.messages };
+    case ADD_MESSAGE:
+      // eslint-disable-next-line no-case-declarations
+      let insertIndex = -1;
+      for (let i = 0; i < state.messages.length; i++) {
+        if (state.messages[i].createdAt > action.message.createdAt) {
+          insertIndex = i;
+          break;
+        }
+      }
+      if (insertIndex !== -1) {
+        return {
+          ...state,
+          messages: state.messages
+            .slice(0, insertIndex)
+            .concat(action.message)
+            .concat(state.messages.slice(insertIndex))
+        };
+      } else {
+        return {
+          ...state,
+          messages: state.messages.concat(action.message)
+        };
+      }
+    case SEND_MESSAGE_ERROR:
+      return { ...state, sendMessageError: action.message };
+    default:
+      return state;
+  }
 };
 
 export default messagesReducer;
