@@ -5,8 +5,7 @@ import { connect } from "react-redux";
 import { db } from "../Firebase";
 
 import Layout from "../constants/Layout";
-import { fetchMessages, postMessage } from "../store";
-import { fetchEarlierMessages } from "../store/messages";
+import { fetchMessages, postMessage, fetchEarlierMessages } from "../store";
 class SingleChat extends Component {
   constructor(props) {
     super(props);

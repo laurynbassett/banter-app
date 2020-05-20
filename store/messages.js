@@ -21,7 +21,7 @@ const appendMessage = (message) => ({ type: APPEND_MESSAGE, message });
 
 // GET MESSAGES FOR CURRENT CHAT
 export const fetchMessages = () => (dispatch, getState) => {
-  // query for all messages for the current chat, and add listener on child_added for new messages
+  // query 25 most recent messages for the current chat, and add listener on child_added for new messages
   if (getState().chats.currentChat) {
     db.ref(`messages/${getState().chats.currentChat.id}`)
       .orderByChild("timestamp")
