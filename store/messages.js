@@ -1,3 +1,6 @@
+import * as FileSystem from "expo-file-system";
+import { Audio } from "expo-av";
+
 import { db, storage } from "../Firebase";
 import { addNewChatroom, addNewMembers, createCurrentChatId } from ".";
 import { getLangValue, getLangKey } from "../utils";
@@ -31,7 +34,7 @@ export const fetchMessages = () => (dispatch, getState) => {
           name: snapshot.val().senderName
         },
         createdAt: snapshot.val().timestamp,
-        original: snapshot.val().translations.original,
+        original: snapshot.val().translations ? snapshot.val().translations.original : "",
         messageType: snapshot.val().messageType
       };
 
@@ -68,15 +71,23 @@ export const fetchMessages = () => (dispatch, getState) => {
         // case: message file
         if (newMessage.messageType === "message") {
           newMessage.text = snapshot.val().translations.original;
+          dispatch(addMessage(newMessage));
           // case: audio file
         } else if (newMessage.messageType === "audio") {
-          newMessage.audio = snapshot.val().audio;
-          // case: image file
-        } else if (newMessage.messageType === "image") {
-          newMessage.image = snapshot.val().image;
+          FileSystem.downloadAsync(snapshot.val().audio.uri, FileSystem.documentDirectory + snapshot.val().audio.name)
+            .then(audioObj => {
+              console.log("AUDIO OBj", audioObj);
+              return Audio.Sound.createAsync({ uri: audioObj.uri }, { isLooping: false });
+            })
+            .then(({ sound, status }) => {
+              console.log("SOUND", sound);
+              console.log("STATUS", status);
+              newMessage.audio = status.uri;
+              newMessage.sound = sound;
+              console.log("FETCH MESSAGES DISPATCH NEW MESSAGE", newMessage);
+              dispatch(addMessage(newMessage));
+            });
         }
-        console.log("FETCH MESSAGES DISPATCH NEW MESSAGE", newMessage);
-        dispatch(addMessage(newMessage));
       }
     });
   }
@@ -92,11 +103,10 @@ export const postMessage = ({
   timestamp,
   message = "",
   audio = "",
-  image = "",
   messageType
 }) => async dispatch => {
   try {
-    console.log("IN POST MESSAGE", props);
+    console.log("IN POST MESSAGE", uid, displayName, contactId, contactName, currChatId, timestamp, audio, messageType);
     const members = {
       [uid]: displayName,
       [contactId]: contactName
@@ -115,7 +125,7 @@ export const postMessage = ({
     chatsRef
       .child(chatId)
       .update({
-        lastMessage: uid + ": " + (message || audio || image),
+        lastMessage: uid + ": " + (message || "audio file"),
         senderId: uid,
         timestamp
       })
@@ -133,9 +143,8 @@ export const postMessage = ({
           };
         } else if (messageType === "audio") {
           newMessage.audio = audio;
-        } else if (messageType === "image") {
-          newMessage.image = image;
         }
+
         // update messages node
         db.ref(`messages/${chatId}`).push().set(newMessage);
         console.log("ADD MESSAGE DISPATCH NEW MESSAGE", newMessage);
@@ -164,24 +173,14 @@ export const postAudio = (file, text) => async dispatch => {
       xhr.open("GET", file.uri, true);
       xhr.send(null);
     });
-
-    console.log("BLOB", blob);
-
     const fileRef = audioRef.child(file.name);
-    console.log("FILEREF", fileRef);
-
     const snapshot = await fileRef.put(blob);
-    console.log("SNAPSHOT", snapshot);
-    console.log("SNAPSHOT KEY", snapshot.key);
-
     const fileRefUrl = await fileRef.getDownloadURL();
     console.log("FILE REF URL", fileRefUrl);
-
+    file.uri = fileRefUrl;
+    text.audio = file;
     console.log("POST AUDIO TEXT", text);
-    // dispatch(postMessage(text));
-    // });
-    const url = await snapshot.ref.getDownloadURL();
-    console.log("DOWNLOAD URL", url);
+    dispatch(postMessage(text));
     blob.close();
   } catch (err) {
     console.log("Error uploading audio file: ", err);
