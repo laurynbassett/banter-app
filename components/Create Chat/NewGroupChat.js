@@ -1,70 +1,70 @@
-import React, { Component } from "react";
-import { StyleSheet, Text, Button, SectionList, View } from "react-native";
-import { ListItem } from "react-native-elements";
-import { connect } from "react-redux";
-import { createSectionedData, findIndices } from "../../utils";
+import React, {Component} from 'react'
+import {StyleSheet, Text, Button, SectionList, View} from 'react-native'
+import {ListItem} from 'react-native-elements'
+import {connect} from 'react-redux'
+import {createSectionedData, findIndices} from '../../utils'
 
 export class NewGroupChat extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
       data: [],
-    };
-    this.checkItem = this.checkItem.bind(this);
+    }
+    this.checkItem = this.checkItem.bind(this)
   }
 
   componentDidMount() {
     // Transforming contacts data into correct format for SectionList
-    const data = createSectionedData(this.props.contacts);
-    this.setState({ data });
+    const data = createSectionedData(this.props.contacts)
+    this.setState({data})
 
     // Overriding header buttons
     this.props.navigation.setOptions({
       headerRight: () => (
-        <Button title="Create Group" onPress={() => console.log("pressed")} />
+        <Button title="Create Group" onPress={() => console.log('pressed')} />
       ),
       headerLeft: () => (
         <Button
           title="Cancel"
-          onPress={() => this.props.navigation.navigate("Chat")}
+          onPress={() => this.props.navigation.navigate('Chat')}
         />
       ),
-    });
+    })
   }
 
   checkItem(itemName, itemId) {
-    const { sectionIndex, nameIndex } = findIndices(
+    const {sectionIndex, nameIndex} = findIndices(
       itemName,
       itemId,
       this.state.data
-    );
+    )
 
-    return this.state.data[sectionIndex].data[nameIndex].checked;
+    return this.state.data[sectionIndex].data[nameIndex].checked
   }
 
   handlePress(itemName, itemId) {
-    const data = this.state.data;
-    const { sectionIndex, nameIndex } = findIndices(itemName, itemId, data);
+    const data = this.state.data
+    const {sectionIndex, nameIndex} = findIndices(itemName, itemId, data)
 
     data[sectionIndex].data[nameIndex].checked = !data[sectionIndex].data[
       nameIndex
-    ].checked;
+    ].checked
 
-    this.setState({ data });
+    this.setState({data})
   }
 
   getSelected() {
-    let selected = [];
+    let selected = []
 
     this.state.data.forEach((section) => {
       section.forEach((contact) => {
         if (contact.checked === true) {
-          selected.push(contact);
+          selected.push(contact)
         }
-      });
-    });
+      })
+    })
 
-    return selected;
+    return selected
   }
 
   render() {
@@ -72,7 +72,7 @@ export class NewGroupChat extends Component {
       <View style={styles.container}>
         <SectionList
           sections={this.state.data}
-          renderItem={({ item }) => (
+          renderItem={({item}) => (
             <ListItem
               title={item.name}
               bottomDivider
@@ -82,21 +82,21 @@ export class NewGroupChat extends Component {
               }}
             />
           )}
-          renderSectionHeader={({ section }) => (
+          renderSectionHeader={({section}) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
           )}
           keyExtractor={(item, index) => index}
           stickySectionHeadersEnabled
         />
       </View>
-    );
+    )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: 'white',
   },
   sectionHeader: {
     paddingTop: 2,
@@ -104,13 +104,13 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingBottom: 2,
     fontSize: 14,
-    fontWeight: "bold",
-    backgroundColor: "rgba(247,247,247,1.0)",
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(247,247,247,1.0)',
   },
-});
+})
 
 const mapState = (state) => ({
   contacts: state.user.contacts,
-});
+})
 
-export default connect(mapState)(NewGroupChat);
+export default connect(mapState)(NewGroupChat)
