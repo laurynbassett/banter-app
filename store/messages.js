@@ -24,7 +24,7 @@ export const fetchMessages = () => (dispatch, getState) => {
   // query for all messages for the current chat, and add listener on child_added for new messages
   if (getState().chats.currentChat) {
     db.ref(`messages/${getState().chats.currentChat.id}`)
-      .limitToLast(2)
+      .limitToLast(25)
       .on("child_added", function (snapshot) {
         // format a message object compatible with GiftedChat, message text not added yet
         const newMessage = {
@@ -107,7 +107,7 @@ export const fetchMessages = () => (dispatch, getState) => {
 export const fetchEarlierMessages = () => (dispatch, getState) => {
   db.ref(`messages/${getState().chats.currentChat.id}`)
     .orderByChild("timestamp")
-    .limitToLast(2)
+    .limitToLast(25)
     .endAt(getState().messages.messages[0].createdAt)
     .once("value", function (snapshot) {
       console.log(snapshot.val());
@@ -151,9 +151,9 @@ export const fetchEarlierMessages = () => (dispatch, getState) => {
                 .then((data) => {
                   // add the translation to the db
                   db.ref(
-                    `messages/${getState().chats.currentChat.id}/${
-                      snapshot.key
-                    }/translations`
+                    `messages/${
+                      getState().chats.currentChat.id
+                    }/${property}/translations`
                   ).update({
                     [userLanguage]: data.data.translations[0].translatedText,
                   });
@@ -161,9 +161,7 @@ export const fetchEarlierMessages = () => (dispatch, getState) => {
                   // update detected source language if it does not exist
                   if (!currentMessage.detectedSource) {
                     db.ref(
-                      `messages/${getState().chats.currentChat.id}/${
-                        snapshot.key
-                      }`
+                      `messages/${getState().chats.currentChat.id}/${property}`
                     ).update({
                       detectedSource: getLangValue(
                         data.data.translations[0].detectedSourceLanguage
