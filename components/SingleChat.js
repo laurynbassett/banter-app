@@ -3,9 +3,9 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { GiftedChat, MessageText, Message } from "react-native-gifted-chat";
 import { connect } from "react-redux";
 import { db } from "../Firebase";
-
 import Layout from "../constants/Layout";
 import { fetchMessages, postMessage } from "../store";
+
 class SingleChat extends Component {
   constructor(props) {
     super(props);
@@ -61,7 +61,7 @@ class SingleChat extends Component {
   }
 
   render() {
-    console.log(this.state);
+    // console.log(this.state);
     return (
       <View style={styles.container}>
         <Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
