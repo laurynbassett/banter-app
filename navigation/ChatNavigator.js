@@ -1,28 +1,28 @@
 /* eslint-disable react/display-name */
-import * as React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
-import { ChatListScreen, SingleChatScreen } from "../screens";
+import * as React from 'react'
+import {createStackNavigator} from '@react-navigation/stack'
+import {ChatListScreen, SingleChatScreen} from '../screens'
 import {
   ChatListHeaderRight,
   SingleChatHeaderLeft,
   SingleChatHeaderCenter,
   NewIndividualChat,
   NewGroupChat,
-} from "../components";
+} from '../components'
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
-export default function ChatNavigator({ navigation, route }) {
+export default function ChatNavigator({navigation, route}) {
   return (
     <Stack.Navigator
       initialRouteName="Chat"
-      navigationOptions={{ tabBarVisible: false }}
+      navigationOptions={{tabBarVisible: false}}
     >
       <Stack.Screen
         name="Chat"
         component={ChatListScreen}
-        options={({ navigation }) => ({
-          title: "All Chats",
+        options={({navigation}) => ({
+          title: 'All Chats',
           headerRight: () => <ChatListHeaderRight navigation={navigation} />,
         })}
       />
@@ -30,7 +30,7 @@ export default function ChatNavigator({ navigation, route }) {
         name="SingleChat"
         component={SingleChatScreen}
         options={{
-          title: "Single Chat",
+          title: 'Single Chat',
           gestureEnabled: false,
           headerTitle: () => <SingleChatHeaderCenter />,
           headerLeft: () => (
@@ -40,16 +40,16 @@ export default function ChatNavigator({ navigation, route }) {
               back="Chat"
             />
           ),
-          headerStyle: { height: 130 },
+          headerStyle: {height: 130},
         }}
-        navigationOptions={{ tabBarVisible: false }}
+        navigationOptions={{tabBarVisible: false}}
       />
 
       <Stack.Screen
         name="NewIndividualChat"
         component={NewIndividualChat}
         options={{
-          title: "New Chat",
+          title: 'New Chat',
         }}
       />
 
@@ -57,9 +57,9 @@ export default function ChatNavigator({ navigation, route }) {
         name="NewGroupChat"
         component={NewGroupChat}
         options={{
-          title: "New Group",
+          title: 'New Group',
         }}
       />
     </Stack.Navigator>
-  );
+  )
 }

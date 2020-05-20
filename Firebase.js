@@ -1,7 +1,7 @@
-import firebase from "firebase/app";
+import firebase from 'firebase/app'
 // // import 'firebase/analytics';
-import "firebase/auth";
-import "firebase/database";
+import 'firebase/auth'
+import 'firebase/database'
 
 import {
   FIREBASE_API_KEY,
@@ -12,7 +12,7 @@ import {
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID,
-} from "react-native-dotenv";
+} from 'react-native-dotenv'
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -24,15 +24,15 @@ const firebaseConfig = {
   messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID,
-};
+}
 
 // Initialize Firebase
 // export const Firebase = firebase.initializeApp(firebaseConfig);
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig)
 // firebase.analytics();
 
 // firebase.analytics();
-export const auth = firebase.auth();
-export const db = firebase.database();
+export const auth = firebase.auth()
+export const db = firebase.database()
 
-export default firebase;
+export default firebase

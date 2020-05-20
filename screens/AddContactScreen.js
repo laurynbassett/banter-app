@@ -1,9 +1,9 @@
-import React from 'react';
+import React from 'react'
 
-import { AddContact } from '../components';
+import {AddContact} from '../components'
 
-const AddContactScreen = props => {
-	return <AddContact navigation={props.navigation} />;
-};
+const AddContactScreen = (props) => {
+  return <AddContact navigation={props.navigation} />
+}
 
-export default AddContactScreen;
+export default AddContactScreen
