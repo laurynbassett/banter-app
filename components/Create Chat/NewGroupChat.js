@@ -59,7 +59,7 @@ export class NewGroupChat extends Component {
     this.state.data.forEach((section) => {
       section.forEach((contact) => {
         if (contact.checked === true) {
-          selected.push(contact);
+          selected.push({ contactId: contact.id, contactName: contact.name });
         }
       });
     });

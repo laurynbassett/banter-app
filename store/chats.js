@@ -60,6 +60,7 @@ export const fetchChats = () => async (dispatch) => {
 
 // GET CURRENT CHAT ID
 export const fetchCurrentChatId = (
+  //TODO: change this so we're receiving an array of contact objects OR all contacts in one object
   { contactId, name },
   { uid, userName },
   navigation
@@ -72,6 +73,7 @@ export const fetchCurrentChatId = (
     console.log("CHATS.CURRENTCHAT", getState().chats.currentChat);
 
     const chat = getState().chats.chats.find((chat) =>
+      //TODO: check if all contactIDs are included in chat.members
       Object.keys(chat.members).includes(contactId)
     );
 
@@ -82,10 +84,12 @@ export const fetchCurrentChatId = (
     } else {
       // if no existing chat, set current chat members on state
       dispatch(
+        //TODO - update how members object is created to include ALL contacts
         setCurrentChatProps({ members: { [uid]: userName, [contactId]: name } })
       );
     }
     // navigate to single chat screen
+    // TODO: pass the object or array received by this function
     navigation.navigate("SingleChat", { contactId, name });
   } catch (err) {
     console.log("Error fetching current chat ID: ", err);
