@@ -1,9 +1,8 @@
 import React, {Component} from 'react'
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native'
-import {GiftedChat, MessageText, Message} from 'react-native-gifted-chat'
+import {GiftedChat, MessageText} from 'react-native-gifted-chat'
 import {connect} from 'react-redux'
 import {db} from '../Firebase'
-import Layout from '../constants/Layout'
 import {fetchMessages, postMessage} from '../store'
 
 class SingleChat extends Component {

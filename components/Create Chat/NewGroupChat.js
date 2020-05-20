@@ -11,6 +11,7 @@ export class NewGroupChat extends Component {
       data: [],
     }
     this.checkItem = this.checkItem.bind(this)
+    this.getSelected = this.getSelected.bind(this)
   }
 
   componentDidMount() {
@@ -21,7 +22,10 @@ export class NewGroupChat extends Component {
     // Overriding header buttons
     this.props.navigation.setOptions({
       headerRight: () => (
-        <Button title="Create Group" onPress={() => console.log('pressed')} />
+        <Button
+          title="Create Group"
+          onPress={() => console.log(this.getSelected())}
+        />
       ),
       headerLeft: () => (
         <Button
@@ -57,7 +61,7 @@ export class NewGroupChat extends Component {
     let selected = []
 
     this.state.data.forEach((section) => {
-      section.forEach((contact) => {
+      section.data.forEach((contact) => {
         if (contact.checked === true) {
           selected.push({contactId: contact.id, contactName: contact.name})
         }
