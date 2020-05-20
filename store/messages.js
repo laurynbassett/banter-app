@@ -1,10 +1,9 @@
 import * as FileSystem from "expo-file-system";
-import { Audio } from "expo-av";
 
+import { GOOGLE_API_KEY } from "react-native-dotenv";
 import { db, storage } from "../Firebase";
 import { addNewChatroom, addNewMembers, createCurrentChatId } from ".";
 import { getLangValue, getLangKey } from "../utils";
-import { GOOGLE_API_KEY } from "react-native-dotenv";
 
 const chatsRef = db.ref("chats");
 const audioRef = storage.ref().child("audio");
@@ -92,19 +91,13 @@ export const fetchMessages = () => (dispatch, getState) => {
           dispatch(addMessage(newMessage));
           // case: audio file
         } else if (newMessage.messageType === "audio") {
-          FileSystem.downloadAsync(snapshot.val().audio.uri, FileSystem.documentDirectory + snapshot.val().audio.name)
-            .then(audioObj => {
-              console.log("AUDIO OBj", audioObj);
-              return Audio.Sound.createAsync({ uri: audioObj.uri }, { isLooping: false });
-            })
-            .then(({ sound, status }) => {
-              console.log("SOUND", sound);
-              console.log("STATUS", status);
-              newMessage.audio = status.uri;
-              newMessage.sound = sound;
-              console.log("FETCH MESSAGES DISPATCH NEW MESSAGE", newMessage);
-              dispatch(addMessage(newMessage));
-            });
+          FileSystem.downloadAsync(
+            snapshot.val().audio.uri,
+            FileSystem.documentDirectory + snapshot.val().audio.name
+          ).then(audioObj => {
+            newMessage.audio = audioObj.uri;
+            dispatch(addMessage(newMessage));
+          });
         }
       }
     });
@@ -124,7 +117,6 @@ export const postMessage = ({
   messageType
 }) => async dispatch => {
   try {
-    console.log("IN POST MESSAGE", uid, displayName, contactId, contactName, currChatId, timestamp, audio, messageType);
     const members = {
       [uid]: displayName,
       [contactId]: contactName
@@ -165,7 +157,6 @@ export const postMessage = ({
 
         // update messages node
         db.ref(`messages/${chatId}`).push().set(newMessage);
-        console.log("ADD MESSAGE DISPATCH NEW MESSAGE", newMessage);
         dispatch(notify(contactId, displayName, message));
       })
       .catch(err => console.log("Error posting message to chats and messages", err));
@@ -183,8 +174,8 @@ export const postAudio = (file, text) => async dispatch => {
       xhr.onload = function() {
         resolve(xhr.response);
       };
-      xhr.onerror = function(e) {
-        console.log(e);
+      xhr.onerror = function(err) {
+        console.log("Error creating blob: ", err);
         reject(new TypeError("Network request failed"));
       };
       xhr.responseType = "blob";
@@ -192,12 +183,10 @@ export const postAudio = (file, text) => async dispatch => {
       xhr.send(null);
     });
     const fileRef = audioRef.child(file.name);
-    const snapshot = await fileRef.put(blob);
+    await fileRef.put(blob);
     const fileRefUrl = await fileRef.getDownloadURL();
-    console.log("FILE REF URL", fileRefUrl);
     file.uri = fileRefUrl;
     text.audio = file;
-    console.log("POST AUDIO TEXT", text);
     dispatch(postMessage(text));
     blob.close();
   } catch (err) {

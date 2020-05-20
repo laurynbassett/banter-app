@@ -1,15 +1,14 @@
 import React, { Component } from "react";
 import { Fragment, Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { Bubble, GiftedChat, MessageText } from "react-native-gifted-chat";
+import { GiftedChat, MessageText } from "react-native-gifted-chat";
 import { connect } from "react-redux";
 import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
-import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
 
 import Layout from "../constants/Layout";
 import { fetchMessages, postMessage, postAudio } from "../store";
-import { formatText, genUUID, setAudioMode } from "../utils";
+import { formatText, genUUID, setAudioMode, getMillis } from "../utils";
 
 class SingleChat extends Component {
   constructor(props) {
@@ -18,11 +17,13 @@ class SingleChat extends Component {
       currentChatId: this.props.currentChat.id,
       originalsShown: {},
       audioPermission: false,
+      audioUrl: null,
       isRecording: false,
       isRecordingPlaying: false,
       isAudioPlaying: false,
       isLoading: false,
-      audioUrl: null
+      playbackInstancePosition: null,
+      playbackInstanceDuration: null
     };
     this.recording = null;
     this.playbackInstance = null;
@@ -31,11 +32,14 @@ class SingleChat extends Component {
     this.handleSendAudio = this.handleSendAudio.bind(this);
     this.updateSoundStatus = this.updateSoundStatus.bind(this);
     this.updateRecordingStatus = this.updateRecordingStatus.bind(this);
+    this.updatePlaybackStatus = this.updatePlaybackStatus.bind(this);
+    this.loadPlaybackInstance = this.loadPlaybackInstance.bind(this);
+    this.getPlaybackTime = this.getPlaybackTime.bind(this);
     this.startRecording = this.startRecording.bind(this);
     this.stopRecording = this.stopRecording.bind(this);
     this.handleRecordPressed = this.handleRecordPressed.bind(this);
-    this.handlePlayPauseRecording = this.handlePlayPauseRecording.bind(this);
-    this.handlePlayPauseAudio = this.handlePlayPauseAudio.bind(this);
+    this.handleToggleRecording = this.handleToggleRecording.bind(this);
+    this.handleToggleAudio = this.handleToggleAudio.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
 
@@ -62,21 +66,22 @@ class SingleChat extends Component {
   }
 
   // permission for microphone use
-  getPermissions = async () => {
+  async getPermissions() {
     const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
     this.setState({
       audioPermission: response.status === "granted"
     });
-  };
+  }
 
+  // custom icons for recording to the left of the message composer
   renderActions(props) {
     return (
       <View style={styles.inputBar}>
         <View style={styles.inputLeft}>
           <MaterialCommunityIcons
             reverse
-            name='record-circle'
-            size={23}
+            name='microphone'
+            size={28}
             style={styles.microphone}
             color={this.state.isRecording ? "red" : "#7a7a7a"}
             onPress={this.handleRecordPressed}
@@ -88,55 +93,119 @@ class SingleChat extends Component {
               size={23}
               color='#7a7a7a'
               style={styles.playPause}
-              onPress={this.handlePlayPauseRecording}
+              onPress={this.handleToggleRecording}
               hitSlop={styles.hitSlop}
             />
           )}
-        </View>
-        <View style={styles.inputRight}>
-          <AntDesign
-            name='arrowup'
-            size={24}
-            color='#7a7a7a'
-            style={styles.send}
-            onPress={this.handleSendAudio}
-            hitSlop={styles.hitSlop}
-          />
         </View>
       </View>
     );
   }
 
+  // get time for playback
+  getPlaybackTime() {
+    if (
+      this.playbackInstanceId !== null &&
+      this.state.playbackInstancePosition !== null &&
+      this.state.playbackInstanceDuration !== null
+    ) {
+      return `${getMillis(this.state.playbackInstancePosition)} / ${getMillis(this.state.playbackInstanceDuration)}`;
+    }
+    return "";
+  }
+
+  // custom text bubble for audio files
   renderMessageAudio(props) {
     if (props.currentMessage.audio) {
-      // this.playbackInstance = props.currentMessage.sound;
-      const { _id } = props.currentMessage.audio;
+      const isPlayingCurrent = this.playbackInstanceId === props.currentMessage._id;
       return (
         <View style={styles.audioContainer}>
           <AntDesign
-            name={this.state.isAudioPlaying ? "pausecircleo" : "playcircleo"}
+            name={isPlayingCurrent && this.state.isAudioPlaying ? "pausecircleo" : "playcircleo"}
             size={35}
             color='#ffffff'
             style={styles.audio}
             hitSlop={styles.hitSlop}
             onPress={() => {
-              this.playbackInstance = props.currentMessage.sound;
-              this.playbackInstanceId = props.currentMessage._id;
-              console.log("PLID", this.playbackInstanceId);
-              this.handlePlayPauseAudio(props.currentMessage);
+              this.handleToggleAudio(props.currentMessage);
             }}
           />
+          {isPlayingCurrent && <Text style={styles.audioText}>{this.getPlaybackTime()}</Text>}
         </View>
       );
     }
     return null;
   }
 
+  // update state on playback
+  async updatePlaybackStatus(status) {
+    if (status.didJustFinish) {
+      this.playbackInstance.stopAsync();
+      this.loadPlaybackInstance(false);
+    } else if (status.isLoaded) {
+      this.setState({
+        playbackInstancePosition: status.positionMillis,
+        playbackInstanceDuration: status.durationMillis,
+        isAudioPlaying: status.isPlaying
+      });
+    } else {
+      if (status.error) {
+        console.log("Error updating playback status: ", status.error);
+      }
+    }
+  }
+
+  // load playback instance
+  async loadPlaybackInstance(shouldPlay, props) {
+    this.setState({ isLoading: true });
+    // if playback instance exists, unload and clear onPlaybackStatusUpdate
+    if (this.playbackInstance !== null) {
+      try {
+        await this.playbackInstance.unloadAsync();
+        this.playbackInstance.setOnPlaybackStatusUpdate(null);
+        this.playbackInstance = null;
+        this.playbackInstanceId = null;
+        this.setState({
+          playbackInstancePosition: null,
+          playbackInstanceDuration: null
+        });
+      } catch (err) {
+        console.log("Error unloading playback instance", err);
+      }
+    }
+    // load new playback instance then play audio
+    if (props) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: props.audio },
+          { isLooping: false },
+          this.updatePlaybackStatus
+        );
+        this.playbackInstance = sound;
+        this.playbackInstanceId = props._id;
+        this.playbackInstance.playAsync();
+        this.setState({ isLoading: false });
+      } catch (err) {
+        console.log("Error loading playback instance", err);
+      }
+    }
+  }
+
+  // play / pause playback for message audio
+  handleToggleAudio(props) {
+    // if playback instance exists and is playing, pause it
+    if (this.playbackInstance !== null) {
+      if (this.state.isAudioPlaying) {
+        this.playbackInstance.pauseAsync();
+      } else this.playbackInstance.playAsync();
+      // if no playback instance, load selected audio
+    } else {
+      this.loadPlaybackInstance(true, props);
+    }
+  }
+
   // render message text
   renderMessageText(params) {
-    // return !params.currentMessage.original ? (
-    //   <View />
-    // ) :
     return (
       <View>
         {this.state.originalsShown[params.currentMessage._id] && (
@@ -198,14 +267,13 @@ class SingleChat extends Component {
       });
     } else {
       if (status.error) {
-        console.log(`PLAYER ERROR: ${status.error}`);
+        console.log("Error updating sound status: ", status.error);
       }
     }
   }
 
   // update state recording status
   updateRecordingStatus(status) {
-    console.log("updateRecordingStatus", status);
     if (status.canRecord) {
       this.setState({
         isRecording: status.isRecording
@@ -282,9 +350,6 @@ class SingleChat extends Component {
         this.updateSoundStatus
       );
       this.sound = sound;
-
-      console.log("STOPPED RECORDING", this.state);
-
       this.setState({
         isLoading: false
       });
@@ -299,7 +364,7 @@ class SingleChat extends Component {
   }
 
   // play / pause playback for recording
-  handlePlayPauseRecording() {
+  handleToggleRecording() {
     if (this.recording != null) {
       if (this.state.isRecordingPlaying) {
         this.sound.pauseAsync();
@@ -307,28 +372,6 @@ class SingleChat extends Component {
       } else {
         this.setState({ isRecordingPlaying: true });
         this.sound.playAsync();
-      }
-    }
-  }
-
-  // play / pause playback for message audio
-  async handlePlayPauseAudio() {
-    if (this.playbackInstance != null) {
-      if (this.state.isAudioPlaying) {
-        // this.playbackInstance = null;
-        // this.playbackInstanceId = null;
-        this.playbackInstance.pauseAsync();
-        this.setState({ isAudioPlaying: false });
-      } else {
-        console.log("PRESSED", props);
-        // this.playbackInstance = props.sound;
-        // this.playbackInstanceId = props._id;
-        console.log("PLAYBACK ID", this.playbackInstanceId);
-        this.setState({ isAudioPlaying: true });
-        await this.playbackInstance.playAsync();
-        const status = await this.playbackInstance.getStatusAsync();
-        console.log("ASYNC", status);
-        console.log("PLAYING AUDIO");
       }
     }
   }
@@ -344,16 +387,14 @@ class SingleChat extends Component {
     };
     const text = formatText(this.props);
     text.messageType = "audio";
-    console.log("DISPATCHED AUDIO FILE", file);
-    console.log("DISPATCHED AUDIO TEXT", text);
     this.props.postAudio(file, text);
   }
 
+  // dispatch send message
   handleSendMessage(messages) {
     let text = formatText(this.props);
     text.message = messages[messages.length - 1].text;
     text.messageType = "message";
-    console.log("TEXT", text);
     this.props.postMessage(text);
   }
 
@@ -378,6 +419,15 @@ class SingleChat extends Component {
           renderMessageAudio={this.renderMessageAudio.bind(this)}
           renderMessageText={this.renderMessageText.bind(this)}
         />
+        {this.recording && (
+          <View style={styles.inputRight}>
+            <TouchableOpacity color='#0084ff'>
+              <Text style={styles.inputRightText} onPress={this.handleSendAudio} hitSlop={styles.hitSlop}>
+                Send
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     );
   }
@@ -431,27 +481,33 @@ const styles = StyleSheet.create({
     // height: Layout.window.height * 0.85,
   },
   inputBar: {
+    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    width: Layout.window.width,
+    width: 80,
     alignItems: "center"
   },
   inputLeft: {
     flexDirection: "row",
-    marginLeft: 20
-    // marginBottom: 10
+    marginLeft: 15
   },
-  send: {},
   inputRight: {
-    flexDirection: "row",
+    top: Layout.window.height * 0.76,
+    left: Layout.window.width * 0.85,
+    position: "absolute",
     marginRight: 15,
     marginBottom: 10
+  },
+  inputRightText: {
+    fontWeight: "600",
+    fontSize: 17,
+    color: "#0084ff"
   },
   microphone: {
     marginBottom: 10
   },
   playPause: {
-    marginLeft: 25,
+    marginLeft: 15,
     marginBottom: 10
   },
   headerContainer: {
@@ -475,12 +531,20 @@ const styles = StyleSheet.create({
     right: 50
   },
   audioContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     height: 50,
-    width: 80
+    width: 150
   },
   audio: {
     alignSelf: "center",
     marginTop: 10,
+    marginLeft: 10,
     backgroundColor: "transparent"
+  },
+  audioText: {
+    marginTop: 10,
+    marginLeft: 10,
+    color: "#ffffff"
   }
 });

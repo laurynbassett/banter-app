@@ -44,10 +44,7 @@ export default function App(props) {
         console.warn(e);
       } finally {
         setLoadingComplete(true);
-        // set time splash is shown
-        // setTimeout(() => {
         SplashScreen.hide();
-        // }, 1000);
       }
     };
 
