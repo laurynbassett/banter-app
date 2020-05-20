@@ -6,6 +6,8 @@ import {db} from '../Firebase'
 import Layout from '../constants/Layout'
 import {fetchMessages, postMessage} from '../store'
 
+import Layout from '../constants/Layout'
+import {fetchMessages, postMessage, fetchEarlierMessages} from '../store'
 class SingleChat extends Component {
   constructor(props) {
     super(props)
@@ -84,6 +86,15 @@ class SingleChat extends Component {
           showAvatarForEveryMessage={true}
           placeholder="Type a message..."
           inverted={false}
+          loadEarlier={true}
+          infiniteScroll={false}
+          isLoadingEarlier={false}
+          onLoadEarlier={() => {
+            this.props.fetchEarlierMessages()
+          }}
+          renderLoading={() => {
+            return <Text>Loading Messages...</Text>
+          }}
           renderMessageText={(params) => {
             return (
               <View>
@@ -163,6 +174,7 @@ const mapState = (state) => ({
 const mapDispatch = (dispatch) => ({
   fetchMessages: () => dispatch(fetchMessages()),
   postMessage: (msg) => dispatch(postMessage(msg)),
+  fetchEarlierMessages: () => dispatch(fetchEarlierMessages()),
 })
 
 export default connect(mapState, mapDispatch)(SingleChat)

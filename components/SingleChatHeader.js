@@ -46,7 +46,6 @@ export const SingleChatHeaderLeft = connect(
 
 // SINGLE CHAT HEADER CENTER
 const SingleChatHeaderCenter = (props) => {
-  console.log('HEADER PROPS', props)
   const text =
     props.memberNames > 1
       ? `${props.memberNames.length} people`
