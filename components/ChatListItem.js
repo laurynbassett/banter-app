@@ -1,24 +1,24 @@
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import AvatarIcon from "./AvatarIcon";
-import { memberNameHelper } from "../utils";
+import React from 'react'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import AvatarIcon from './AvatarIcon'
+import {memberNameHelper} from '../utils'
 
 export default function ChatListItem(props) {
-  let members = props.item.members;
-  delete members[props.userId];
+  let members = props.item.members
+  delete members[props.userId]
 
-  members = memberNameHelper(Object.values(members));
-  const avatarName = members[0];
+  members = memberNameHelper(Object.values(members))
+  const avatarName = members[0]
 
   const goToSingleChat = (chatId) => {
     // set current chatroom in redux
-    props.setCurrentChat(chatId);
+    props.setCurrentChat(chatId)
     // navigate to single chat page
-    props.navigation.navigate("SingleChat", {
+    props.navigation.navigate('SingleChat', {
       contactId: props.id,
       name: props.name,
-    });
-  };
+    })
+  }
 
   return (
     <TouchableOpacity onPress={() => goToSingleChat(props.item.id)}>
@@ -42,25 +42,25 @@ export default function ChatListItem(props) {
         </View>
       </View>
     </TouchableOpacity>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   itemView: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 15,
     borderBottomWidth: 1,
-    borderColor: "#b7b7b7",
-    backgroundColor: "#fff",
+    borderColor: '#b7b7b7',
+    backgroundColor: '#fff',
   },
   chatName: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   message: {
     fontSize: 17,
-    color: "#aaa",
+    color: '#aaa',
   },
   image: {
     width: 50,
@@ -77,4 +77,4 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginLeft: 10,
   },
-});
+})
