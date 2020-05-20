@@ -83,7 +83,6 @@ class SingleChat extends Component {
           infiniteScroll={false}
           isLoadingEarlier={false}
           onLoadEarlier={() => {
-            console.log("LOADING EARLIER MESSAGES");
             this.props.fetchEarlierMessages();
           }}
           renderLoading={() => {

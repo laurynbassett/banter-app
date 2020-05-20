@@ -8,13 +8,13 @@ const chatsRef = db.ref("chats");
 
 // ---------- ACTION TYPES ---------- //
 export const GET_MESSAGES = "GET_MESSAGES";
-export const ADD_MESSAGE = "ADD_MESSAGE";
+export const APPEND_MESSAGE = "APPEND_MESSAGE";
 const SEND_MESSAGE_ERROR = "SEND_MESSAGE_ERROR";
 
 // ---------- ACTION CREATORS ---------- //
 
 export const getMessages = (messages) => ({ type: GET_MESSAGES, messages });
-const addMessage = (message) => ({ type: ADD_MESSAGE, message });
+const appendMessage = (message) => ({ type: APPEND_MESSAGE, message });
 // const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
 
 // ---------- THUNK CREATORS ---------- //
@@ -24,82 +24,10 @@ export const fetchMessages = () => (dispatch, getState) => {
   // query for all messages for the current chat, and add listener on child_added for new messages
   if (getState().chats.currentChat) {
     db.ref(`messages/${getState().chats.currentChat.id}`)
+      .orderByChild("timestamp")
       .limitToLast(25)
       .on("child_added", function (snapshot) {
-        // format a message object compatible with GiftedChat, message text not added yet
-        const newMessage = {
-          _id: snapshot.key,
-          user: {
-            _id: snapshot.val().senderId,
-            name: snapshot.val().senderName,
-          },
-          createdAt: snapshot.val().timestamp,
-          original: snapshot.val().translations.original,
-        };
-
-        const userLanguage = getState().user.language;
-
-        // if the message was sent by the user it will not be translated
-        if (snapshot.val().senderId !== getState().firebase.auth.uid) {
-          // check if translation to user's language exists
-          if (snapshot.val().translations[userLanguage]) {
-            newMessage.text = snapshot.val().translations[userLanguage];
-            newMessage.translatedFrom =
-              snapshot.val().translations[userLanguage] !==
-              snapshot.val().message
-                ? snapshot.val().detectedSource
-                : false;
-            dispatch(addMessage(newMessage));
-          } else {
-            // translate the original message to the language of the user
-            fetch(
-              `https://translation.googleapis.com/language/translate/v2?q=${
-                snapshot.val().message
-              }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
-            )
-              .then((response) => {
-                return response.json();
-              })
-              .then((data) => {
-                // add the translation to the db
-                db.ref(
-                  `messages/${getState().chats.currentChat.id}/${
-                    snapshot.key
-                  }/translations`
-                ).update({
-                  [userLanguage]: data.data.translations[0].translatedText,
-                });
-
-                // update detected source language if it does not exist
-                if (!snapshot.val().detectedSource) {
-                  db.ref(
-                    `messages/${getState().chats.currentChat.id}/${
-                      snapshot.key
-                    }`
-                  ).update({
-                    detectedSource: getLangValue(
-                      data.data.translations[0].detectedSourceLanguage
-                    ),
-                  });
-                }
-
-                // add the translation to the new message
-                newMessage.text = data.data.translations[0].translatedText;
-                newMessage.translatedFrom =
-                  data.data.translations[0].translatedText !==
-                  snapshot.val().message
-                    ? getLangValue(
-                        data.data.translations[0].detectedSourceLanguage
-                      )
-                    : false;
-
-                dispatch(addMessage(newMessage));
-              });
-          }
-        } else {
-          newMessage.text = snapshot.val().translations.original;
-          dispatch(addMessage(newMessage));
-        }
+        dispatch(addMessage(snapshot.val(), snapshot.key));
       });
   }
 };
@@ -110,85 +38,85 @@ export const fetchEarlierMessages = () => (dispatch, getState) => {
     .limitToLast(25)
     .endAt(getState().messages.messages[0].createdAt)
     .once("value", function (snapshot) {
-      console.log(snapshot.val());
+      // get id of oldest message currently in state
       const endAtId = getState().messages.messages[0]._id;
+      // add each message to state
       for (const property in snapshot.val()) {
-        const currentMessage = snapshot.val()[property];
-
         if (property !== endAtId) {
-          const newMessage = {
-            _id: property,
-            user: {
-              _id: currentMessage.senderId,
-              name: currentMessage.senderName,
-            },
-            createdAt: currentMessage.timestamp,
-            original: currentMessage.translations.original,
-          };
-          const userLanguage = getState().user.language;
-
-          // if the message was sent by the user it will not be translated
-          if (currentMessage.senderId !== getState().firebase.auth.uid) {
-            // check if translation to user's language exists
-            if (currentMessage.translations[userLanguage]) {
-              newMessage.text = currentMessage.translations[userLanguage];
-              newMessage.translatedFrom =
-                currentMessage.translations[userLanguage] !==
-                currentMessage.message
-                  ? currentMessage.detectedSource
-                  : false;
-              dispatch(addMessage(newMessage));
-            } else {
-              // translate the original message to the language of the user
-              fetch(
-                `https://translation.googleapis.com/language/translate/v2?q=${
-                  currentMessage.message
-                }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
-              )
-                .then((response) => {
-                  return response.json();
-                })
-                .then((data) => {
-                  // add the translation to the db
-                  db.ref(
-                    `messages/${
-                      getState().chats.currentChat.id
-                    }/${property}/translations`
-                  ).update({
-                    [userLanguage]: data.data.translations[0].translatedText,
-                  });
-
-                  // update detected source language if it does not exist
-                  if (!currentMessage.detectedSource) {
-                    db.ref(
-                      `messages/${getState().chats.currentChat.id}/${property}`
-                    ).update({
-                      detectedSource: getLangValue(
-                        data.data.translations[0].detectedSourceLanguage
-                      ),
-                    });
-                  }
-
-                  // add the translation to the new message
-                  newMessage.text = data.data.translations[0].translatedText;
-                  newMessage.translatedFrom =
-                    data.data.translations[0].translatedText !==
-                    currentMessage.message
-                      ? getLangValue(
-                          data.data.translations[0].detectedSourceLanguage
-                        )
-                      : false;
-
-                  dispatch(addMessage(newMessage));
-                });
-            }
-          } else {
-            newMessage.text = currentMessage.translations.original;
-            dispatch(addMessage(newMessage));
-          }
+          dispatch(addMessage(snapshot.val()[property], property));
         }
       }
     });
+};
+
+const addMessage = (message, messageId) => (dispatch, getState) => {
+  // format a message object compatible with GiftedChat, message text not added yet
+  const newMessage = {
+    _id: messageId,
+    user: {
+      _id: message.senderId,
+      name: message.senderName,
+    },
+    createdAt: message.timestamp,
+    original: message.translations.original,
+  };
+  const userLanguage = getState().user.language;
+
+  // if the message was sent by the user it will not be translated
+  if (message.senderId !== getState().firebase.auth.uid) {
+    // check if translation to user's language exists
+    if (message.translations[userLanguage]) {
+      newMessage.text = message.translations[userLanguage];
+      newMessage.translatedFrom =
+        message.translations[userLanguage] !== message.message
+          ? message.detectedSource
+          : false;
+      dispatch(appendMessage(newMessage));
+    } else {
+      // translate the original message to the language of the user
+      fetch(
+        `https://translation.googleapis.com/language/translate/v2?q=${
+          message.message
+        }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          // add the translation to the db
+          db.ref(
+            `messages/${
+              getState().chats.currentChat.id
+            }/${messageId}/translations`
+          ).update({
+            [userLanguage]: data.data.translations[0].translatedText,
+          });
+
+          // update detected source language if it does not exist
+          if (!message.detectedSource) {
+            db.ref(
+              `messages/${getState().chats.currentChat.id}/${property}`
+            ).update({
+              detectedSource: getLangValue(
+                data.data.translations[0].detectedSourceLanguage
+              ),
+            });
+          }
+
+          // add the translation to the new message
+          newMessage.text = data.data.translations[0].translatedText;
+          newMessage.translatedFrom =
+            data.data.translations[0].translatedText !== message.message
+              ? getLangValue(data.data.translations[0].detectedSourceLanguage)
+              : false;
+
+          dispatch(appendMessage(newMessage));
+        });
+    }
+  } else {
+    newMessage.text = message.translations.original;
+    dispatch(appendMessage(newMessage));
+  }
 };
 
 // SEND NEW MESSAGE
@@ -238,9 +166,6 @@ export const postMessage = (text) => async (dispatch) => {
               original: message,
             },
           });
-        console.log("CONTACTID:", contactId);
-        console.log("DisplayName:", displayName);
-        console.log("message:", message);
         dispatch(notify(contactId, displayName, message));
       })
       .catch((err) =>
@@ -296,7 +221,7 @@ const messagesReducer = (state = defaultMessages, action) => {
   switch (action.type) {
     case GET_MESSAGES:
       return { ...state, messages: action.messages };
-    case ADD_MESSAGE:
+    case APPEND_MESSAGE:
       // eslint-disable-next-line no-case-declarations
       let insertIndex = -1;
       for (let i = 0; i < state.messages.length; i++) {
