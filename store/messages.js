@@ -153,9 +153,9 @@ export const postMessage = (text) => async (dispatch) => {
               original: message,
             },
           });
-        console.log("CONTACTID:", contactId);
-        console.log("DisplayName:", displayName);
-        console.log("message:", message);
+        // console.log("CONTACTID:", contactId);
+        // console.log("DisplayName:", displayName);
+        // console.log("message:", message);
         dispatch(notify(contactId, displayName, message));
       })
       .catch((err) =>

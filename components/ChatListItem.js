@@ -1,7 +1,5 @@
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-import { auth } from "../Firebase";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AvatarIcon from "./AvatarIcon";
 import { memberNameHelper } from "../utils";
 

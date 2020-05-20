@@ -21,11 +21,13 @@ class SingleChat extends Component {
   });
 
   componentDidMount() {
+    console.log("INSIDE ONE");
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
     this.focusUnsubscribe = this.props.navigation.addListener("focus", () => {
       // fetch messages for current chat when in focus
       this.props.fetchMessages();
     });
+    console.log("INSIDE TWO");
 
     this.blurUnsubscribe = this.props.navigation.addListener("blur", () => {
       // unsubscribe from firebase listener when chat is not in focus
@@ -62,6 +64,8 @@ class SingleChat extends Component {
 
   render() {
     // console.log(this.state);
+    console.log("INSIDE THREE");
+
     return (
       <View style={styles.container}>
         <Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
