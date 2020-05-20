@@ -4,6 +4,7 @@ import { Audio } from "expo-av";
 import { db, storage } from "../Firebase";
 import { addNewChatroom, addNewMembers, createCurrentChatId } from ".";
 import { getLangValue, getLangKey } from "../utils";
+import { GOOGLE_API_KEY } from "react-native-dotenv";
 
 const chatsRef = db.ref("chats");
 const audioRef = storage.ref().child("audio");
@@ -46,18 +47,35 @@ export const fetchMessages = () => (dispatch, getState) => {
         // check if translation to user's language exists
         if (snapshot.val().translations[userLanguage]) {
           newMessage.text = snapshot.val().translations[userLanguage];
+          newMessage.translatedFrom =
+            snapshot.val().translations[userLanguage] !== snapshot.val().message
+              ? snapshot.val().detectedSource
+              : false;
           dispatch(addMessage(newMessage));
         } else {
           // translate the original message to the language of the user
           fetch(
             `https://translation.googleapis.com/language/translate/v2?q=${snapshot.val().message}&target=${getLangKey(
               userLanguage
-            )}&key=AIzaSyBjkzKxFh39nYubNpXp72NkpG15_FSRWdg`
+            )}&key=${GOOGLE_API_KEY}`
           )
             .then(response => {
               return response.json();
             })
             .then(data => {
+              // add the translation to the db
+              db.ref(`messages/${getState().chats.currentChat.id}/${snapshot.key}/translations`).update({
+                [userLanguage]: data.data.translations[0].translatedText
+              });
+
+              // update detected source language if it does not exist
+              if (!snapshot.val().detectedSource) {
+                db.ref(`messages/${getState().chats.currentChat.id}/${snapshot.key}`).update({
+                  detectedSource: getLangValue(data.data.translations[0].detectedSourceLanguage)
+                });
+              }
+
+              // add the translation to the new message
               newMessage.text = data.data.translations[0].translatedText;
               newMessage.translatedFrom =
                 data.data.translations[0].translatedText !== snapshot.val().message
@@ -125,7 +143,7 @@ export const postMessage = ({
     chatsRef
       .child(chatId)
       .update({
-        lastMessage: uid + ": " + (message || "audio file"),
+        lastMessage: message || "audio file",
         senderId: uid,
         timestamp
       })

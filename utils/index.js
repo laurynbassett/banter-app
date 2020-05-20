@@ -4,3 +4,4 @@ export { default as translateHelper } from "./translate";
 export { default as formatText } from "./formatText";
 export { recordingCallback, setAudioMode } from "./audio";
 export { default as genUUID } from "./uuid";
+export { createSectionedData, findIndices } from "./contactsList";

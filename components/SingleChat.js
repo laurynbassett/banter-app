@@ -41,25 +41,33 @@ class SingleChat extends Component {
 
   async componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
-    this.props.fetchMessages();
+    this.focusUnsubscribe = this.props.navigation.addListener("focus", () => {
+      // fetch messages for current chat when in focus
+      this.props.fetchMessages();
+    });
+
+    this.blurUnsubscribe = this.props.navigation.addListener("blur", () => {
+      // unsubscribe from firebase listener when chat is not in focus
+      db.ref(`messages/${this.state.currentChatId}`).off("child_added");
+    });
+
+    // get permission to access microphone for audio recordings
     this.getPermissions();
   }
 
+  componentWillUnmount() {
+    // turn off navigation listeners
+    this.focusUnsubscribe();
+    this.blurUnsubscribe();
+  }
+
+  // permission for microphone use
   getPermissions = async () => {
     const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
     this.setState({
       audioPermission: response.status === "granted"
     });
   };
-
-  // send button for audio
-  // renderSend(props) {
-  // 	return this.audioUrl ? (
-  // 		<Send {...props} onSend={this.handleSendAudio} containerStyle={styles.sendContainer}>
-  // 			<AntDesign name='arrowup' size={24} color='black' />
-  // 		</Send>
-  // 	) : null;
-  // }
 
   renderActions(props) {
     return (
@@ -126,9 +134,10 @@ class SingleChat extends Component {
 
   // render message text
   renderMessageText(params) {
-    return !params.currentMessage.original ? (
-      <View />
-    ) : (
+    // return !params.currentMessage.original ? (
+    //   <View />
+    // ) :
+    return (
       <View>
         {this.state.originalsShown[params.currentMessage._id] && (
           <Text style={styles.originalMessage}>{params.currentMessage.original}</Text>
@@ -171,7 +180,7 @@ class SingleChat extends Component {
               {params.currentMessage.translatedFrom !== false ? (
                 `Translated From: ${params.currentMessage.translatedFrom}`
               ) : (
-                "No Translation Available"
+                "Not Translated"
               )}
             </Text>
           </Fragment>
