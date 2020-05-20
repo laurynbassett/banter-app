@@ -1,59 +1,59 @@
-import React, { Component } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { GiftedChat, MessageText, Message } from "react-native-gifted-chat";
-import { connect } from "react-redux";
-import { db } from "../Firebase";
-import Layout from "../constants/Layout";
-import { fetchMessages, postMessage } from "../store";
+import React, {Component} from 'react'
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native'
+import {GiftedChat, MessageText, Message} from 'react-native-gifted-chat'
+import {connect} from 'react-redux'
+import {db} from '../Firebase'
+import Layout from '../constants/Layout'
+import {fetchMessages, postMessage} from '../store'
 
 class SingleChat extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       currentChatId: this.props.currentChat.id,
       originalsShown: {},
-    };
-    this.handleSendMessage = this.handleSendMessage.bind(this);
+    }
+    this.handleSendMessage = this.handleSendMessage.bind(this)
   }
 
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     tabBarVisible: false,
-  });
+  })
 
   componentDidMount() {
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
-    this.focusUnsubscribe = this.props.navigation.addListener("focus", () => {
+    this.focusUnsubscribe = this.props.navigation.addListener('focus', () => {
       // fetch messages for current chat when in focus
-      this.props.fetchMessages();
-    });
+      this.props.fetchMessages()
+    })
 
-    this.blurUnsubscribe = this.props.navigation.addListener("blur", () => {
+    this.blurUnsubscribe = this.props.navigation.addListener('blur', () => {
       // unsubscribe from firebase listener when chat is not in focus
-      db.ref(`messages/${this.state.currentChatId}`).off("child_added");
-    });
+      db.ref(`messages/${this.state.currentChatId}`).off('child_added')
+    })
   }
 
   componentWillUnmount() {
     // turn off navigation listeners
-    this.focusUnsubscribe();
-    this.blurUnsubscribe();
+    this.focusUnsubscribe()
+    this.blurUnsubscribe()
   }
 
   handleSendMessage(messages) {
-    const { currentChat, displayName, postMessage, route, uid } = this.props;
+    const {currentChat, displayName, postMessage, route, uid} = this.props
 
     // console.log("ROUTE", Object.keys(this.props.currentChat.members));
-
+    // {contact1: test khan, contact2: jane doe}
     // Change to an object or an array of contactIds
     const contactId =
-      route.params.contactId || Object.keys(this.props.currentChat.members);
+      route.params.contactId || Object.keys(this.props.currentChat.members)
 
     // Change to object or an array of contact Names --- may need to combine
     // id and name into 1
-    const contactName = route.params.name;
-    const message = messages[messages.length - 1].text;
-    const timestamp = Date.now();
-    const currChatId = currentChat ? currentChat.id : "";
+    const contactName = route.params.name
+    const message = messages[messages.length - 1].text
+    const timestamp = Date.now()
+    const currChatId = currentChat ? currentChat.id : ''
     postMessage({
       uid,
       displayName,
@@ -62,7 +62,7 @@ class SingleChat extends Component {
       currChatId,
       message,
       timestamp,
-    });
+    })
   }
 
   render() {
@@ -70,7 +70,7 @@ class SingleChat extends Component {
 
     return (
       <View style={styles.container}>
-        <Text style={{ color: "red" }}>{this.props.sendMessageError}</Text>
+        <Text style={{color: 'red'}}>{this.props.sendMessageError}</Text>
         <GiftedChat
           messages={this.props.messages}
           user={{
@@ -115,40 +115,40 @@ class SingleChat extends Component {
                                       ],
                                     },
                                   },
-                                };
-                              });
+                                }
+                              })
                             } else {
                               this.setState((prevState) => {
                                 return {
                                   originalsShown: {
                                     ...prevState.originalsShown,
-                                    ...{ [params.currentMessage._id]: true },
+                                    ...{[params.currentMessage._id]: true},
                                   },
-                                };
-                              });
+                                }
+                              })
                             }
                           }}
                         >
                           {this.state.originalsShown[params.currentMessage._id]
-                            ? "Hide Original"
-                            : "Show Original"}
+                            ? 'Hide Original'
+                            : 'Show Original'}
                         </Text>
                       </TouchableOpacity>
                     )}
                     <Text style={styles.messageBox}>
                       {params.currentMessage.translatedFrom !== false
                         ? `Translated From: ${params.currentMessage.translatedFrom}`
-                        : "Not Translated"}
+                        : 'Not Translated'}
                     </Text>
                   </>
                 )}
                 <MessageText {...params} />
               </View>
-            );
+            )
           }}
         />
       </View>
-    );
+    )
   }
 }
 
@@ -158,18 +158,18 @@ const mapState = (state) => ({
   displayName: state.user.name,
   currentChat: state.chats.currentChat,
   sendMessageError: state.messages.sendMessageError,
-});
+})
 
 const mapDispatch = (dispatch) => ({
   fetchMessages: () => dispatch(fetchMessages()),
   postMessage: (msg) => dispatch(postMessage(msg)),
-});
+})
 
-export default connect(mapState, mapDispatch)(SingleChat);
+export default connect(mapState, mapDispatch)(SingleChat)
 
 const styles = StyleSheet.create({
   messageBox: {
-    color: "grey",
+    color: 'grey',
     fontSize: 14,
     paddingLeft: 10,
     paddingRight: 10,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
   },
   originalMessage: {
-    color: "black",
+    color: 'black',
     fontSize: 14,
     paddingLeft: 10,
     paddingRight: 10,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
   },
   showButton: {
-    color: "rgb(102, 153, 255)",
+    color: 'rgb(102, 153, 255)',
     fontSize: 12,
     paddingLeft: 10,
     paddingRight: 10,
@@ -194,16 +194,16 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#fafafa",
+    backgroundColor: '#fafafa',
     // width: Layout.window.width,
     // height: Layout.window.height * 0.85,
   },
   headerContainer: {
-    flexDirection: "row",
-    backgroundColor: "#fafafa",
+    flexDirection: 'row',
+    backgroundColor: '#fafafa',
     paddingLeft: 16,
     paddingRight: 16,
     paddingTop: 4,
     paddingBottom: 4,
   },
-});
+})
