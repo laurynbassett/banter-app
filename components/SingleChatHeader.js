@@ -6,7 +6,12 @@ import {Ionicons} from '@expo/vector-icons'
 import Colors from '../constants/Colors'
 import AvatarIcon from './AvatarIcon'
 import {getMessages, setCurrentChat} from '../store'
-import {memberNameHelper, memberIdHelper, memberImgHelper} from '../utils'
+import {
+  memberNameHelper,
+  memberIdHelper,
+  memberImgHelper,
+  createMemberString,
+} from '../utils'
 
 // SINGLE CHAT HEADER LEFT
 const UnconnectedSingleChatHeaderLeft = (props) => {
@@ -48,12 +53,16 @@ export const SingleChatHeaderLeft = connect(
 const SingleChatHeaderCenter = (props) => {
   // console.log('HEADER PROPS', props)
   const text =
-    props.memberNames > 1
+    props.memberNames.length > 1
       ? `${props.memberNames.length} people`
       : props.memberNames[0]
+  console.log('PROPS', props)
 
-  // console.log('memberImgs', props.memberImgs, text);
-  return (
+  const members = props.memberNames.filter(
+    (member) => member !== props.displayName
+  )
+
+  return members.length === 1 ? (
     <View style={styles.centerContainer}>
       {props.memberImgs.map((img, idx) =>
         img !== 'undefined' ? (
@@ -72,7 +81,11 @@ const SingleChatHeaderCenter = (props) => {
           />
         )
       )}
-      <Text style={styles.text}>{text}</Text>
+      <Text style={styles.text}>{members[0]}</Text>
+    </View>
+  ) : (
+    <View style={styles.centerContainer}>
+      <Text style={styles.text}>{createMemberString(members)}</Text>
     </View>
   )
 }
@@ -88,6 +101,7 @@ const mapState = (state) => {
   return {
     memberNames: getMemberNames,
     memberImgs: getMemberImgs,
+    displayName: state.user.name,
   }
 }
 

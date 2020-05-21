@@ -21,10 +21,6 @@ export function memberImgHelper(membersArr, contacts) {
 }
 
 export function containsAll(arrayOfMembers, groupChatContacts) {
-  var success = arrayOfMembers.every(function (val) {
-    return groupChatContacts.indexOf(val) !== -1
-  })
-
   const successArray = arrayOfMembers.map((member) => {
     if (groupChatContacts.includes(member)) {
       return true
@@ -32,8 +28,6 @@ export function containsAll(arrayOfMembers, groupChatContacts) {
       return false
     }
   })
-
-  console.log('SUCCESSARRAY', successArray)
 
   if (
     successArray.includes(false) ||
@@ -43,6 +37,14 @@ export function containsAll(arrayOfMembers, groupChatContacts) {
   } else {
     return true
   }
+}
 
-  // return success
+export function createMemberString(membersNameArray) {
+  if (membersNameArray.length === 2) {
+    return `${membersNameArray[0]} & ${membersNameArray[0]}`
+  } else {
+    return `${membersNameArray[0]}, ${membersNameArray[1]} & ${
+      membersNameArray.length - 2
+    } others`
+  }
 }
