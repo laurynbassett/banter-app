@@ -111,7 +111,6 @@ const defaultChats = {
 const chatsReducer = (state = defaultChats, action) => {
   switch (action.type) {
     case ADD_CHAT:
-      console.log("STATE", state);
       return { ...state, chats: [ ...state.chats, action.chat ] };
     case UPDATE_CHAT:
       return {

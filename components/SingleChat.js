@@ -1,14 +1,22 @@
 import React, { Component } from "react";
-import { Fragment, Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { Fragment, Platform, StyleSheet, Text, View, TouchableHighlight, TouchableOpacity } from "react-native";
 import { GiftedChat, MessageText } from "react-native-gifted-chat";
 import { connect } from "react-redux";
-import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
-import * as Permissions from "expo-permissions";
+import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import Layout from "../constants/Layout";
 import { fetchMessages, postMessage, postAudio } from "../store";
-import { formatText, genUUID, setAudioMode, getMillis } from "../utils";
+import { db } from "../Firebase";
+import {
+  formatText,
+  genUUID,
+  getPlaybackTime,
+  handleRecordPressed,
+  handleToggleRecording,
+  handleToggleAudio,
+  getPermissions
+} from "../utils";
 
 class SingleChat extends Component {
   constructor(props) {
@@ -29,17 +37,11 @@ class SingleChat extends Component {
     this.playbackInstance = null;
     this.playbackInstanceId = null;
     this.sound = null;
-    this.handleSendAudio = this.handleSendAudio.bind(this);
+    this.loadPlaybackInstance = this.loadPlaybackInstance.bind(this);
+    this.updatePlaybackStatus = this.updatePlaybackStatus.bind(this);
     this.updateSoundStatus = this.updateSoundStatus.bind(this);
     this.updateRecordingStatus = this.updateRecordingStatus.bind(this);
-    this.updatePlaybackStatus = this.updatePlaybackStatus.bind(this);
-    this.loadPlaybackInstance = this.loadPlaybackInstance.bind(this);
-    this.getPlaybackTime = this.getPlaybackTime.bind(this);
-    this.startRecording = this.startRecording.bind(this);
-    this.stopRecording = this.stopRecording.bind(this);
-    this.handleRecordPressed = this.handleRecordPressed.bind(this);
-    this.handleToggleRecording = this.handleToggleRecording.bind(this);
-    this.handleToggleAudio = this.handleToggleAudio.bind(this);
+    this.handleSendAudio = this.handleSendAudio.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
   }
 
@@ -56,21 +58,13 @@ class SingleChat extends Component {
     });
 
     // get permission to access microphone for audio recordings
-    this.getPermissions();
+    getPermissions(this);
   }
 
   componentWillUnmount() {
     // turn off navigation listeners
     this.focusUnsubscribe();
     this.blurUnsubscribe();
-  }
-
-  // permission for microphone use
-  async getPermissions() {
-    const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-    this.setState({
-      audioPermission: response.status === "granted"
-    });
   }
 
   // custom icons for recording to the left of the message composer
@@ -84,7 +78,7 @@ class SingleChat extends Component {
             size={28}
             style={styles.microphone}
             color={this.state.isRecording ? "red" : "#7a7a7a"}
-            onPress={this.handleRecordPressed}
+            onPress={() => handleRecordPressed(this)}
             hitSlop={styles.hitSlop}
           />
           {this.recording && (
@@ -93,7 +87,7 @@ class SingleChat extends Component {
               size={23}
               color='#7a7a7a'
               style={styles.playPause}
-              onPress={this.handleToggleRecording}
+              onPress={() => handleToggleRecording(this)}
               hitSlop={styles.hitSlop}
             />
           )}
@@ -102,109 +96,32 @@ class SingleChat extends Component {
     );
   }
 
-  // get time for playback
-  getPlaybackTime() {
-    if (
-      this.playbackInstanceId !== null &&
-      this.state.playbackInstancePosition !== null &&
-      this.state.playbackInstanceDuration !== null
-    ) {
-      return `${getMillis(this.state.playbackInstancePosition)} / ${getMillis(this.state.playbackInstanceDuration)}`;
-    }
-    return "";
-  }
-
   // custom text bubble for audio files
   renderMessageAudio(props) {
     if (props.currentMessage.audio) {
-      const isPlayingCurrent = this.playbackInstanceId === props.currentMessage._id;
+      const { _id } = props.currentMessage;
+      const isCurrentPlaying = _id === this.playbackInstanceId;
       return (
         <View style={styles.audioContainer}>
           <AntDesign
-            name={isPlayingCurrent && this.state.isAudioPlaying ? "pausecircleo" : "playcircleo"}
+            name={isCurrentPlaying && this.state.isAudioPlaying ? "pausecircleo" : "playcircleo"}
             size={35}
             color='#ffffff'
             style={styles.audio}
             hitSlop={styles.hitSlop}
             onPress={() => {
-              this.handleToggleAudio(props.currentMessage);
+              console.log("STATE", this.state);
+              handleToggleAudio(props.currentMessage, this);
             }}
           />
-          {isPlayingCurrent && <Text style={styles.audioText}>{this.getPlaybackTime()}</Text>}
+          {isCurrentPlaying && <Text style={styles.audioText}>{getPlaybackTime(this)}</Text>}
         </View>
       );
     }
     return null;
   }
 
-  // update state on playback
-  async updatePlaybackStatus(status) {
-    if (status.didJustFinish) {
-      this.playbackInstance.stopAsync();
-      this.loadPlaybackInstance(false);
-    } else if (status.isLoaded) {
-      this.setState({
-        playbackInstancePosition: status.positionMillis,
-        playbackInstanceDuration: status.durationMillis,
-        isAudioPlaying: status.isPlaying
-      });
-    } else {
-      if (status.error) {
-        console.log("Error updating playback status: ", status.error);
-      }
-    }
-  }
-
-  // load playback instance
-  async loadPlaybackInstance(shouldPlay, props) {
-    this.setState({ isLoading: true });
-    // if playback instance exists, unload and clear onPlaybackStatusUpdate
-    if (this.playbackInstance !== null) {
-      try {
-        await this.playbackInstance.unloadAsync();
-        this.playbackInstance.setOnPlaybackStatusUpdate(null);
-        this.playbackInstance = null;
-        this.playbackInstanceId = null;
-        this.setState({
-          playbackInstancePosition: null,
-          playbackInstanceDuration: null
-        });
-      } catch (err) {
-        console.log("Error unloading playback instance", err);
-      }
-    }
-    // load new playback instance then play audio
-    if (props) {
-      try {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: props.audio },
-          { isLooping: false },
-          this.updatePlaybackStatus
-        );
-        this.playbackInstance = sound;
-        this.playbackInstanceId = props._id;
-        this.playbackInstance.playAsync();
-        this.setState({ isLoading: false });
-      } catch (err) {
-        console.log("Error loading playback instance", err);
-      }
-    }
-  }
-
-  // play / pause playback for message audio
-  handleToggleAudio(props) {
-    // if playback instance exists and is playing, pause it
-    if (this.playbackInstance !== null) {
-      if (this.state.isAudioPlaying) {
-        this.playbackInstance.pauseAsync();
-      } else this.playbackInstance.playAsync();
-      // if no playback instance, load selected audio
-    } else {
-      this.loadPlaybackInstance(true, props);
-    }
-  }
-
-  // render message text
+  // custom text bubble for messages w/ translation
   renderMessageText(params) {
     return (
       <View>
@@ -249,8 +166,8 @@ class SingleChat extends Component {
               {params.currentMessage.translatedFrom !== false ? (
                 `Translated From: ${params.currentMessage.translatedFrom}`
               ) : (
-                "Not Translated"
-              )}
+                  "Not Translated"
+                )}
             </Text>
           </Fragment>
         )}
@@ -261,6 +178,7 @@ class SingleChat extends Component {
 
   // update state sound status for recording
   updateSoundStatus(status) {
+    console.log("UPDATE SOUND STATUS", status);
     if (status.isLoaded) {
       this.setState({
         isRecordingPlaying: status.isPlaying
@@ -283,97 +201,64 @@ class SingleChat extends Component {
         isRecording: false
       });
       if (!this.state.isLoading) {
-        this.stopRecording();
+        this.stopRecording(this);
       }
     }
   }
 
-  // on start recording click
-  async startRecording() {
-    try {
+  // update state on playback
+  async updatePlaybackStatus(status) {
+    console.log("UPDATE PLAYBACK STATUS", typeof this.playbackInstanceId, status);
+    if (status.didJustFinish) {
+      this.playbackInstance.stopAsync();
+      this.loadPlaybackInstance();
+    } else if (status.isLoaded) {
       this.setState({
-        isLoading: true
+        playbackInstancePosition: status.positionMillis,
+        playbackInstanceDuration: status.durationMillis,
+        isAudioPlaying: status.isPlaying
       });
-
-      // if existing sound, unload the media from memory
-      if (this.sound !== null) {
-        await this.sound.unloadAsync();
-        this.sound.setOnPlaybackStatusUpdate(null);
-        this.sound = null;
+    } else {
+      if (status.error) {
+        console.log("Error updating playback status: ", status.error);
       }
-      // customizes audio experience on iOS and Android
-      await setAudioMode({ allowsRecordingIOS: true });
-
-      // sets interval that onRecordingStatusUpdate is called on while the recording can record
-      if (this.recording !== null) {
-        this.recording.setOnRecordingStatusUpdate(null);
-        this.recording = null;
-      }
-      // create new Audio instance
-      const recording = new Audio.Recording();
-      // loads the recorder into memory and prepares it for recording
-      await recording.prepareToRecordAsync(JSON.parse(JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)));
-      // Sets a cb to be called regularly w/ the status of the recording
-      recording.setOnRecordingStatusUpdate(this.updateRecordingStatus);
-      // set recording in constructor
-      this.recording = recording;
-      // begin recording
-      await this.recording.startAsync();
-
-      this.setState({
-        isLoading: false
-      });
-    } catch (err) {
-      console.log("Error starting recording: ", err);
     }
   }
 
-  // on stop recording click
-  async stopRecording() {
-    try {
-      this.setState({
-        isLoading: true
-      });
-      // stops recording and deallocates recorder from memory
-      await this.recording.stopAndUnloadAsync();
-      // customizes audio experience on iOS and Android
-      await setAudioMode({ allowsRecordingIOS: false });
-
-      if (this.recording) {
-        const audioUrl = this.recording.getURI();
-        this.recording.setOnRecordingStatusUpdate(null);
-        this.setState({ audioUrl });
-      }
-      // creates and loads a new sound object to play back the recording
-      const { sound, status } = await this.recording.createNewLoadedSoundAsync(
-        { isLooping: false },
-        this.updateSoundStatus
-      );
-      this.sound = sound;
-      this.setState({
-        isLoading: false
-      });
-    } catch (err) {
-      console.log("Error stopping recording: ", err);
-    }
-  }
-
-  // start / stop recording
-  handleRecordPressed() {
-    this.state.isRecording ? this.stopRecording() : this.startRecording();
-  }
-
-  // play / pause playback for recording
-  handleToggleRecording() {
-    if (this.recording != null) {
-      if (this.state.isRecordingPlaying) {
-        this.sound.pauseAsync();
-        this.setState({ isRecordingPlaying: false });
-      } else {
-        this.setState({ isRecordingPlaying: true });
-        this.sound.playAsync();
+  // load playback instance
+  async loadPlaybackInstance(props) {
+    this.setState({ isLoading: true });
+    // if playback instance exists, unload and clear onPlaybackStatusUpdate
+    if (this.playbackInstance !== null) {
+      try {
+        await this.playbackInstance.unloadAsync();
+        this.playbackInstance.setOnPlaybackStatusUpdate(null);
+        this.playbackInstance = null;
+        this.playbackInstanceId = null;
+        this.setState({
+          playbackInstancePosition: null,
+          playbackInstanceDuration: null
+        });
+      } catch (err) {
+        console.log("Error unloading playback instance", err);
       }
     }
+    // construct and load new sound instance then play audio
+    if (props) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: props.audio },
+          { isLooping: false, progressUpdateIntervalMillis: 50 },
+          this.updatePlaybackStatus
+        );
+        this.playbackInstance = sound;
+        this.playbackInstanceId = props._id;
+        this.playbackInstance.playAsync();
+      } catch (err) {
+        console.log("Error loading playback instance", err);
+      }
+    }
+    this.setState({ isLoading: false });
   }
 
   // dispatch send audio
@@ -421,11 +306,11 @@ class SingleChat extends Component {
         />
         {this.recording && (
           <View style={styles.inputRight}>
-            <TouchableOpacity color='#0084ff'>
+            <TouchableHighlight color='#0084ff'>
               <Text style={styles.inputRightText} onPress={this.handleSendAudio} hitSlop={styles.hitSlop}>
                 Send
               </Text>
-            </TouchableOpacity>
+            </TouchableHighlight>
           </View>
         )}
       </View>
@@ -477,8 +362,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fafafa"
-    // width: Layout.window.width,
-    // height: Layout.window.height * 0.85,
   },
   inputBar: {
     display: "flex",
