@@ -1,5 +1,6 @@
-import firebase, {auth, db} from '../Firebase'
+import {auth, db} from '../Firebase'
 import {fetchMessages} from './messages'
+import {containsAll} from '../utils/members'
 
 const chatsRef = db.ref('chats')
 
@@ -19,7 +20,7 @@ export const setCurrentChatProps = (chat) => ({
   type: SET_CURRENT_CHAT_PROPS,
   chat,
 })
-const addMembers = (members) => ({type: ADD_MEMBERS, members})
+// const addMembers = (members) => ({type: ADD_MEMBERS, members})
 // for setting current chat header bar
 export const setMembers = (members) => ({type: SET_MEMBERS, members})
 
@@ -60,23 +61,33 @@ export const fetchChats = () => async (dispatch) => {
 
 // GET CURRENT CHAT ID
 export const fetchCurrentChatId = (
-  //TODO: change this so we're receiving an array of contact objects OR all contacts in one object
-  // {contact1: test khan, contact2: jane doe}
+  // {contactId: 'GsBmjq87GygkD4LgfNxm4uS1yIx2', name: 'Test Test'}
   {contactId, name},
   {uid, userName},
-  navigation
+  navigation,
+  contacts
 ) => async (dispatch, getState) => {
   try {
     let currChatId = ''
     // check if chat exists w/ contact
-    console.log('CHATS', getState().chats)
-    console.log('CHATS.CHATS', getState().chats.chats)
-    console.log('CHATS.CURRENTCHAT', getState().chats.currentChat)
+    // console.log('CHATS', getState().chats)
+    // console.log('CHATS.CHATS', getState().chats.chats)
+    // console.log('CHATS.CURRENTCHAT', getState().chats.currentChat)
+
+    //TODO: check if all contactIDs are included in chat.members
 
     const chat = getState().chats.chats.find((chat) =>
-      //TODO: check if all contactIDs are included in chat.members
       Object.keys(chat.members).includes(contactId)
     )
+
+    const groupChat = getState().chats.chats.find((chat) => {
+      return containsAll(
+        Object.keys(chat.members),
+        contacts.map((contact) => contact.contactId)
+      )
+    })
+
+    console.log('GROUPCHAT RETURNS', groupChat)
 
     if (chat) {
       currChatId = chat.id
@@ -129,7 +140,7 @@ const defaultChats = {
 const chatsReducer = (state = defaultChats, action) => {
   switch (action.type) {
     case ADD_CHAT:
-      console.log('STATE', state)
+      // console.log('STATE', state)
       return {...state, chats: [...state.chats, action.chat]}
     case UPDATE_CHAT:
       return {

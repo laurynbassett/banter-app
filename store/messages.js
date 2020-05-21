@@ -23,7 +23,7 @@ const addMessage = (message) => ({type: ADD_MESSAGE, message})
 export const fetchMessages = () => (dispatch, getState) => {
   // query for all messages for the current chat, and add listener on child_added for new messages
   if (getState().chats.currentChat) {
-    console.log('FETCH MESSAGES', getState().chats.currentChat.id)
+    // console.log('FETCH MESSAGES', getState().chats.currentChat.id)
     db.ref(`messages/${getState().chats.currentChat.id}`).on(
       'child_added',
       function (snapshot) {

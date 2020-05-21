@@ -5,6 +5,7 @@ import {Entypo} from '@expo/vector-icons'
 import {connect} from 'react-redux'
 import {createSectionedData} from '../../utils'
 import {fetchCurrentChatId} from '../../store/chats'
+
 export class NewIndividualChat extends Component {
   constructor() {
     super()

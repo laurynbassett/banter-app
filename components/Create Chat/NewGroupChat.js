@@ -3,6 +3,7 @@ import {StyleSheet, Text, Button, SectionList, View} from 'react-native'
 import {ListItem} from 'react-native-elements'
 import {connect} from 'react-redux'
 import {createSectionedData, findIndices} from '../../utils'
+import {fetchCurrentChatId} from '../../store/chats'
 
 export class NewGroupChat extends Component {
   constructor() {
@@ -12,6 +13,7 @@ export class NewGroupChat extends Component {
     }
     this.checkItem = this.checkItem.bind(this)
     this.getSelected = this.getSelected.bind(this)
+    this.createGroup = this.createGroup.bind(this)
   }
 
   componentDidMount() {
@@ -22,10 +24,7 @@ export class NewGroupChat extends Component {
     // Overriding header buttons
     this.props.navigation.setOptions({
       headerRight: () => (
-        <Button
-          title="Create Group"
-          onPress={() => console.log(this.getSelected())}
-        />
+        <Button title="Create Group" onPress={() => this.createGroup()} />
       ),
       headerLeft: () => (
         <Button
@@ -69,6 +68,19 @@ export class NewGroupChat extends Component {
     })
 
     return selected
+  }
+
+  async createGroup() {
+    // set current chatroom in redux
+
+    const selected = this.getSelected(this.state.data)
+
+    await this.props.fetchCurrentChatId(
+      {contactId: 'GsBmjq87GygkD4LgfNxm4uS1yIx2', name: 'Test Test'},
+      {uid: this.props.uid, userName: this.props.userName},
+      this.props.navigation,
+      selected
+    )
   }
 
   render() {
@@ -115,6 +127,13 @@ const styles = StyleSheet.create({
 
 const mapState = (state) => ({
   contacts: state.user.contacts,
+  uid: state.firebase.auth.uid,
+  userName: state.firebase.auth.displayName,
 })
 
-export default connect(mapState)(NewGroupChat)
+const mapDispatch = (dispatch) => ({
+  fetchCurrentChatId: (contact, user, navigation, selected) =>
+    dispatch(fetchCurrentChatId(contact, user, navigation, selected)),
+})
+
+export default connect(mapState, mapDispatch)(NewGroupChat)
