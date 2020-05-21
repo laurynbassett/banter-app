@@ -34,9 +34,10 @@ export class NewIndividualChat extends Component {
   async handleContactSelection(contactId, contactName) {
     // set current chatroom in redux
     await this.props.fetchCurrentChatId(
-      {contactId: contactId, name: contactName},
+      // {contactId: contactId, name: contactName},
       {uid: this.props.uid, userName: this.props.userName},
-      this.props.navigation
+      this.props.navigation,
+      [{contactId, contactName}]
     )
   }
 

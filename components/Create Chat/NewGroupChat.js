@@ -76,7 +76,7 @@ export class NewGroupChat extends Component {
     const selected = this.getSelected(this.state.data)
 
     await this.props.fetchCurrentChatId(
-      {contactId: 'GsBmjq87GygkD4LgfNxm4uS1yIx2', name: 'Test Test'},
+      // {contactId: 'GsBmjq87GygkD4LgfNxm4uS1yIx2', name: 'Test Test'},
       {uid: this.props.uid, userName: this.props.userName},
       this.props.navigation,
       selected

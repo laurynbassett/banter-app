@@ -14,10 +14,12 @@ export default function ChatListItem(props) {
     // set current chatroom in redux
     props.setCurrentChat(chatId)
     // navigate to single chat page
-    props.navigation.navigate('SingleChat', {
-      contactId: props.id,
-      name: props.name,
-    })
+    props.navigation.navigate('SingleChat', [
+      {
+        contactId: props.id,
+        contactName: props.name,
+      },
+    ])
   }
 
   return (

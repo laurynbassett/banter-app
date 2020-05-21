@@ -21,9 +21,28 @@ export function memberImgHelper(membersArr, contacts) {
 }
 
 export function containsAll(arrayOfMembers, groupChatContacts) {
-  var success = groupChatContacts.every(function (val) {
-    return arrayOfMembers.indexOf(val) !== -1
+  var success = arrayOfMembers.every(function (val) {
+    return groupChatContacts.indexOf(val) !== -1
   })
 
-  return success
+  const successArray = arrayOfMembers.map((member) => {
+    if (groupChatContacts.includes(member)) {
+      return true
+    } else {
+      return false
+    }
+  })
+
+  console.log('SUCCESSARRAY', successArray)
+
+  if (
+    successArray.includes(false) ||
+    arrayOfMembers.length !== groupChatContacts.length
+  ) {
+    return false
+  } else {
+    return true
+  }
+
+  // return success
 }

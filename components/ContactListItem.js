@@ -9,9 +9,10 @@ const ContactListItem = (props) => {
   const goToSingleChat = async () => {
     // set current chatroom in redux
     await props.fetchCurrentChatId(
-      {contactId: props.id, name: props.name},
+      // {contactId: props.id, name: props.name},
       {uid: props.uid, userName: props.userName},
-      props.navigation
+      props.navigation,
+      [{contactId: props.id, contactName: props.name}]
     )
   }
 

@@ -19,6 +19,7 @@ class ChatListScreen extends React.Component {
   }
 
   render() {
+    console.log('CHATS', this.props.chats)
     return (
       <FlatList
         data={this.props.chats}
