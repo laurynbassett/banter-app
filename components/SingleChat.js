@@ -41,23 +41,24 @@ class SingleChat extends Component {
   handleSendMessage(messages) {
     const {currentChat, displayName, postMessage, route, uid} = this.props
 
-    // console.log("ROUTE", Object.keys(this.props.currentChat.members));
     // {contact1: test khan, contact2: jane doe}
     // Change to an object or an array of contactIds
-    const contactId =
-      route.params.contactId || Object.keys(this.props.currentChat.members)
+    // const contactId =
+    //   route.params.contactId || Object.keys(this.props.currentChat.members)
 
     // Change to object or an array of contact Names --- may need to combine
     // id and name into 1
-    const contactName = route.params.name
+    // const contactName = route.params.name
+    const contacts = route.params.contacts
     const message = messages[messages.length - 1].text
     const timestamp = Date.now()
     const currChatId = currentChat ? currentChat.id : ''
     postMessage({
       uid,
       displayName,
-      contactId,
-      contactName,
+      contacts,
+      // contactId,
+      // contactName,
       currChatId,
       message,
       timestamp,
@@ -65,7 +66,7 @@ class SingleChat extends Component {
   }
 
   render() {
-    // console.log(this.state);
+    console.log('ROUTE', this.props.route.params.contacts)
 
     return (
       <View style={styles.container}>

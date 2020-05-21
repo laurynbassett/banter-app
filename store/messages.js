@@ -107,28 +107,36 @@ export const fetchMessages = () => (dispatch, getState) => {
 }
 
 // SEND NEW MESSAGE
-export const postMessage = (text) => async (dispatch) => {
+export const postMessage = (text) => async (dispatch, getState) => {
   try {
     const {
       uid,
       displayName,
-      contactId,
-      contactName,
+      contacts,
+      // contactId,
+      // contactName,
       currChatId,
       message,
       timestamp,
     } = text
-    const members = {
-      [uid]: displayName,
-      [contactId]: contactName,
-    }
+
+    // const members = {
+    //   [uid]: displayName,
+    //   [contactId]: contactName,
+    // }
+
+    const members = getState().chats.currentChat.members
 
     let chatId = currChatId
     // if chatId doesn't exist, create id, new chatroom and add members
     if (!chatId) {
       chatId = await dispatch(createCurrentChatId())
       await dispatch(addNewChatroom(chatId, uid))
-      await dispatch(addNewChatroom(chatId, contactId))
+      // await dispatch(addNewChatroom(chatId, contactId))
+      contacts.forEach(
+        async (contact) =>
+          await dispatch(addNewChatroom(chatId, contact.contactId))
+      )
       await dispatch(addNewMembers(chatId, members))
     }
 
@@ -156,7 +164,10 @@ export const postMessage = (text) => async (dispatch) => {
         // console.log("CONTACTID:", contactId);
         // console.log("DisplayName:", displayName);
         // console.log("message:", message);
-        dispatch(notify(contactId, displayName, message))
+        // dispatch(notify(contactId, displayName, message))
+        contacts.forEach(async (contact) =>
+          dispatch(notify(contact.contactId, displayName, message))
+        )
       })
       .catch((err) =>
         console.log('Error posting message to chats and messages', err)
