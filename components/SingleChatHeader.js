@@ -1,17 +1,11 @@
 import React from 'react'
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {connect} from 'react-redux'
 import {Ionicons} from '@expo/vector-icons'
-
 import Colors from '../constants/Colors'
 import AvatarIcon from './AvatarIcon'
 import {getMessages, setCurrentChat} from '../store'
-import {
-  memberNameHelper,
-  memberIdHelper,
-  memberImgHelper,
-  createMemberString,
-} from '../utils'
+import {memberNameHelper, memberImgHelper, createMemberString} from '../utils'
 
 // SINGLE CHAT HEADER LEFT
 const UnconnectedSingleChatHeaderLeft = (props) => {
@@ -51,13 +45,6 @@ export const SingleChatHeaderLeft = connect(
 
 // SINGLE CHAT HEADER CENTER
 const SingleChatHeaderCenter = (props) => {
-  // console.log('HEADER PROPS', props)
-  const text =
-    props.memberNames.length > 1
-      ? `${props.memberNames.length} people`
-      : props.memberNames[0]
-  console.log('PROPS', props)
-
   const members = props.memberNames.filter(
     (member) => member !== props.displayName
   )

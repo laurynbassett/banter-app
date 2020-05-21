@@ -35,6 +35,7 @@ export class NewGroupChat extends Component {
     })
   }
 
+  // Return current state of checkbox
   checkItem(itemName, itemId) {
     const {sectionIndex, nameIndex} = findIndices(
       itemName,
@@ -45,6 +46,7 @@ export class NewGroupChat extends Component {
     return this.state.data[sectionIndex].data[nameIndex].checked
   }
 
+  // Handling selection of checkbox
   handlePress(itemName, itemId) {
     const data = this.state.data
     const {sectionIndex, nameIndex} = findIndices(itemName, itemId, data)
@@ -56,6 +58,7 @@ export class NewGroupChat extends Component {
     this.setState({data})
   }
 
+  // Getting all selecte checkboxes
   getSelected() {
     let selected = []
 
@@ -71,12 +74,10 @@ export class NewGroupChat extends Component {
   }
 
   async createGroup() {
-    // set current chatroom in redux
-
     const selected = this.getSelected(this.state.data)
 
+    // set current chatroom in redux
     await this.props.fetchCurrentChatId(
-      // {contactId: 'GsBmjq87GygkD4LgfNxm4uS1yIx2', name: 'Test Test'},
       {uid: this.props.uid, userName: this.props.userName},
       this.props.navigation,
       selected
@@ -132,8 +133,8 @@ const mapState = (state) => ({
 })
 
 const mapDispatch = (dispatch) => ({
-  fetchCurrentChatId: (contact, user, navigation, selected) =>
-    dispatch(fetchCurrentChatId(contact, user, navigation, selected)),
+  fetchCurrentChatId: (user, navigation, contacts) =>
+    dispatch(fetchCurrentChatId(user, navigation, contacts)),
 })
 
 export default connect(mapState, mapDispatch)(NewGroupChat)

@@ -34,7 +34,6 @@ export class NewIndividualChat extends Component {
   async handleContactSelection(contactId, contactName) {
     // set current chatroom in redux
     await this.props.fetchCurrentChatId(
-      // {contactId: contactId, name: contactName},
       {uid: this.props.uid, userName: this.props.userName},
       this.props.navigation,
       [{contactId, contactName}]
@@ -102,8 +101,8 @@ const mapState = (state) => ({
 })
 
 const mapDispatch = (dispatch) => ({
-  fetchCurrentChatId: (contact, user, navigation) =>
-    dispatch(fetchCurrentChatId(contact, user, navigation)),
+  fetchCurrentChatId: (user, navigation, contacts) =>
+    dispatch(fetchCurrentChatId(user, navigation, contacts)),
 })
 
 export default connect(mapState, mapDispatch)(NewIndividualChat)

@@ -1,7 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Image, StyleSheet, Text, TouchableHighlight, View} from 'react-native'
-
 import {fetchCurrentChatId} from '../store'
 import AvatarIcon from './AvatarIcon'
 
@@ -51,8 +50,8 @@ const mapState = (state) => ({
 })
 
 const mapDispatch = (dispatch) => ({
-  fetchCurrentChatId: (contact, user, navigation) =>
-    dispatch(fetchCurrentChatId(contact, user, navigation)),
+  fetchCurrentChatId: (user, navigation, contacts) =>
+    dispatch(fetchCurrentChatId(user, navigation, contacts)),
 })
 
 export default connect(mapState, mapDispatch)(ContactListItem)
