@@ -15,7 +15,6 @@ export const APPEND_MESSAGE = 'APPEND_MESSAGE'
 // ---------- ACTION CREATORS ---------- //
 
 export const getMessages = (messages) => ({type: GET_MESSAGES, messages})
-const addMessage = (message) => ({type: ADD_MESSAGE, message})
 const appendMessage = (message) => ({type: APPEND_MESSAGE, message})
 
 // ---------- THUNK CREATORS ---------- //
@@ -59,7 +58,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
       name: message.senderName,
     },
     createdAt: message.timestamp,
-    original: message.translations.original,
+    original: message.translations ? message.translations.original : '',
     messageType: message.messageType,
   }
   const userLanguage = getState().user.language

@@ -115,6 +115,7 @@ class SingleChat extends Component {
 
   // custom text bubble for audio files
   renderMessageAudio(props) {
+    // TODO: get isCurrentPlaying to work for all audio files (currently only working for first)
     if (props.currentMessage.audio) {
       const {_id} = props.currentMessage
       const isCurrentPlaying = _id === this.playbackInstanceId
@@ -130,10 +131,7 @@ class SingleChat extends Component {
             color="#ffffff"
             style={styles.audio}
             hitSlop={styles.hitSlop}
-            onPress={() => {
-              console.log('STATE', this.state)
-              handleToggleAudio(props.currentMessage, this)
-            }}
+            onPress={() => handleToggleAudio(props.currentMessage, this)}
           />
           {isCurrentPlaying && (
             <Text style={styles.audioText}>{getPlaybackTime(this)}</Text>
