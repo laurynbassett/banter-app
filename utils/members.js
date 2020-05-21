@@ -22,8 +22,6 @@ export function memberImgHelper(membersArr, contacts) {
 
 export function containsAll(arrayOfMembers, groupChatContacts) {
   var success = groupChatContacts.every(function (val) {
-    console.log('VAL', val)
-    console.log('ARRAYOFMEMBERS', arrayOfMembers)
     return arrayOfMembers.indexOf(val) !== -1
   })
 

@@ -70,15 +70,12 @@ export const fetchCurrentChatId = (
   try {
     let currChatId = ''
     // check if chat exists w/ contact
-    // console.log('CHATS', getState().chats)
-    // console.log('CHATS.CHATS', getState().chats.chats)
-    // console.log('CHATS.CURRENTCHAT', getState().chats.currentChat)
+
+    // const chat = getState().chats.chats.find((chat) =>
+    //   Object.keys(chat.members).includes(contactId)
+    // )
 
     //TODO: check if all contactIDs are included in chat.members
-
-    const chat = getState().chats.chats.find((chat) =>
-      Object.keys(chat.members).includes(contactId)
-    )
 
     const groupChat = getState().chats.chats.find((chat) => {
       return containsAll(
@@ -87,22 +84,38 @@ export const fetchCurrentChatId = (
       )
     })
 
-    console.log('GROUPCHAT RETURNS', groupChat)
+    // if (chat) {
+    //   currChatId = chat.id
+    //   // if existing chat, set current chat on redux state
+    //   dispatch(setCurrentChat(currChatId))
+    // } else {
+    //   // if no existing chat, set current chat members on state
+    //   dispatch(
+    //     //TODO - update how members object is created to include ALL contacts
+    //     setCurrentChatProps({members: {[uid]: userName, [contactId]: name}})
+    //   )
+    // }
 
-    if (chat) {
-      currChatId = chat.id
+    if (groupChat) {
+      currChatId = groupChat.id
       // if existing chat, set current chat on redux state
       dispatch(setCurrentChat(currChatId))
     } else {
-      // if no existing chat, set current chat members on state
-      dispatch(
-        //TODO - update how members object is created to include ALL contacts
-        setCurrentChatProps({members: {[uid]: userName, [contactId]: name}})
+      //TODO - update how members object is created to include ALL contacts
+      const members = {}
+      members[uid] = userName
+      contacts.forEach(
+        (contact) => (members[contact.contactId] = contact.contactName)
       )
+
+      // if no existing chat, set current chat members on state
+      dispatch(setCurrentChatProps({members}))
     }
+
     // navigate to single chat screen
+    // navigation.navigate('SingleChat', {contactId, name})
     // TODO: pass the object or array received by this function
-    navigation.navigate('SingleChat', {contactId, name})
+    navigation.navigate('SingleChat', {contacts})
   } catch (err) {
     console.log('Error fetching current chat ID: ', err)
   }
