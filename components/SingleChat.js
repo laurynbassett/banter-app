@@ -212,6 +212,9 @@ class SingleChat extends Component {
     console.log('UPDATE SOUND STATUS', status)
     if (status.didJustFinish) {
       this.state.sound.setStatusAsync({positionMillis: 0})
+      this.setState({
+        isRecordingPlaying: status.isPlaying,
+      })
     } else if (status.isLoaded) {
       this.setState({
         isRecordingPlaying: status.isPlaying,

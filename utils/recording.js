@@ -6,7 +6,6 @@ export async function handleToggleRecording(thisObj) {
   const {recording, sound, isRecordingPlaying} = thisObj.state
   if (recording != null) {
     isRecordingPlaying ? await sound.pauseAsync() : await sound.playAsync()
-    thisObj.setState({isRecordingPlaying: !isRecordingPlaying})
   }
 }
 
@@ -21,16 +20,15 @@ async function startRecording(thisObj) {
     thisObj.setState({
       isLoading: true,
     })
-
     // if existing sound, unload the media from memory
     if (thisObj.state.sound !== null) {
       await thisObj.state.sound.unloadAsync()
       thisObj.state.sound.setOnPlaybackStatusUpdate(null)
       thisObj.state.sound = null
     }
+
     // customizes audio experience on iOS and Android
     await setAudioMode({allowsRecordingIOS: true})
-
     // sets interval that onRecordingStatusUpdate is called on while the recording can record
     if (thisObj.state.recording !== null) {
       thisObj.state.recording.setOnRecordingStatusUpdate(null)
