@@ -2,6 +2,7 @@ import firebase from 'firebase/app'
 // // import 'firebase/analytics';
 import 'firebase/auth'
 import 'firebase/database'
+import 'firebase/storage'
 
 import {
   FIREBASE_API_KEY,
@@ -29,10 +30,8 @@ const firebaseConfig = {
 // Initialize Firebase
 // export const Firebase = firebase.initializeApp(firebaseConfig);
 firebase.initializeApp(firebaseConfig)
-// firebase.analytics();
 
-// firebase.analytics();
 export const auth = firebase.auth()
 export const db = firebase.database()
-
+export const storage = firebase.storage()
 export default firebase

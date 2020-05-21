@@ -1,5 +1,5 @@
-import firebase, {auth, db} from '../Firebase'
-import {fetchMessages} from './messages'
+import {auth, db} from '../Firebase'
+import {fetchMessages} from '.'
 
 const chatsRef = db.ref('chats')
 
@@ -69,10 +69,6 @@ export const fetchCurrentChatId = (
   try {
     let currChatId = ''
     // check if chat exists w/ contact
-    console.log('CHATS', getState().chats)
-    console.log('CHATS.CHATS', getState().chats.chats)
-    console.log('CHATS.CURRENTCHAT', getState().chats.currentChat)
-
     const chat = getState().chats.chats.find((chat) =>
       //TODO: check if all contactIDs are included in chat.members
       Object.keys(chat.members).includes(contactId)
@@ -129,7 +125,6 @@ const defaultChats = {
 const chatsReducer = (state = defaultChats, action) => {
   switch (action.type) {
     case ADD_CHAT:
-      console.log('STATE', state)
       return {...state, chats: [...state.chats, action.chat]}
     case UPDATE_CHAT:
       return {
