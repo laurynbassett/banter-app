@@ -25,7 +25,7 @@ export async function getPermissions(thisObj) {
 // get time for playback
 export function getPlaybackTime(thisObj) {
   if (
-    thisObj.playbackInstanceId !== null &&
+    thisObj.state.playbackInstanceId !== null &&
     thisObj.state.playbackInstancePosition !== null &&
     thisObj.state.playbackInstanceDuration !== null
   ) {
@@ -37,14 +37,13 @@ export function getPlaybackTime(thisObj) {
 }
 
 // play / pause playback for message audio
-export function handleToggleAudio(props, thisObj) {
+export async function handleToggleAudio(props, thisObj) {
+  const {isAudioPlaying, playbackInstance} = thisObj.state
   // if playback instance exists and is playing, pause it
-  if (thisObj.playbackInstance !== null) {
-    if (thisObj.state.isAudioPlaying) {
-      thisObj.playbackInstance.pauseAsync()
-    } else thisObj.playbackInstance.playAsync()
-    // if no playback instance, load selected audio
-  } else {
-    thisObj.loadPlaybackInstance(props)
-  }
+  playbackInstance !== null
+    ? isAudioPlaying
+      ? await playbackInstance.pauseAsync()
+      : await playbackInstance.playAsync()
+    : // if no playback instance, load selected audio
+      thisObj.loadPlaybackInstance(props)
 }

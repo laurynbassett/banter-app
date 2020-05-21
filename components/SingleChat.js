@@ -11,11 +11,7 @@ import {
 import {GiftedChat, MessageText} from 'react-native-gifted-chat'
 import {connect} from 'react-redux'
 import {Audio} from 'expo-av'
-import {
-  AntDesign,
-  FontAwesome,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons'
+import {AntDesign, Ionicons, MaterialCommunityIcons} from '@expo/vector-icons'
 
 import Layout from '../constants/Layout'
 import {
@@ -33,27 +29,28 @@ import {
   handleToggleRecording,
   handleToggleAudio,
   getPermissions,
+  stopRecording,
 } from '../utils'
 
 class SingleChat extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      currentChatId: this.props.currentChat.id,
+      currentChatId: this.props.currentChat.id || '',
       originalsShown: {},
       audioPermission: false,
       audioUrl: null,
       isRecording: false,
       isRecordingPlaying: false,
+      recording: null,
+      sound: null,
       isAudioPlaying: false,
       isLoading: false,
+      playbackInstance: null,
+      playbackInstanceId: null,
       playbackInstancePosition: null,
       playbackInstanceDuration: null,
     }
-    this.recording = null
-    this.playbackInstance = null
-    this.playbackInstanceId = null
-    this.sound = null
     this.loadPlaybackInstance = this.loadPlaybackInstance.bind(this)
     this.updatePlaybackStatus = this.updatePlaybackStatus.bind(this)
     this.updateSoundStatus = this.updateSoundStatus.bind(this)
@@ -71,7 +68,9 @@ class SingleChat extends Component {
 
     this.blurUnsubscribe = this.props.navigation.addListener('blur', () => {
       // unsubscribe from firebase listener when chat is not in focus
-      db.ref(`messages/${this.state.currentChatId}`).off('child_added')
+      if (this.state.currentChatId) {
+        db.ref(`messages/${this.state.currentChatId}`).off('child_added')
+      }
     })
 
     // get permission to access microphone for audio recordings
@@ -89,24 +88,29 @@ class SingleChat extends Component {
     return (
       <View style={styles.inputBar}>
         <View style={styles.inputLeft}>
-          <MaterialCommunityIcons
-            reverse
-            name="microphone"
-            size={28}
-            style={styles.microphone}
-            color={this.state.isRecording ? 'red' : '#7a7a7a'}
+          <TouchableOpacity
             onPress={() => handleRecordPressed(this)}
             hitSlop={styles.hitSlop}
-          />
-          {this.recording && (
-            <FontAwesome
-              name={this.state.isRecordingPlaying ? 'pause' : 'play'}
-              size={23}
-              color="#7a7a7a"
-              style={styles.playPause}
+          >
+            <MaterialCommunityIcons
+              name="microphone"
+              size={28}
+              color={this.state.isRecording ? 'red' : '#7a7a7a'}
+              style={styles.microphone}
+            />
+          </TouchableOpacity>
+          {this.state.recording && (
+            <TouchableOpacity
               onPress={() => handleToggleRecording(this)}
               hitSlop={styles.hitSlop}
-            />
+            >
+              <Ionicons
+                name={this.state.isRecordingPlaying ? 'ios-pause' : 'ios-play'}
+                size={28}
+                color="#7a7a7a"
+                style={styles.playPause}
+              />
+            </TouchableOpacity>
           )}
         </View>
       </View>
@@ -118,21 +122,24 @@ class SingleChat extends Component {
     // TODO: get isCurrentPlaying to work for all audio files (currently only working for first)
     if (props.currentMessage.audio) {
       const {_id} = props.currentMessage
-      const isCurrentPlaying = _id === this.playbackInstanceId
+      const isCurrentPlaying = _id === this.state.playbackInstanceId
       return (
         <View style={styles.audioContainer}>
-          <AntDesign
-            name={
-              isCurrentPlaying && this.state.isAudioPlaying
-                ? 'pausecircleo'
-                : 'playcircleo'
-            }
-            size={35}
-            color="#ffffff"
-            style={styles.audio}
-            hitSlop={styles.hitSlop}
+          <TouchableOpacity
             onPress={() => handleToggleAudio(props.currentMessage, this)}
-          />
+            hitSlop={styles.hitSlop}
+          >
+            <AntDesign
+              name={
+                isCurrentPlaying && this.state.isAudioPlaying
+                  ? 'pausecircleo'
+                  : 'playcircleo'
+              }
+              size={35}
+              color="#ffffff"
+              style={styles.audio}
+            />
+          </TouchableOpacity>
           {isCurrentPlaying && (
             <Text style={styles.audioText}>{getPlaybackTime(this)}</Text>
           )}
@@ -203,7 +210,9 @@ class SingleChat extends Component {
   // update state sound status for recording
   updateSoundStatus(status) {
     console.log('UPDATE SOUND STATUS', status)
-    if (status.isLoaded) {
+    if (status.didJustFinish) {
+      this.state.sound.setStatusAsync({positionMillis: 0})
+    } else if (status.isLoaded) {
       this.setState({
         isRecordingPlaying: status.isPlaying,
       })
@@ -225,20 +234,15 @@ class SingleChat extends Component {
         isRecording: false,
       })
       if (!this.state.isLoading) {
-        this.stopRecording(this)
+        stopRecording(this)
       }
     }
   }
 
   // update state on playback
   async updatePlaybackStatus(status) {
-    console.log(
-      'UPDATE PLAYBACK STATUS',
-      typeof this.playbackInstanceId,
-      status
-    )
     if (status.didJustFinish) {
-      this.playbackInstance.stopAsync()
+      await this.state.playbackInstance.stopAsync()
       this.loadPlaybackInstance()
     } else if (status.isLoaded) {
       this.setState({
@@ -257,15 +261,15 @@ class SingleChat extends Component {
   async loadPlaybackInstance(props) {
     this.setState({isLoading: true})
     // if playback instance exists, unload and clear onPlaybackStatusUpdate
-    if (this.playbackInstance !== null) {
+    if (this.state.playbackInstance !== null) {
       try {
-        await this.playbackInstance.unloadAsync()
-        this.playbackInstance.setOnPlaybackStatusUpdate(null)
-        this.playbackInstance = null
-        this.playbackInstanceId = null
+        await this.state.playbackInstance.unloadAsync()
+        this.state.playbackInstance.setOnPlaybackStatusUpdate(null)
         this.setState({
           playbackInstancePosition: null,
           playbackInstanceDuration: null,
+          playbackInstance: null,
+          playbackInstanceId: null,
         })
       } catch (err) {
         console.log('Error unloading playback instance', err)
@@ -279,9 +283,11 @@ class SingleChat extends Component {
           {isLooping: false, progressUpdateIntervalMillis: 50},
           this.updatePlaybackStatus
         )
-        this.playbackInstance = sound
-        this.playbackInstanceId = props._id
-        this.playbackInstance.playAsync()
+        this.setState({
+          playbackInstance: sound,
+          playbackInstanceId: props._id,
+        })
+        this.state.playbackInstance.playAsync()
       } catch (err) {
         console.log('Error loading playback instance', err)
       }
@@ -340,7 +346,7 @@ class SingleChat extends Component {
             return <Text>Loading Messages...</Text>
           }}
         />
-        {this.recording && (
+        {this.state.recording && (
           <View style={styles.inputRight}>
             <TouchableHighlight color="#0084ff">
               <Text
@@ -427,7 +433,7 @@ const styles = StyleSheet.create({
     color: '#0084ff',
   },
   microphone: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   playPause: {
     marginLeft: 15,
@@ -450,8 +456,8 @@ const styles = StyleSheet.create({
   hitSlop: {
     top: 30,
     bottom: 30,
-    left: 50,
-    right: 50,
+    left: 10,
+    right: 10,
   },
   audioContainer: {
     flexDirection: 'row',
