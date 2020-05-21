@@ -109,21 +109,7 @@ export const fetchMessages = () => (dispatch, getState) => {
 // SEND NEW MESSAGE
 export const postMessage = (text) => async (dispatch, getState) => {
   try {
-    const {
-      uid,
-      displayName,
-      contacts,
-      // contactId,
-      // contactName,
-      currChatId,
-      message,
-      timestamp,
-    } = text
-
-    // const members = {
-    //   [uid]: displayName,
-    //   [contactId]: contactName,
-    // }
+    const {uid, displayName, contacts, currChatId, message, timestamp} = text
 
     const members = getState().chats.currentChat.members
     members[uid] = displayName
@@ -133,7 +119,6 @@ export const postMessage = (text) => async (dispatch, getState) => {
     if (!chatId) {
       chatId = await dispatch(createCurrentChatId())
       await dispatch(addNewChatroom(chatId, uid))
-      // await dispatch(addNewChatroom(chatId, contactId))
       contacts.forEach(
         async (contact) =>
           await dispatch(addNewChatroom(chatId, contact.contactId))
@@ -162,10 +147,6 @@ export const postMessage = (text) => async (dispatch, getState) => {
               original: message,
             },
           })
-        // console.log("CONTACTID:", contactId);
-        // console.log("DisplayName:", displayName);
-        // console.log("message:", message);
-        // dispatch(notify(contactId, displayName, message))
         contacts.forEach(async (contact) =>
           dispatch(notify(contact.contactId, displayName, message))
         )
@@ -185,9 +166,6 @@ export const notify = (contactId, senderName, message) => async () => {
       .once('value')
 
     const receiverToken = snapshot.val()
-    // console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
-    // console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
-    // console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
 
     if (receiverToken) {
       const notification = {
