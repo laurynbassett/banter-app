@@ -1,27 +1,23 @@
-import * as React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import * as React from 'react'
+import {createStackNavigator} from '@react-navigation/stack'
 
-import {
-  AddContactScreen,
-  SingleChatScreen,
-  ContactListScreen,
-} from "../screens";
+import {AddContactScreen, SingleChatScreen, ContactListScreen} from '../screens'
 import {
   ContactsHeaderRight,
   SingleChatHeaderCenter,
   SingleChatHeaderLeft,
-} from "../components";
+} from '../components'
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
-export default function ContactNavigator({ navigation, route }) {
+export default function ContactNavigator({navigation, route}) {
   return (
     <Stack.Navigator navigation={navigation} initialRouteName="Contacts">
       <Stack.Screen
         name="Contact"
         component={ContactListScreen}
         options={{
-          title: "Contacts",
+          title: 'Contacts',
           // eslint-disable-next-line react/display-name
           headerRight: () => <ContactsHeaderRight navigation={navigation} />,
         }}
@@ -30,14 +26,14 @@ export default function ContactNavigator({ navigation, route }) {
         name="AddContact"
         component={AddContactScreen}
         options={{
-          title: "Add Contact",
+          title: 'Add Contact',
         }}
       />
       <Stack.Screen
         name="SingleChat"
         component={SingleChatScreen}
         options={{
-          title: "Single Chat",
+          title: 'Single Chat',
           gestureEnabled: false,
           // eslint-disable-next-line react/display-name
           headerTitle: () => <SingleChatHeaderCenter />,
@@ -49,9 +45,9 @@ export default function ContactNavigator({ navigation, route }) {
               back="Contact"
             />
           ),
-          headerStyle: { height: 130 },
+          headerStyle: {height: 130},
         }}
       />
     </Stack.Navigator>
-  );
+  )
 }
