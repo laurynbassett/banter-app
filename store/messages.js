@@ -1,118 +1,173 @@
-import {db} from '../Firebase'
-import {createCurrentChatId, addNewMembers} from './chats'
-import {addNewChatroom} from './user'
-import {getLangValue, getLangKey} from '../utils/translate'
+import * as FileSystem from 'expo-file-system'
+
 import {GOOGLE_API_KEY} from 'react-native-dotenv'
+import {db, storage} from '../Firebase'
+import {addNewChatroom, addNewMembers, createCurrentChatId} from '.'
+import {getLangValue, getLangKey} from '../utils'
 
 const chatsRef = db.ref('chats')
+const audioRef = storage.ref().child('audio')
 
 // ---------- ACTION TYPES ---------- //
 export const GET_MESSAGES = 'GET_MESSAGES'
-export const ADD_MESSAGE = 'ADD_MESSAGE'
-const SEND_MESSAGE_ERROR = 'SEND_MESSAGE_ERROR'
+export const APPEND_MESSAGE = 'APPEND_MESSAGE'
 
 // ---------- ACTION CREATORS ---------- //
 
 export const getMessages = (messages) => ({type: GET_MESSAGES, messages})
-const addMessage = (message) => ({type: ADD_MESSAGE, message})
-// const sendMessageError = (message) => ({ type: ADD_CONTACT_ERROR, message });
+const appendMessage = (message) => ({type: APPEND_MESSAGE, message})
 
 // ---------- THUNK CREATORS ---------- //
 
 // GET MESSAGES FOR CURRENT CHAT
 export const fetchMessages = () => (dispatch, getState) => {
-  // query for all messages for the current chat, and add listener on child_added for new messages
+  // query 25 most recent messages for the current chat, and add listener on child_added for new messages
   if (getState().chats.currentChat) {
-    // console.log('FETCH MESSAGES', getState().chats.currentChat.id)
-    db.ref(`messages/${getState().chats.currentChat.id}`).on(
-      'child_added',
-      function (snapshot) {
-        // format a message object compatible with GiftedChat, message text not added yet
-        const newMessage = {
-          _id: snapshot.key,
-          user: {
-            _id: snapshot.val().senderId,
-            name: snapshot.val().senderName,
-          },
-          createdAt: snapshot.val().timestamp,
-          original: snapshot.val().translations.original,
-        }
+    db.ref(`messages/${getState().chats.currentChat.id}`)
+      .orderByChild('timestamp')
+      .limitToLast(25)
+      .on('child_added', function (snapshot) {
+        dispatch(addMessage(snapshot.val(), snapshot.key))
+      })
+  }
+}
 
-        const userLanguage = getState().user.language
-
-        // if the message was sent by the user it will not be translated
-        if (snapshot.val().senderId !== getState().firebase.auth.uid) {
-          // check if translation to user's language exists
-          if (snapshot.val().translations[userLanguage]) {
-            newMessage.text = snapshot.val().translations[userLanguage]
-            newMessage.translatedFrom =
-              snapshot.val().translations[userLanguage] !==
-              snapshot.val().message
-                ? snapshot.val().detectedSource
-                : false
-            dispatch(addMessage(newMessage))
-          } else {
-            // translate the original message to the language of the user
-            fetch(
-              `https://translation.googleapis.com/language/translate/v2?q=${
-                snapshot.val().message
-              }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
-            )
-              .then((response) => {
-                return response.json()
-              })
-              .then((data) => {
-                // add the translation to the db
-                db.ref(
-                  `messages/${getState().chats.currentChat.id}/${
-                    snapshot.key
-                  }/translations`
-                ).update({
-                  [userLanguage]: data.data.translations[0].translatedText,
-                })
-
-                // update detected source language if it does not exist
-                if (!snapshot.val().detectedSource) {
-                  db.ref(
-                    `messages/${getState().chats.currentChat.id}/${
-                      snapshot.key
-                    }`
-                  ).update({
-                    detectedSource: getLangValue(
-                      data.data.translations[0].detectedSourceLanguage
-                    ),
-                  })
-                }
-
-                // add the translation to the new message
-                newMessage.text = data.data.translations[0].translatedText
-                newMessage.translatedFrom =
-                  data.data.translations[0].translatedText !==
-                  snapshot.val().message
-                    ? getLangValue(
-                        data.data.translations[0].detectedSourceLanguage
-                      )
-                    : false
-
-                dispatch(addMessage(newMessage))
-              })
-          }
-        } else {
-          newMessage.text = snapshot.val().translations.original
-          dispatch(addMessage(newMessage))
+export const fetchEarlierMessages = () => (dispatch, getState) => {
+  db.ref(`messages/${getState().chats.currentChat.id}`)
+    .orderByChild('timestamp')
+    .limitToLast(25)
+    .endAt(getState().messages.messages[0].createdAt)
+    .once('value', function (snapshot) {
+      // get id of oldest message currently in state
+      const endAtId = getState().messages.messages[0]._id
+      // add each message to state
+      for (const property in snapshot.val()) {
+        if (property !== endAtId) {
+          dispatch(addMessage(snapshot.val()[property], property))
         }
       }
-    )
+    })
+}
+
+const addMessage = (message, messageId) => (dispatch, getState) => {
+  // format a message object compatible with GiftedChat, message text not added yet
+  const newMessage = {
+    _id: messageId,
+    user: {
+      _id: message.senderId,
+      name: message.senderName,
+    },
+    createdAt: message.timestamp,
+    original: message.translations ? message.translations.original : '',
+    messageType: message.messageType,
+  }
+  const userLanguage = getState().user.language
+
+  // if the message was sent by the user it will not be translated
+  // check if message type is text
+  if (
+    message.senderId !== getState().firebase.auth.uid &&
+    messageType === 'message'
+  ) {
+    // check if translation to user's language exists
+    if (message.translations[userLanguage]) {
+      newMessage.text = message.translations[userLanguage]
+      newMessage.translatedFrom =
+        message.translations[userLanguage] !== message.message
+          ? message.detectedSource
+          : false
+      dispatch(addMessage(newMessage))
+    } else {
+      // translate the original message to the language of the user
+      fetch(
+        `https://translation.googleapis.com/language/translate/v2?q=${
+          message.message
+        }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
+      )
+        .then((response) => {
+          return response.json()
+        })
+        .then((data) => {
+          // add the translation to the db
+          db.ref(
+            `messages/${
+              getState().chats.currentChat.id
+            }/${messageId}/translations`
+          ).update({
+            [userLanguage]: data.data.translations[0].translatedText,
+          })
+
+          // update detected source language if it does not exist
+          if (!snapshot.val().detectedSource) {
+            db.ref(
+              `messages/${getState().chats.currentChat.id}/${messageId}`
+            ).update({
+              detectedSource: getLangValue(
+                data.data.translations[0].detectedSourceLanguage
+              ),
+            })
+          }
+
+          // add the translation to the new message
+          newMessage.text = data.data.translations[0].translatedText
+          newMessage.translatedFrom =
+            data.data.translations[0].translatedText !== message.message
+              ? getLangValue(data.data.translations[0].detectedSourceLanguage)
+              : false
+
+          dispatch(addMessage(newMessage))
+        })
+    }
+  } else {
+    // case: message file
+    if (newMessage.messageType === 'message') {
+      newMessage.text = message.translations.original
+      dispatch(appendMessage(newMessage))
+      // case: audio file
+    } else if (newMessage.messageType === 'audio') {
+      FileSystem.downloadAsync(
+        message.audio.uri,
+        FileSystem.documentDirectory + message.audio.name
+      ).then((audioObj) => {
+        newMessage.audio = audioObj.uri
+        dispatch(appendMessage(newMessage))
+      })
+    }
   }
 }
 
 // SEND NEW MESSAGE
 export const postMessage = (text) => async (dispatch, getState) => {
   try {
-    const {uid, displayName, contacts, currChatId, message, timestamp} = text
+    const {
+      uid,
+      displayName,
+      contacts,
+      currChatId,
+      timestamp,
+      message = '',
+      audio = '',
+      messageType,
+    } = text
 
     const members = getState().chats.currentChat.members
     members[uid] = displayName
+    // export const postMessage = ({
+    //   uid,
+    //   displayName,
+    //   contactId,
+    //   contactName,
+    //   currChatId,
+    //   timestamp,
+    //   message = '',
+    //   audio = '',
+    //   messageType,
+    // }) => async (dispatch) => {
+    //   try {
+    //     const members = {
+    //       [uid]: displayName,
+    //       [contactId]: contactName,
+    //     }
 
     let chatId = currChatId
     // if chatId doesn't exist, create id, new chatroom and add members
@@ -130,26 +185,45 @@ export const postMessage = (text) => async (dispatch, getState) => {
     chatsRef
       .child(chatId)
       .update({
-        lastMessage: message,
+        lastMessage: message || 'audio file',
         senderId: uid,
         timestamp,
       })
       .then(() => {
+        // create message object to push to firebase
+        let newMessage = {
+          senderId: uid,
+          senderName: displayName,
+          timestamp,
+          messageType,
+        }
+        if (messageType === 'message') {
+          newMessage.translations = {
+            original: message,
+          }
+        } else if (messageType === 'audio') {
+          newMessage.audio = audio
+        }
+
         // update messages node
-        db.ref(`messages/${chatId}`)
-          .push()
-          .set({
-            message,
-            senderId: uid,
-            senderName: displayName,
-            timestamp,
-            translations: {
-              original: message,
-            },
-          })
+        // db.ref(`messages/${chatId}`)
+        //   .push()
+        //   .set({
+        //     message,
+        //     senderId: uid,
+        //     senderName: displayName,
+        //     timestamp,
+        //     translations: {
+        //       original: message,
+        //     },
+        //   })
+        db.ref(`messages/${chatId}`).push().set(newMessage)
+
         contacts.forEach(async (contact) =>
           dispatch(notify(contact.contactId, displayName, message))
         )
+
+        // dispatch(notify(contactId, displayName, message))
       })
       .catch((err) =>
         console.log('Error posting message to chats and messages', err)
@@ -159,12 +233,41 @@ export const postMessage = (text) => async (dispatch, getState) => {
   }
 }
 
+// SEND AUDIO
+export const postAudio = (file, text) => async (dispatch) => {
+  try {
+    let message = text
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      xhr.onload = function () {
+        resolve(xhr.response)
+      }
+      xhr.onerror = function (err) {
+        console.log('Error creating blob: ', err)
+        reject(new TypeError('Network request failed'))
+      }
+      xhr.responseType = 'blob'
+      xhr.open('GET', file.uri, true)
+      xhr.send(null)
+    })
+    const fileRef = audioRef.child(file.name)
+    await fileRef.put(blob)
+    const fileRefUrl = await fileRef.getDownloadURL()
+    file.uri = fileRefUrl
+    text.audio = file
+    dispatch(postMessage(text))
+    blob.close()
+  } catch (err) {
+    console.log('Error uploading audio file: ', err)
+  }
+}
+
+// NOTIFICATION
 export const notify = (contactId, senderName, message) => async () => {
   try {
     const snapshot = await db
       .ref('/users/' + contactId + '/notifications/token')
       .once('value')
-
     const receiverToken = snapshot.val()
 
     if (receiverToken) {
@@ -193,7 +296,6 @@ export const notify = (contactId, senderName, message) => async () => {
 
 const defaultMessages = {
   messages: [],
-  sendMessageError: '',
 }
 
 // ---------- REDUCER ---------- //
@@ -201,7 +303,7 @@ const messagesReducer = (state = defaultMessages, action) => {
   switch (action.type) {
     case GET_MESSAGES:
       return {...state, messages: action.messages}
-    case ADD_MESSAGE:
+    case APPEND_MESSAGE:
       // eslint-disable-next-line no-case-declarations
       let insertIndex = -1
       for (let i = 0; i < state.messages.length; i++) {
@@ -224,8 +326,6 @@ const messagesReducer = (state = defaultMessages, action) => {
           messages: state.messages.concat(action.message),
         }
       }
-    case SEND_MESSAGE_ERROR:
-      return {...state, sendMessageError: action.message}
     default:
       return state
   }

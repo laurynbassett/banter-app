@@ -165,28 +165,21 @@ export const fetchContacts = () => async (dispatch, getState) => {
 }
 
 // ADD NEW CONTACT
-export const addNewContact = ({name, email}, navigation) => async (
+export const addNewContact = ({email}, navigation) => async (
   dispatch,
   getState
 ) => {
-  const errMsg = 'Please provide a valid name and/or email'
+  const errMsg = 'Please provide a valid email'
   try {
     const uid = getState().firebase.auth.uid
     const userRef = db.ref(`users/${uid}`)
     let snapshot = {}
 
-    if (name) {
-      const formattedName = formatNameHelper(name)
-      // check if user exists using name from add contact form
-      snapshot = await usersRef
-        .orderByChild('name')
-        .equalTo(formattedName)
-        .once('value')
-    } else if (email) {
-      // check if user exists using email from add contact form
+    // check if user exists using email from add contact form
+    if (email) {
       snapshot = await usersRef
         .orderByChild('email')
-        .equalTo(email)
+        .equalTo(email.toLowerCase())
         .once('value')
     }
 

@@ -22,7 +22,7 @@ const UnconnectedSingleChatHeaderLeft = (props) => {
     <TouchableOpacity
       style={styles.left}
       onPress={goBack}
-      hitSlop={{top: 10, left: 10, bottom: 10, right: 10}}
+      hitSlop={styles.hitSlop}
     >
       <Ionicons
         name="ios-arrow-back"
@@ -48,6 +48,10 @@ const SingleChatHeaderCenter = (props) => {
   const members = props.memberNames.filter(
     (member) => member !== props.displayName
   )
+  // const text =
+  //   props.memberNames > 1
+  //     ? `${props.memberNames.length} people`
+  //     : props.memberNames[0]
 
   return members.length === 1 ? (
     <View style={styles.centerContainer}>
@@ -79,12 +83,12 @@ const SingleChatHeaderCenter = (props) => {
 
 const mapState = (state) => {
   const chat = state.chats.currentChat
-  const getMemberNames = chat
-    ? memberNameHelper(Object.values(chat.members))
-    : []
-  const getMemberImgs = chat
-    ? memberImgHelper(Object.keys(chat.members), state.user.contacts)
-    : []
+  const getMemberNames =
+    chat && chat.members ? memberNameHelper(Object.values(chat.members)) : []
+  const getMemberImgs =
+    chat && chat.members
+      ? memberImgHelper(Object.keys(chat.members), state.user.contacts)
+      : []
   return {
     memberNames: getMemberNames,
     memberImgs: getMemberImgs,
@@ -122,4 +126,5 @@ const styles = StyleSheet.create({
     marginTop: 5,
     textAlign: 'center',
   },
+  hitSlop: {top: 10, left: 10, bottom: 10, right: 10},
 })

@@ -8,7 +8,7 @@ class ContactListScreen extends Component {
   render() {
     return (
       <FlatList
-        data={this.props.contacts}
+        data={this.props.contacts.sort()}
         renderItem={({item}) => (
           <ContactListItem navigation={this.props.navigation} {...item} />
         )}

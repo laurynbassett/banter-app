@@ -5,7 +5,6 @@ import {connect} from 'react-redux'
 import {addNewContact, fetchUser} from '../store'
 
 const AddContact = (props) => {
-  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
 
   const fetchData = async () => {
@@ -17,22 +16,13 @@ const AddContact = (props) => {
   })
 
   const handleAdd = () => {
-    props.addNewContact({name, email}, props.navigation)
-    setName('')
+    props.addNewContact({email}, props.navigation)
     setEmail('')
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.form}>
-        <View style={styles.input}>
-          <TextInput
-            placeholder="Name"
-            style={styles.text}
-            value={name}
-            onChangeText={(value) => setName(value)}
-          />
-        </View>
         <View style={styles.input}>
           <TextInput
             autoCapitalize="none"
