@@ -96,6 +96,7 @@ export class SettingsScreen extends React.Component {
           }}
           large
           style={styles.button}
+          buttonStyle={{backgroundColor: '#388eff'}}
         />
 
         <Button
@@ -105,6 +106,7 @@ export class SettingsScreen extends React.Component {
           }}
           large
           style={styles.button}
+          buttonStyle={{backgroundColor: '#388eff'}}
         />
       </ScrollView>
     )
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: '#f7f7f7',
     borderBottomWidth: 1,
     textAlign: 'left',
   },

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableHighlight,
   TouchableOpacity,
 } from 'react-native'
 import {GiftedChat, MessageText} from 'react-native-gifted-chat'
@@ -45,6 +44,7 @@ class SingleChat extends Component {
       isRecordingPlaying: false,
       recording: null,
       sound: null,
+      currentAudio: null,
       isAudioPlaying: false,
       isLoading: false,
       playbackInstance: null,
@@ -122,28 +122,37 @@ class SingleChat extends Component {
   renderMessageAudio(props) {
     // TODO: get isCurrentPlaying to work for all audio files (currently only working for first)
     if (props.currentMessage.audio) {
-      const {_id} = props.currentMessage
-      const isCurrentPlaying = _id === this.state.playbackInstanceId
+      const {_id, transcript} = props.currentMessagesol
       return (
         <View style={styles.audioContainer}>
-          <TouchableOpacity
-            onPress={() => handleToggleAudio(props.currentMessage, this)}
-            hitSlop={styles.hitSlop}
-          >
-            <AntDesign
-              name={
-                isCurrentPlaying && this.state.isAudioPlaying
-                  ? 'pausecircleo'
-                  : 'playcircleo'
-              }
-              size={35}
-              color="#ffffff"
-              style={styles.audio}
-            />
-          </TouchableOpacity>
-          {isCurrentPlaying && (
-            <Text style={styles.audioText}>{getPlaybackTime(this)}</Text>
-          )}
+          <View style={styles.audioFileContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({currentAudio: _id})
+                handleToggleAudio(props.currentMessage, this)
+              }}
+              hitSlop={styles.hitSlop}
+            >
+              <AntDesign
+                name={
+                  this.state.currentAudio === _id && this.state.isAudioPlaying
+                    ? 'pausecircleo'
+                    : 'playcircleo'
+                }
+                size={35}
+                color="#ffffff"
+                style={styles.audio}
+              />
+            </TouchableOpacity>
+            {this.state.currentAudio === _id && (
+              <Text style={styles.audioTime}>{getPlaybackTime(this)}</Text>
+            )}
+          </View>
+          <View style={styles.audioTextContainer}>
+            <Text
+              style={styles.audioText}
+            >{`Transcription: ${transcript}`}</Text>
+          </View>
         </View>
       )
     }
@@ -300,7 +309,6 @@ class SingleChat extends Component {
 
   // dispatch send audio
   async handleSendAudio() {
-    console.log('SENDING')
     const {audioUrl} = this.state
     const fileName = `${genUUID()}.wav`
     const file = {
@@ -352,7 +360,7 @@ class SingleChat extends Component {
         />
         {this.state.recording && (
           <View style={styles.inputRight}>
-            <TouchableHighlight color="#0084ff">
+            <TouchableOpacity style={styles.inputRightContainer}>
               <Text
                 style={styles.inputRightText}
                 onPress={this.handleSendAudio}
@@ -360,7 +368,7 @@ class SingleChat extends Component {
               >
                 Send
               </Text>
-            </TouchableHighlight>
+            </TouchableOpacity>
           </View>
         )}
       </View>
@@ -424,6 +432,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginLeft: 15,
   },
+  inputRightContainer: {
+    height: 44,
+  },
   inputRight: {
     top: Layout.window.height * 0.76,
     left: Layout.window.width * 0.85,
@@ -432,9 +443,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   inputRightText: {
+    color: '#0084ff',
     fontWeight: '600',
     fontSize: 17,
-    color: '#0084ff',
   },
   microphone: {
     marginBottom: 8,
@@ -464,6 +475,9 @@ const styles = StyleSheet.create({
     right: 10,
   },
   audioContainer: {
+    flexDirection: 'column',
+  },
+  audioFileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 50,
@@ -475,7 +489,17 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     backgroundColor: 'transparent',
   },
+  audioTextContainer: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
   audioText: {
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  audioTime: {
     marginTop: 10,
     marginLeft: 10,
     color: '#ffffff',

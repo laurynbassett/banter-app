@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 15,
     borderBottomWidth: 1,
-    borderColor: '#b7b7b7',
+    borderColor: '#f7f7f7',
     backgroundColor: '#fff',
   },
   chatName: {

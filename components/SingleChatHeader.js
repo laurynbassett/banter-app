@@ -11,7 +11,6 @@ import {memberNameHelper, memberIdHelper, memberImgHelper} from '../utils'
 // SINGLE CHAT HEADER LEFT
 const UnconnectedSingleChatHeaderLeft = (props) => {
   const goBack = () => {
-    // console.log('CLICKED LEFT', props);
     // remove current chat
     props.setCurrentChat('')
     props.getMessages([])
@@ -51,7 +50,6 @@ const SingleChatHeaderCenter = (props) => {
       ? `${props.memberNames.length} people`
       : props.memberNames[0]
 
-  // console.log('memberImgs', props.memberImgs, text);
   return (
     <View style={styles.centerContainer}>
       {props.memberImgs.map((img, idx) =>
@@ -120,5 +118,5 @@ const styles = StyleSheet.create({
     marginTop: 5,
     textAlign: 'center',
   },
-  hitSlop: {top: 10, left: 10, bottom: 10, right: 10},
+  hitSlop: {top: 15, left: 15, bottom: 15, right: 20},
 })

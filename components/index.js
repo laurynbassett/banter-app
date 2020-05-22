@@ -1,7 +1,7 @@
 export {default as AvatarIcon} from './AvatarIcon'
 export {default as AddContact} from './AddContact'
 export {ContactsHeaderRight} from './ContactsHeader'
-export {ChatListHeaderRight, ChatListHeader} from './ChatListHeader'
+export {ChatListHeaderRight} from './ChatListHeader'
 export {default as ChatListItem} from './ChatListItem'
 export {default as ContactListItem} from './ContactListItem'
 export {default as SingleChat} from './SingleChat'

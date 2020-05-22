@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
   },
   form: {
     justifyContent: 'center',
+    marginTop: 15,
   },
   input: {
     margin: 10,
@@ -78,9 +79,10 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
+    color: '#388eff',
   },
   buttonTextWrapper: {
-    marginTop: 20,
+    marginTop: 15,
     alignItems: 'center',
   },
 })

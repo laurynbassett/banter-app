@@ -11,7 +11,6 @@ export async function getPermissions(thisObj) {
 
 // play / pause playback for recording
 export async function handleToggleRecording(thisObj) {
-  console.log('STATE', thisObj.state)
   const {recording, sound, isRecordingPlaying} = thisObj.state
   if (recording != null) {
     isRecordingPlaying ? await sound.pauseAsync() : await sound.playAsync()

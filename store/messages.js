@@ -119,9 +119,9 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
         })
     }
   } else {
+    newMessage.text = message.translations.original
     // case: message file
     if (newMessage.messageType === 'message') {
-      newMessage.text = message.translations.original
       dispatch(appendMessage(newMessage))
       // case: audio file
     } else if (newMessage.messageType === 'audio') {
@@ -130,6 +130,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
         FileSystem.documentDirectory + message.audio.name
       ).then((audioObj) => {
         newMessage.audio = audioObj.uri
+        newMessage.transcript = message.audio.transcript
         dispatch(appendMessage(newMessage))
       })
     }
@@ -145,7 +146,7 @@ export const postMessage = ({
   currChatId,
   timestamp,
   message = '',
-  audio = '',
+  audio = {},
   messageType,
 }) => async (dispatch) => {
   try {
@@ -179,11 +180,10 @@ export const postMessage = ({
           timestamp,
           messageType,
         }
-        if (messageType === 'message') {
-          newMessage.translations = {
-            original: message,
-          }
-        } else if (messageType === 'audio') {
+        newMessage.translations = {
+          original: messageType === 'message' ? message : audio.transcript,
+        }
+        if (messageType === 'audio') {
           newMessage.audio = audio
         }
 
@@ -216,13 +216,14 @@ export const postAudio = (file, text) => async (dispatch) => {
       xhr.open('GET', file.uri, true)
       xhr.send(null)
     })
-    // file.transcription = await transcribe(file.uri)
-    await getTranscription(file)
     const fileRef = audioRef.child(file.name)
     await fileRef.put(blob)
-    file.uri = await fileRef.getDownloadURL()
+    const uri = await fileRef.getDownloadURL()
+    file.transcript =
+      (await getTranscription(file)) || 'Transcription unavailable'
+    file.uri = uri
     text.audio = file
-    // dispatch(postMessage(text))
+    dispatch(postMessage(text))
     blob.close()
   } catch (err) {
     console.log('Error uploading audio file: ', err)

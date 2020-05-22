@@ -1,9 +1,0 @@
-{
-  "config": {
-    "encoding": "FLAC",
-    "languageCode": "en-US"
-  },
-  "audio": {
-    "uri": "gs://fsa-capstone-red-team.appspot.com/audio/6d0aaad9-e4ae-45ec-9fca-00e59cd64011.aac"
-  }
-}
