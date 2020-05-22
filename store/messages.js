@@ -138,6 +138,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
 }
 
 // SEND NEW MESSAGE
+<<<<<<< HEAD
 export const postMessage = ({
   uid,
   displayName,
@@ -149,18 +150,33 @@ export const postMessage = ({
   audio = {},
   messageType,
 }) => async (dispatch) => {
+=======
+export const postMessage = (text) => async (dispatch, getState) => {
+>>>>>>> 9db86beaa6ba7bf69b593453f66b63e373022b3f
   try {
-    const members = {
-      [uid]: displayName,
-      [contactId]: contactName,
-    }
+    const {
+      uid,
+      displayName,
+      contacts,
+      currChatId,
+      timestamp,
+      message = '',
+      audio = '',
+      messageType,
+    } = text
+
+    const members = getState().chats.currentChat.members
+    members[uid] = displayName
 
     let chatId = currChatId
     // if chatId doesn't exist, create id, new chatroom and add members
     if (!chatId) {
       chatId = await dispatch(createCurrentChatId())
       await dispatch(addNewChatroom(chatId, uid))
-      await dispatch(addNewChatroom(chatId, contactId))
+      contacts.forEach(
+        async (contact) =>
+          await dispatch(addNewChatroom(chatId, contact.contactId))
+      )
       await dispatch(addNewMembers(chatId, members))
     }
 
@@ -188,8 +204,24 @@ export const postMessage = ({
         }
 
         // update messages node
+        // db.ref(`messages/${chatId}`)
+        //   .push()
+        //   .set({
+        //     message,
+        //     senderId: uid,
+        //     senderName: displayName,
+        //     timestamp,
+        //     translations: {
+        //       original: message,
+        //     },
+        //   })
         db.ref(`messages/${chatId}`).push().set(newMessage)
-        dispatch(notify(contactId, displayName, message))
+
+        contacts.forEach(async (contact) =>
+          dispatch(notify(contact.contactId, displayName, message))
+        )
+
+        // dispatch(notify(contactId, displayName, message))
       })
       .catch((err) =>
         console.log('Error posting message to chats and messages', err)
@@ -237,9 +269,6 @@ export const notify = (contactId, senderName, message) => async () => {
       .ref('/users/' + contactId + '/notifications/token')
       .once('value')
     const receiverToken = snapshot.val()
-    // console.log("RECEIVERTOKEN --- INSIDE NOTIFY", receiverToken);
-    // console.log("CONTACT ID --- INSIDE NOTIFY", contactId);
-    // console.log("SNAPSHOT --- INSIDE NOTIFY", snapshot);
 
     if (receiverToken) {
       const notification = {

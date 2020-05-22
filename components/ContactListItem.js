@@ -1,7 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Image, StyleSheet, Text, TouchableHighlight, View} from 'react-native'
-
 import {fetchCurrentChatId} from '../store'
 import AvatarIcon from './AvatarIcon'
 
@@ -9,9 +8,10 @@ const ContactListItem = (props) => {
   const goToSingleChat = async () => {
     // set current chatroom in redux
     await props.fetchCurrentChatId(
-      {contactId: props.id, name: props.name},
+      // {contactId: props.id, name: props.name},
       {uid: props.uid, userName: props.userName},
-      props.navigation
+      props.navigation,
+      [{contactId: props.id, contactName: props.name}]
     )
   }
 
@@ -50,8 +50,8 @@ const mapState = (state) => ({
 })
 
 const mapDispatch = (dispatch) => ({
-  fetchCurrentChatId: (contact, user, navigation) =>
-    dispatch(fetchCurrentChatId(contact, user, navigation)),
+  fetchCurrentChatId: (user, navigation, contacts) =>
+    dispatch(fetchCurrentChatId(user, navigation, contacts)),
 })
 
 export default connect(mapState, mapDispatch)(ContactListItem)
