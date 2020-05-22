@@ -311,24 +311,6 @@ class SingleChat extends Component {
 
   // dispatch send message
   handleSendMessage(messages) {
-    //   const {currentChat, displayName, postMessage, route, uid} = this.props
-    //   const contacts = route.params.contacts
-    //   const message = messages[messages.length - 1].text
-    //   const timestamp = Date.now()
-    //   const currChatId = currentChat ? currentChat.id : ''
-    //   postMessage({
-    //     uid,
-    //     displayName,
-    //     contacts,
-    //     currChatId,
-    //     message,
-    //     timestamp,
-    //   })
-    // }
-
-    // render() {
-    //   console.log('ROUTE', this.props.route.params.contacts)
-
     let text = formatText(this.props)
     text.message = messages[messages.length - 1].text
     text.messageType = 'message'
