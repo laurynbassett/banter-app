@@ -1,9 +1,9 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {Entypo} from '@expo/vector-icons'
-
 import Layout from '../constants/Layout'
 
+//TODO: Remove ChatListHeader
 export const ChatListHeader = () => {
   return (
     <View style={styles.container}>
