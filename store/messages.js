@@ -152,22 +152,6 @@ export const postMessage = (text) => async (dispatch, getState) => {
 
     const members = getState().chats.currentChat.members
     members[uid] = displayName
-    // export const postMessage = ({
-    //   uid,
-    //   displayName,
-    //   contactId,
-    //   contactName,
-    //   currChatId,
-    //   timestamp,
-    //   message = '',
-    //   audio = '',
-    //   messageType,
-    // }) => async (dispatch) => {
-    //   try {
-    //     const members = {
-    //       [uid]: displayName,
-    //       [contactId]: contactName,
-    //     }
 
     let chatId = currChatId
     // if chatId doesn't exist, create id, new chatroom and add members
