@@ -38,6 +38,7 @@ class SingleChat extends Component {
     this.state = {
       currentChatId: this.props.currentChat.id || '',
       originalsShown: {},
+      transcription: [],
       audioPermission: false,
       audioUrl: null,
       isRecording: false,
@@ -209,7 +210,6 @@ class SingleChat extends Component {
 
   // update state sound status for recording
   updateSoundStatus(status) {
-    console.log('UPDATE SOUND STATUS', status)
     if (status.didJustFinish) {
       this.state.sound.setStatusAsync({positionMillis: 0})
       this.setState({
@@ -300,11 +300,12 @@ class SingleChat extends Component {
 
   // dispatch send audio
   async handleSendAudio() {
+    console.log('SENDING')
     const {audioUrl} = this.state
-    const fileName = `${genUUID()}.aac`
+    const fileName = `${genUUID()}.wav`
     const file = {
       name: fileName,
-      type: 'audio/aac',
+      type: 'audio/x-wav',
       uri: Platform.OS === 'ios' ? audioUrl : `file://${audioUrl}`,
     }
     const text = formatText(this.props)

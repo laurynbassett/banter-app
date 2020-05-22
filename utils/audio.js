@@ -1,6 +1,3 @@
-import {Audio} from 'expo-av'
-import * as Permissions from 'expo-permissions'
-
 // format audio time
 export function getMillis(millis) {
   const totalSecs = millis / 1000
@@ -12,14 +9,6 @@ export function getMillis(millis) {
     return str
   }
   return `${pad(mins)}:${pad(secs)}`
-}
-
-// permission for microphone use
-export async function getPermissions(thisObj) {
-  const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
-  thisObj.setState({
-    audioPermission: response.status === 'granted',
-  })
 }
 
 // get time for playback

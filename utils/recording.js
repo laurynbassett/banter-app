@@ -1,4 +1,13 @@
 import {Audio} from 'expo-av'
+import * as Permissions from 'expo-permissions'
+
+// permission for microphone use
+export async function getPermissions(thisObj) {
+  const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
+  thisObj.setState({
+    audioPermission: response.status === 'granted',
+  })
+}
 
 // play / pause playback for recording
 export async function handleToggleRecording(thisObj) {
@@ -20,6 +29,7 @@ async function startRecording(thisObj) {
     thisObj.setState({
       isLoading: true,
     })
+
     // if existing sound, unload the media from memory
     if (thisObj.state.sound !== null) {
       await thisObj.state.sound.unloadAsync()
@@ -29,6 +39,7 @@ async function startRecording(thisObj) {
 
     // customizes audio experience on iOS and Android
     await setAudioMode({allowsRecordingIOS: true})
+
     // sets interval that onRecordingStatusUpdate is called on while the recording can record
     if (thisObj.state.recording !== null) {
       thisObj.state.recording.setOnRecordingStatusUpdate(null)
@@ -37,9 +48,7 @@ async function startRecording(thisObj) {
     // create new Audio instance
     const recording = new Audio.Recording()
     // loads the recorder into memory and prepares it for recording
-    await recording.prepareToRecordAsync(
-      JSON.parse(JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY))
-    )
+    await recording.prepareToRecordAsync(recordingOptions)
     // Sets a cb to be called regularly w/ the status of the recording
     recording.setOnRecordingStatusUpdate(thisObj.updateRecordingStatus)
     // set recording in constructor
@@ -101,4 +110,25 @@ async function setAudioMode({allowsRecordingIOS}) {
   } catch (err) {
     console.log('Error setting audio mode: ', err)
   }
+}
+
+const recordingOptions = {
+  android: {
+    extension: '.m4a',
+    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+    sampleRate: 44100,
+    numberOfChannels: 2,
+    bitRate: 128000,
+  },
+  ios: {
+    extension: '.wav',
+    audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+    sampleRate: 44100,
+    numberOfChannels: 1,
+    bitRate: 128000,
+    linearPCMBitDepth: 16,
+    linearPCMIsBigEndian: false,
+    linearPCMIsFloat: false,
+  },
 }

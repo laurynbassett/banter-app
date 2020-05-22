@@ -3,6 +3,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 import 'firebase/storage'
+import 'firebase/functions'
 
 import {
   FIREBASE_API_KEY,
@@ -33,5 +34,6 @@ firebase.initializeApp(firebaseConfig)
 
 export const auth = firebase.auth()
 export const db = firebase.database()
+export const functions = firebase.functions()
 export const storage = firebase.storage()
 export default firebase

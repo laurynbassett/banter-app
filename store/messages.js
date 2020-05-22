@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system'
 import {GOOGLE_API_KEY} from 'react-native-dotenv'
 import {db, storage} from '../Firebase'
 import {addNewChatroom, addNewMembers, createCurrentChatId} from '.'
-import {getLangValue, getLangKey} from '../utils'
+import {getLangValue, getLangKey, getTranscription} from '../utils'
 
 const chatsRef = db.ref('chats')
 const audioRef = storage.ref().child('audio')
@@ -216,12 +216,13 @@ export const postAudio = (file, text) => async (dispatch) => {
       xhr.open('GET', file.uri, true)
       xhr.send(null)
     })
+    // file.transcription = await transcribe(file.uri)
+    await getTranscription(file)
     const fileRef = audioRef.child(file.name)
     await fileRef.put(blob)
-    const fileRefUrl = await fileRef.getDownloadURL()
-    file.uri = fileRefUrl
+    file.uri = await fileRef.getDownloadURL()
     text.audio = file
-    dispatch(postMessage(text))
+    // dispatch(postMessage(text))
     blob.close()
   } catch (err) {
     console.log('Error uploading audio file: ', err)
