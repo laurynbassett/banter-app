@@ -1,16 +1,8 @@
 import React, {Component} from 'react'
-import {
-  Fragment,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native'
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {GiftedChat, MessageText} from 'react-native-gifted-chat'
 import {connect} from 'react-redux'
 import {Audio} from 'expo-av'
-import {AntDesign, Ionicons, MaterialCommunityIcons} from '@expo/vector-icons'
 
 import Layout from '../constants/Layout'
 import {
@@ -23,12 +15,11 @@ import {db} from '../Firebase'
 import {
   formatText,
   genUUID,
-  getPlaybackTime,
-  handleRecordPressed,
-  handleToggleRecording,
-  handleToggleAudio,
   getPermissions,
+  playbackIcon,
+  renderTranslation,
   stopRecording,
+  recordingActions,
 } from '../utils'
 
 class SingleChat extends Component {
@@ -61,7 +52,6 @@ class SingleChat extends Component {
   }
 
   componentDidMount() {
-    console.log('SINGLE CHAT PROPS', this.props)
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
     this.focusUnsubscribe = this.props.navigation.addListener('focus', () => {
       // fetch messages for current chat when in focus
@@ -74,7 +64,6 @@ class SingleChat extends Component {
         db.ref(`messages/${this.state.currentChatId}`).off('child_added')
       }
     })
-
     // get permission to access microphone for audio recordings
     getPermissions(this)
   }
@@ -87,73 +76,27 @@ class SingleChat extends Component {
 
   // custom icons for recording to the left of the message composer
   renderActions(props) {
-    return (
-      <View style={styles.inputBar}>
-        <View style={styles.inputLeft}>
-          <TouchableOpacity
-            onPress={() => handleRecordPressed(this)}
-            hitSlop={styles.hitSlop}
-          >
-            <MaterialCommunityIcons
-              name="microphone"
-              size={28}
-              color={this.state.isRecording ? 'red' : '#7a7a7a'}
-              style={styles.microphone}
-            />
-          </TouchableOpacity>
-          {this.state.recording && (
-            <TouchableOpacity
-              onPress={() => handleToggleRecording(this)}
-              hitSlop={styles.hitSlop}
-            >
-              <Ionicons
-                name={this.state.isRecordingPlaying ? 'ios-pause' : 'ios-play'}
-                size={28}
-                color="#7a7a7a"
-                style={styles.playPause}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    )
+    return <View style={styles.inputBar}>{recordingActions(this)}</View>
   }
 
   // custom text bubble for audio files
-  renderMessageAudio(props) {
+  renderMessageAudio(params) {
+    console.log('AUDDIO', params)
     // TODO: get isCurrentPlaying to work for all audio files (currently only working for first)
-    if (props.currentMessage.audio) {
-      const {_id, transcript} = props.currentMessagesol
+    if (params.currentMessage.audio) {
+      const {_id, transcript, user} = params.currentMessage
+      const isSender = this.props.uid === user._id
+      const text = isSender ? styles.audioTextRight : styles.audioTextLeft
+
       return (
         <View style={styles.audioContainer}>
-          <View style={styles.audioFileContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                this.setState({currentAudio: _id})
-                handleToggleAudio(props.currentMessage, this)
-              }}
-              hitSlop={styles.hitSlop}
-            >
-              <AntDesign
-                name={
-                  this.state.currentAudio === _id && this.state.isAudioPlaying
-                    ? 'pausecircleo'
-                    : 'playcircleo'
-                }
-                size={35}
-                color="#ffffff"
-                style={styles.audio}
-              />
-            </TouchableOpacity>
-            {this.state.currentAudio === _id && (
-              <Text style={styles.audioTime}>{getPlaybackTime(this)}</Text>
-            )}
-          </View>
-          <View style={styles.audioTextContainer}>
-            <Text
-              style={styles.audioText}
-            >{`Transcription: ${transcript}`}</Text>
-          </View>
+          {playbackIcon(this, params.currentMessage, isSender)}
+          {params.currentMessage.transcript !== 'Transcription unavailable' && (
+            <View style={styles.audioTextContainer}>
+              {!isSender && renderTranslation(params, this)}
+              <Text style={text}>{params.currentMessage.original}</Text>
+            </View>
+          )}
         </View>
       )
     }
@@ -162,57 +105,16 @@ class SingleChat extends Component {
 
   // custom text bubble for messages w/ translation
   renderMessageText(params) {
+    console.log('RENDERING')
     return (
       <View>
         {this.state.originalsShown[params.currentMessage._id] && (
           <Text style={styles.originalMessage}>
-            {params.currentMessage.original}
+            {params.currentMessage.original.replace('&#39;', "'")}
           </Text>
         )}
-        {this.props.uid !== params.currentMessage.user._id && (
-          <Fragment>
-            {params.currentMessage.translatedFrom !== false && (
-              <TouchableOpacity>
-                <Text
-                  style={styles.showButton}
-                  onPress={() => {
-                    if (this.state.originalsShown[params.currentMessage._id]) {
-                      this.setState((prevState) => {
-                        return {
-                          originalsShown: {
-                            ...prevState.originalsShown,
-                            ...{
-                              [params.currentMessage._id]: !this.state
-                                .originalsShown[params.currentMessage._id],
-                            },
-                          },
-                        }
-                      })
-                    } else {
-                      this.setState((prevState) => {
-                        return {
-                          originalsShown: {
-                            ...prevState.originalsShown,
-                            ...{[params.currentMessage._id]: true},
-                          },
-                        }
-                      })
-                    }
-                  }}
-                >
-                  {this.state.originalsShown[params.currentMessage._id]
-                    ? 'Hide Original'
-                    : 'Show Original'}
-                </Text>
-              </TouchableOpacity>
-            )}
-            <Text style={styles.messageBox}>
-              {params.currentMessage.translatedFrom !== false
-                ? `Translated From: ${params.currentMessage.translatedFrom}`
-                : 'Not Translated'}
-            </Text>
-          </Fragment>
-        )}
+        {this.props.uid !== params.currentMessage.user._id &&
+          renderTranslation(params, this)}
         <MessageText {...params} />
       </View>
     )
@@ -271,7 +173,8 @@ class SingleChat extends Component {
   }
 
   // load playback instance
-  async loadPlaybackInstance(props) {
+  async loadPlaybackInstance(currMessage) {
+    console.log('LOADING', currMessage)
     this.setState({isLoading: true})
     // if playback instance exists, unload and clear onPlaybackStatusUpdate
     if (this.state.playbackInstance !== null) {
@@ -289,16 +192,16 @@ class SingleChat extends Component {
       }
     }
     // construct and load new sound instance then play audio
-    if (props) {
+    if (currMessage) {
       try {
         const {sound} = await Audio.Sound.createAsync(
-          {uri: props.audio},
+          {uri: currMessage.audio},
           {isLooping: false, progressUpdateIntervalMillis: 50},
           this.updatePlaybackStatus
         )
         this.setState({
           playbackInstance: sound,
-          playbackInstanceId: props._id,
+          playbackInstanceId: currMessage._id,
         })
         this.state.playbackInstance.playAsync()
       } catch (err) {
@@ -310,7 +213,10 @@ class SingleChat extends Component {
 
   // dispatch send audio
   async handleSendAudio() {
-    const {audioUrl} = this.state
+    // save audio url to constant
+    const audioUrl = this.state.audioUrl
+    // reset audio url on state
+    this.setState({audioUrl: null})
     const fileName = `${genUUID()}.wav`
     const file = {
       name: fileName,
@@ -359,7 +265,7 @@ class SingleChat extends Component {
             return <Text>Loading Messages...</Text>
           }}
         />
-        {this.state.recording && (
+        {this.state.audioUrl && (
           <View style={styles.inputRight}>
             <TouchableOpacity style={styles.inputRightContainer}>
               <Text
@@ -394,14 +300,6 @@ const mapDispatch = (dispatch) => ({
 export default connect(mapState, mapDispatch)(SingleChat)
 
 const styles = StyleSheet.create({
-  messageBox: {
-    color: 'grey',
-    fontSize: 14,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 1,
-    paddingBottom: 1,
-  },
   originalMessage: {
     color: 'black',
     fontSize: 14,
@@ -410,14 +308,7 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     paddingBottom: 1,
   },
-  showButton: {
-    color: 'rgb(102, 153, 255)',
-    fontSize: 12,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 1,
-  },
+
   container: {
     flex: 1,
     backgroundColor: '#fafafa',
@@ -429,15 +320,12 @@ const styles = StyleSheet.create({
     width: 80,
     alignItems: 'center',
   },
-  inputLeft: {
-    flexDirection: 'row',
-    marginLeft: 15,
-  },
+
   inputRightContainer: {
     height: 44,
   },
   inputRight: {
-    top: Layout.window.height * 0.76,
+    top: Layout.window.height * 0.78,
     left: Layout.window.width * 0.85,
     position: 'absolute',
     marginRight: 15,
@@ -448,13 +336,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 17,
   },
-  microphone: {
-    marginBottom: 8,
-  },
-  playPause: {
-    marginLeft: 15,
-    marginBottom: 10,
-  },
+
   headerContainer: {
     flexDirection: 'row',
     backgroundColor: '#fafafa',
@@ -478,31 +360,23 @@ const styles = StyleSheet.create({
   audioContainer: {
     flexDirection: 'column',
   },
-  audioFileContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 50,
-    width: 150,
-  },
-  audio: {
-    alignSelf: 'center',
-    marginTop: 10,
-    marginLeft: 10,
-    backgroundColor: 'transparent',
-  },
+
   audioTextContainer: {
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 10,
     paddingBottom: 10,
   },
-  audioText: {
+  audioTextLeft: {
+    color: 'black',
+    fontSize: 16,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  audioTextRight: {
     color: '#ffffff',
     fontSize: 16,
-  },
-  audioTime: {
-    marginTop: 10,
-    marginLeft: 10,
-    color: '#ffffff',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
 })

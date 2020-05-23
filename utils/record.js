@@ -1,5 +1,39 @@
+import React from 'react'
+import {StyleSheet, TouchableOpacity, View} from 'react-native'
+import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons'
 import {Audio} from 'expo-av'
 import * as Permissions from 'expo-permissions'
+
+export function recordingActions(thisObj) {
+  return (
+    <View style={styles.inputLeft}>
+      <TouchableOpacity
+        onPress={() => handleRecordPressed(thisObj)}
+        hitSlop={styles.hitSlop}
+      >
+        <MaterialCommunityIcons
+          name="microphone"
+          size={28}
+          color={thisObj.state.isRecording ? 'red' : '#7a7a7a'}
+          style={styles.microphone}
+        />
+      </TouchableOpacity>
+      {thisObj.state.recording && (
+        <TouchableOpacity
+          onPress={() => handleToggleRecording(thisObj)}
+          hitSlop={styles.hitSlop}
+        >
+          <Ionicons
+            name={thisObj.state.isRecordingPlaying ? 'ios-pause' : 'ios-play'}
+            size={28}
+            color="#7a7a7a"
+            style={styles.playPause}
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+  )
+}
 
 // permission for microphone use
 export async function getPermissions(thisObj) {
@@ -77,7 +111,7 @@ export async function stopRecording(thisObj) {
     if (thisObj.state.recording) {
       const audioUrl = thisObj.state.recording.getURI()
       thisObj.state.recording.setOnRecordingStatusUpdate(null)
-      thisObj.setState({audioUrl})
+      thisObj.setState({audioUrl, recording: null})
 
       // creates and loads a new sound object to play back the recording
       const {sound} = await thisObj.state.recording.createNewLoadedSoundAsync(
@@ -131,3 +165,23 @@ const recordingOptions = {
     linearPCMIsFloat: false,
   },
 }
+
+const styles = StyleSheet.create({
+  hitSlop: {
+    top: 30,
+    bottom: 30,
+    left: 10,
+    right: 10,
+  },
+  inputLeft: {
+    flexDirection: 'row',
+    marginLeft: 15,
+  },
+  microphone: {
+    marginBottom: 8,
+  },
+  playPause: {
+    marginLeft: 15,
+    marginBottom: 10,
+  },
+})

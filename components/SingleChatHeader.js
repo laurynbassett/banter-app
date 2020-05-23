@@ -52,7 +52,6 @@ const SingleChatHeaderCenter = (props) => {
     props.memberNames.length > 1
       ? styles.groupContainer
       : styles.singleContainer
-  console.log('MEMBER NAMES', props.memberNames)
   return (
     <View style={styles.centerContainer}>
       <View style={avatarContainer}>
@@ -97,13 +96,9 @@ const mapState = (state) => {
 export default connect(mapState)(SingleChatHeaderCenter)
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-  },
   centerContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
-    marginLeft: 10,
   },
   groupContainer: {
     flexDirection: 'row-reverse',
@@ -112,11 +107,15 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     paddingLeft: 0,
   },
-  singleContainer: {},
+  singleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   left: {
     marginLeft: 15,
   },
   avatar: {
+    alignSelf: 'center',
     borderRadius: 100,
     borderWidth: 1,
     borderColor: 'white',

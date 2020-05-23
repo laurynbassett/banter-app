@@ -15,15 +15,12 @@ const ContactListItem = (props) => {
       [{contactId: props.id, contactName: props.name}]
     )
   }
-
+  console.log('PROPS IMG', props.imageUrl)
   return (
     <TouchableHighlight onPress={goToSingleChat}>
       <View style={styles.container}>
         {props.imageUrl ? (
-          <Image
-            source={{uri: props.imageUrl || defaultUrl}}
-            style={styles.image}
-          />
+          <AvatarIcon src={props.imageUrl} style={styles.image} />
         ) : (
           <AvatarIcon style={styles.image} name={props.name} />
         )}

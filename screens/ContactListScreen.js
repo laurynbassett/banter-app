@@ -29,9 +29,7 @@ class ContactListScreen extends Component {
   }
 
   componentDidUpdate() {
-    console.log('STATE 0', this.state.search)
     this.state.search.length > 0 ? this.search.focus() : this.search.blur()
-    console.log('STATE 1', this.state.search)
   }
 
   componentWillUnmount() {

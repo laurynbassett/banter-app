@@ -1,9 +1,4 @@
-export {
-  getMillis,
-  getPlaybackTime,
-  handleToggleAudio,
-  setAudioMode,
-} from './audio'
+export {getMillis, getPlaybackTime, playbackIcon, setAudioMode} from './audio'
 export {createSectionedData, findIndices} from './contactsList'
 export {default as formatNameHelper} from './formatName'
 export {default as formatText} from './formatText'
@@ -18,8 +13,9 @@ export {
   getPermissions,
   handleRecordPressed,
   handleToggleRecording,
+  recordingActions,
   stopRecording,
-} from './recording'
+} from './record'
 export {default as getTranscription} from './transcribe'
-export {default as translateHelper} from './translate'
+export {getLangKey, getLangValue, renderTranslation} from './translate'
 export {default as genUUID} from './uuid'

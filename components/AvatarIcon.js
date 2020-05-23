@@ -10,7 +10,8 @@ export default function AvatarIcon(props) {
         src={props.src}
         size={32}
         style={props.style}
-        bgColor="#A9A9A9"
+        imageStyle={props.style}
+        bgColor={props.src ? '#fff' : '#A9A9A9'}
       />
     </View>
   )

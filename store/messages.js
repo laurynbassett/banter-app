@@ -50,6 +50,7 @@ export const fetchEarlierMessages = () => (dispatch, getState) => {
 }
 
 const addMessage = (message, messageId) => (dispatch, getState) => {
+  console.log('ADD MESSAGE', message)
   // format a message object compatible with GiftedChat, message text not added yet
   const newMessage = {
     _id: messageId,
@@ -62,78 +63,102 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
     messageType: message.messageType,
   }
   const userLanguage = getState().user.language
+  // case: audio file
 
   // if the message was sent by the user it will not be translated
-  // check if message type is text
-  if (
-    message.senderId !== getState().firebase.auth.uid &&
-    messageType === 'message'
-  ) {
+  if (message.senderId !== getState().firebase.auth.uid) {
+    const msg =
+      message.messageType === 'message'
+        ? message.message
+        : message.audio.transcript
     // check if translation to user's language exists
     if (message.translations[userLanguage]) {
-      newMessage.text = message.translations[userLanguage]
       newMessage.translatedFrom =
-        message.translations[userLanguage] !== message.message
+        message.translations[userLanguage] !== msg
           ? message.detectedSource
           : false
-      dispatch(addMessage(newMessage))
+
+      if (message.messageType === 'message') {
+        newMessage.text = message.translations[userLanguage]
+        dispatch(appendMessage(newMessage))
+      } else {
+        FileSystem.downloadAsync(
+          message.audio.uri,
+          FileSystem.documentDirectory + message.audio.name
+        ).then((audioObj) => {
+          newMessage.audio = audioObj.uri
+          console.log('URI', audioObj.uri)
+          newMessage.transcript = message.audio.transcript
+          dispatch(appendMessage(newMessage))
+        })
+      }
     } else {
       // translate the original message to the language of the user
       fetch(
-        `https://translation.googleapis.com/language/translate/v2?q=${
-          message.message
-        }&target=${getLangKey(userLanguage)}&key=${GOOGLE_API_KEY}`
+        `https://translation.googleapis.com/language/translate/v2?q=${msg}&target=${getLangKey(
+          userLanguage
+        )}&key=${GOOGLE_API_KEY}`
       )
         .then((response) => {
           return response.json()
         })
-        .then((data) => {
+        .then(({data}) => {
           // add the translation to the db
           db.ref(
             `messages/${
               getState().chats.currentChat.id
             }/${messageId}/translations`
           ).update({
-            [userLanguage]: data.data.translations[0].translatedText,
+            [userLanguage]: data.translations[0].translatedText,
           })
 
           // update detected source language if it does not exist
-          if (!snapshot.val().detectedSource) {
+          if (!message.detectedSource) {
             db.ref(
               `messages/${getState().chats.currentChat.id}/${messageId}`
             ).update({
               detectedSource: getLangValue(
-                data.data.translations[0].detectedSourceLanguage
+                data.translations[0].detectedSourceLanguage
               ),
             })
           }
 
-          // add the translation to the new message
-          newMessage.text = data.data.translations[0].translatedText
           newMessage.translatedFrom =
-            data.data.translations[0].translatedText !== message.message
-              ? getLangValue(data.data.translations[0].detectedSourceLanguage)
+            data.translations[0].translatedText !== msg
+              ? getLangValue(data.translations[0].detectedSourceLanguage)
               : false
 
-          dispatch(addMessage(newMessage))
+          // add the translation to the new message
+          if (messageType === 'message') {
+            newMessage.text = data.translations[0].translatedText
+            dispatch(appendMessage(newMessage))
+          } else {
+            FileSystem.downloadAsync(
+              message.audio.uri,
+              FileSystem.documentDirectory + message.audio.name
+            ).then((audioObj) => {
+              newMessage.audio = audioObj.uri
+              console.log('URI', audioObj.uri)
+              newMessage.transcript = message.audio.transcript
+              dispatch(appendMessage(newMessage))
+            })
+          }
         })
     }
   } else {
     newMessage.text = message.translations.original
-    // case: message file
-    if (newMessage.messageType === 'message') {
-      dispatch(appendMessage(newMessage))
-      // case: audio file
-    } else if (newMessage.messageType === 'audio') {
+    // case: audio file
+    if (newMessage.messageType === 'audio') {
       FileSystem.downloadAsync(
         message.audio.uri,
         FileSystem.documentDirectory + message.audio.name
       ).then((audioObj) => {
         newMessage.audio = audioObj.uri
+        console.log('URI', audioObj.uri)
         newMessage.transcript = message.audio.transcript
         dispatch(appendMessage(newMessage))
       })
-    }
+    } else dispatch(appendMessage(newMessage))
   }
 }
 
@@ -170,7 +195,12 @@ export const postMessage = (text) => async (dispatch, getState) => {
     chatsRef
       .child(chatId)
       .update({
-        lastMessage: message || 'audio file',
+        lastMessage:
+          messageType === 'message'
+            ? message
+            : audio.transcript !== 'Transcription unavailable'
+            ? audio.transcript
+            : 'Voice note',
         senderId: uid,
         timestamp,
       })
@@ -183,29 +213,27 @@ export const postMessage = (text) => async (dispatch, getState) => {
           messageType,
         }
         newMessage.translations = {
-          original: messageType === 'message' ? message : audio.transcript,
+          original:
+            messageType === 'message'
+              ? message
+              : audio.transcript !== 'Transcription unavailable'
+              ? audio.transcript
+              : 'Voice note',
         }
         if (messageType === 'audio') {
           newMessage.audio = audio
         }
 
         // update messages node
-        // db.ref(`messages/${chatId}`)
-        //   .push()
-        //   .set({
-        //     message,
-        //     senderId: uid,
-        //     senderName: displayName,
-        //     timestamp,
-        //     translations: {
-        //       original: message,
-        //     },
-        //   })
         db.ref(`messages/${chatId}`).push().set(newMessage)
 
-        contacts.forEach(async (contact) =>
-          dispatch(notify(contact.contactId, displayName, message))
-        )
+        contacts.forEach(async (contact) => {
+          const msg =
+            message || audio.transcript !== 'Transcription unavailable'
+              ? audio.transcript
+              : 'Voice note'
+          dispatch(notify(contact.contactId, displayName, msg))
+        })
 
         // dispatch(notify(contactId, displayName, message))
       })
