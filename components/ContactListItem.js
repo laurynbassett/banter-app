@@ -1,6 +1,7 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Image, StyleSheet, Text, TouchableHighlight, View} from 'react-native'
+
 import {fetchCurrentChatId} from '../store'
 import AvatarIcon from './AvatarIcon'
 
