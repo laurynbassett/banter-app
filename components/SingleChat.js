@@ -1,5 +1,12 @@
 import React, {Component} from 'react'
-import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import {GiftedChat, MessageText} from 'react-native-gifted-chat'
 import {connect} from 'react-redux'
 import {Audio} from 'expo-av'
