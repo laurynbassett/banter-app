@@ -95,7 +95,7 @@ export class SettingsScreen extends React.Component {
             firebase.auth().signOut()
           }}
           large
-          style={styles.button}
+          style={[styles.button, {marginTop: 10}]}
           buttonStyle={{backgroundColor: '#388eff'}}
         />
 

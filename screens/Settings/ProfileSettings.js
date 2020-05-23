@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa',
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   inputBox: {
     width: '85%',
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   button: {
-    paddingTop: 10,
+    paddingTop: 20,
   },
 })
 

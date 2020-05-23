@@ -44,38 +44,37 @@ export const SingleChatHeaderLeft = connect(
 
 // SINGLE CHAT HEADER CENTER
 const SingleChatHeaderCenter = (props) => {
-  const members = props.memberNames.filter(
-    (member) => member !== props.displayName
-  )
-  // const text =
-  //   props.memberNames > 1
-  //     ? `${props.memberNames.length} people`
-  //     : props.memberNames[0]
-
-  return members.length === 1 ? (
+  const text =
+    props.memberNames.length > 1
+      ? `${props.memberNames.length} people`
+      : props.memberNames[0]
+  const avatarContainer =
+    props.memberNames.length > 1
+      ? styles.groupContainer
+      : styles.singleContainer
+  console.log('MEMBER NAMES', props.memberNames)
+  return (
     <View style={styles.centerContainer}>
-      {props.memberImgs.map((img, idx) =>
-        img !== 'undefined' ? (
-          <AvatarIcon
-            containerStyle={styles.imgWrapper}
-            src={img}
-            key={img}
-            style={styles.image}
-          />
-        ) : (
-          <AvatarIcon
-            containerStyle={styles.imgWrapper}
-            style={styles.avatar}
-            key={idx}
-            name={props.memberNames[idx]}
-          />
-        )
-      )}
-      <Text style={styles.text}>{members[0]}</Text>
-    </View>
-  ) : (
-    <View style={styles.centerContainer}>
-      <Text style={styles.text}>{createMemberString(members)}</Text>
+      <View style={avatarContainer}>
+        {props.memberImgs.map((img, idx) =>
+          img !== 'undefined' ? (
+            <AvatarIcon
+              containerStyle={styles.imgWrapper}
+              src={img}
+              key={img}
+              style={styles.image}
+            />
+          ) : (
+            <AvatarIcon
+              containerStyle={styles.imgWrapper}
+              style={styles.avatar}
+              key={idx}
+              name={props.memberNames[idx]}
+            />
+          )
+        )}
+      </View>
+      <Text style={styles.text}>{text}</Text>
     </View>
   )
 }
@@ -106,24 +105,49 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 10,
   },
+  groupContainer: {
+    flexDirection: 'row-reverse',
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+  },
+  singleContainer: {},
   left: {
     marginLeft: 15,
   },
-  image: {
+  avatar: {
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: '#fff',
-    width: 30,
-    height: 30,
+    borderColor: 'white',
+    width: 38,
+    height: 38,
+    position: 'relative',
+  },
+  image: {
+    alignSelf: 'center',
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: 'white',
+    backgroundColor: 'white',
+    width: 45,
+    height: 45,
+    position: 'relative',
   },
   imgWrapper: {
     justifyContent: 'center',
-    alignItems: 'center',
+    width: 33,
+    height: 40,
+    marginBottom: 5,
   },
   text: {
     fontSize: 13,
-    marginTop: 5,
     textAlign: 'center',
   },
-  hitSlop: {top: 15, left: 15, bottom: 15, right: 20},
+  hitSlop: {
+    top: 15,
+    left: 15,
+    bottom: 15,
+    right: 20,
+  },
 })

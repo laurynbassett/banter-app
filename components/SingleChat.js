@@ -61,6 +61,7 @@ class SingleChat extends Component {
   }
 
   componentDidMount() {
+    console.log('SINGLE CHAT PROPS', this.props)
     // fetch all messages for the current chat (fetchMessages will use the currentChatId in chats reducer to make query)
     this.focusUnsubscribe = this.props.navigation.addListener('focus', () => {
       // fetch messages for current chat when in focus

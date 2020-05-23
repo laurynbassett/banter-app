@@ -138,21 +138,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
 }
 
 // SEND NEW MESSAGE
-<<<<<<< HEAD
-export const postMessage = ({
-  uid,
-  displayName,
-  contactId,
-  contactName,
-  currChatId,
-  timestamp,
-  message = '',
-  audio = {},
-  messageType,
-}) => async (dispatch) => {
-=======
 export const postMessage = (text) => async (dispatch, getState) => {
->>>>>>> 9db86beaa6ba7bf69b593453f66b63e373022b3f
   try {
     const {
       uid,
