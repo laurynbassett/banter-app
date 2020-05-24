@@ -183,7 +183,6 @@ export const addNewContact = ({email}, navigation) => async (
 
     // if user exists, add to current user's contacts
     if (snapshot) {
-      console.log('SNAPSHOT', snapshot)
       let id = Object.keys(snapshot.val())[0]
       let contact = snapshot.val()[id]
       contact.id = id
@@ -193,7 +192,7 @@ export const addNewContact = ({email}, navigation) => async (
         .then(() => {
           // add contact in redux store then navigate to all contacts screen
           dispatch(addContact(contact))
-          navigation.navigate('Contacts', [
+          navigation.navigate('Contact', [
             {
               contacts: getState().user.contacts,
             },
