@@ -34,12 +34,14 @@ export default class Notification extends React.Component {
                 this.setState({pushNotify: value})
               },
             }}
+            containerStyle={styles.listItem}
           />
           <ListItem
             title={'Sound'}
             bottomDivider
             rightSubtitle={this.state.sound}
             chevron
+            containerStyle={styles.listItem}
           />
         </View>
         <View>
@@ -53,6 +55,7 @@ export default class Notification extends React.Component {
                 this.setState({preview: value})
               },
             }}
+            containerStyle={styles.listItem}
           />
         </View>
       </ScrollView>
@@ -64,6 +67,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   label: {
     paddingTop: 13,

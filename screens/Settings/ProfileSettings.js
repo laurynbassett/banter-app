@@ -34,6 +34,7 @@ export class ProfileSettings extends React.Component {
             value: this.state.firstName,
             onChangeText: (firstName) => this.setState({firstName}),
           }}
+          containerStyle={styles.listItem}
         />
 
         <ListItem
@@ -44,6 +45,7 @@ export class ProfileSettings extends React.Component {
             value: this.state.lastName,
             onChangeText: (lastName) => this.setState({lastName}),
           }}
+          containerStyle={styles.listItem}
         />
 
         <Button
@@ -65,6 +67,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   title: {
     fontWeight: '500',

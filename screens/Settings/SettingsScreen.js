@@ -52,6 +52,7 @@ export class SettingsScreen extends React.Component {
               user: this.props.user,
             })
           }
+          containerStyle={styles.listItem}
         />
 
         <ListItem
@@ -64,6 +65,7 @@ export class SettingsScreen extends React.Component {
               user: this.props.user,
             })
           }
+          containerStyle={styles.listItem}
         />
 
         <Text style={styles.label}>Default Language</Text>
@@ -118,6 +120,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   inputBox: {
     width: '85%',
