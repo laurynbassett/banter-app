@@ -51,6 +51,7 @@ export class NewIndividualChat extends Component {
           leftIcon={() => <Entypo name="users" size={20} style={styles.icon} />}
           bottomDivider
           onPress={() => this.props.navigation.navigate('NewGroupChat')}
+          containerStyle={styles.listItem}
         />
         <ListItem
           title={'New Contact'}
@@ -60,6 +61,7 @@ export class NewIndividualChat extends Component {
           )}
           bottomDivider
           onPress={() => console.log('pressed')}
+          containerStyle={styles.listItem}
         />
 
         <SectionList
@@ -69,6 +71,7 @@ export class NewIndividualChat extends Component {
               title={item.name}
               bottomDivider
               onPress={() => this.handleContactSelection(item.id, item.name)}
+              containerStyle={styles.listItem}
             />
           )}
           renderSectionHeader={({section}) => (
@@ -98,6 +101,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     backgroundColor: 'rgba(247,247,247,1.0)',
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
 })
 

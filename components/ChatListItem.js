@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import AvatarIcon from './AvatarIcon'
 import {memberNameHelper, memberImgHelper, ChatListAvatar} from '../utils'
+import {Colors} from '../constants'
 
 export default function ChatListItem(props) {
   let members = props.item.members
@@ -27,25 +27,6 @@ export default function ChatListItem(props) {
     <TouchableOpacity onPress={() => goToSingleChat(props.item.id)}>
       <View style={styles.itemView}>
         <ChatListAvatar avatarImgs={avatarImgs} members={members} />
-        {/* <View style={styles.imgWrapper}>
-          {avatarImgs.map((img, idx) =>
-            img !== 'undefined' ? (
-              <AvatarIcon
-                containerStyle={styles.imgWrapper}
-                src={img}
-                key={img}
-                style={styles.image}
-              />
-            ) : (
-              <AvatarIcon
-                containerStyle={styles.imgWrapper}
-                style={styles.avatar}
-                key={idx}
-                name={members[idx]}
-              />
-            )
-          )}
-        </View> */}
         <View style={styles.detailsWrapper}>
           <View style={styles.chatNameWrapper}>
             <Text style={styles.chatName}>
@@ -71,7 +52,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 15,
     borderBottomWidth: 1,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     backgroundColor: '#fff',
   },
   chatName: {

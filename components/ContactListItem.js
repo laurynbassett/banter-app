@@ -1,10 +1,10 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Image, StyleSheet, Text, TouchableHighlight, View} from 'react-native'
+import {StyleSheet, Text, TouchableHighlight, View} from 'react-native'
 
 import {fetchCurrentChatId} from '../store'
-import AvatarIcon from './AvatarIcon'
 import {ContactListAvatar} from '../utils'
+import {Colors} from '../constants'
 
 const ContactListItem = (props) => {
   const goToSingleChat = async () => {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     backgroundColor: '#fff',
   },
   contactWrapper: {
