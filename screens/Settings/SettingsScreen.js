@@ -7,6 +7,7 @@ import firebase from 'firebase/app'
 import {fetchUser, putLang} from '../../store/user'
 import {connect} from 'react-redux'
 import RNPickerSelect from 'react-native-picker-select'
+import {Colors} from '../../constants'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')
@@ -96,7 +97,7 @@ export class SettingsScreen extends React.Component {
           }}
           large
           style={[styles.button, {marginTop: 10}]}
-          buttonStyle={{backgroundColor: '#388eff'}}
+          buttonStyle={styles.buttonBackground}
         />
 
         <Button
@@ -106,7 +107,7 @@ export class SettingsScreen extends React.Component {
           }}
           large
           style={styles.button}
-          buttonStyle={{backgroundColor: '#388eff'}}
+          buttonStyle={styles.buttonBackground}
         />
       </ScrollView>
     )
@@ -116,14 +117,14 @@ export class SettingsScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
   },
   inputBox: {
     width: '85%',
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     borderBottomWidth: 1,
     textAlign: 'left',
   },
@@ -135,6 +136,9 @@ const styles = StyleSheet.create({
   },
   button: {
     paddingTop: 10,
+  },
+  buttonBackground: {
+    backgroundColor: Colors.tintColor,
   },
 })
 

@@ -2,10 +2,15 @@ import React from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {connect} from 'react-redux'
 import {Ionicons} from '@expo/vector-icons'
-import Colors from '../constants/Colors'
+import {Colors} from '../constants'
 import AvatarIcon from './AvatarIcon'
 import {getMessages, setCurrentChat} from '../store'
-import {memberNameHelper, memberImgHelper, createMemberString} from '../utils'
+import {
+  createMemberString,
+  memberImgHelper,
+  memberNameHelper,
+  SingleChatAvatar,
+} from '../utils'
 
 // SINGLE CHAT HEADER LEFT
 const UnconnectedSingleChatHeaderLeft = (props) => {
@@ -48,31 +53,13 @@ const SingleChatHeaderCenter = (props) => {
     props.memberNames.length > 1
       ? `${props.memberNames.length} people`
       : props.memberNames[0]
-  const avatarContainer =
-    props.memberNames.length > 1
-      ? styles.groupContainer
-      : styles.singleContainer
+
   return (
     <View style={styles.centerContainer}>
-      <View style={avatarContainer}>
-        {props.memberImgs.map((img, idx) =>
-          img !== 'undefined' ? (
-            <AvatarIcon
-              containerStyle={styles.imgWrapper}
-              src={img}
-              key={img}
-              style={styles.image}
-            />
-          ) : (
-            <AvatarIcon
-              containerStyle={styles.imgWrapper}
-              style={styles.avatar}
-              key={idx}
-              name={props.memberNames[idx]}
-            />
-          )
-        )}
-      </View>
+      <SingleChatAvatar
+        memberImgs={props.memberImgs}
+        memberNames={props.memberNames}
+      />
       <Text style={styles.text}>{text}</Text>
     </View>
   )
@@ -100,44 +87,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
   },
-  groupContainer: {
-    flexDirection: 'row-reverse',
-    paddingTop: 0,
-    paddingRight: 0,
-    paddingBottom: 0,
-    paddingLeft: 0,
-  },
-  singleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
   left: {
     marginLeft: 15,
-  },
-  avatar: {
-    alignSelf: 'center',
-    borderRadius: 100,
-    borderWidth: 1,
-    borderColor: 'white',
-    width: 38,
-    height: 38,
-    position: 'relative',
-  },
-  image: {
-    alignSelf: 'center',
-    borderRadius: 100,
-    borderWidth: 1,
-    borderColor: 'white',
-    backgroundColor: 'white',
-    width: 45,
-    height: 45,
-    position: 'relative',
-  },
-  imgWrapper: {
-    justifyContent: 'center',
-    width: 33,
-    height: 40,
-    marginBottom: 5,
   },
   text: {
     fontSize: 13,

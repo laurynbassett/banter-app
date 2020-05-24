@@ -1,14 +1,11 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import * as React from 'react'
 import {Platform} from 'react-native'
-import {connect} from 'react-redux'
 
 import {ChatListHeaderRight, TabBarIcon} from '../components'
 import SettingsNavigator from './SettingsNavigator'
 import ChatNavigator from './ChatNavigator'
 import ContactNavigator from './ContactNavigator'
-import {getMessages} from '../store'
-import {ChatListScreen} from '../screens'
 
 const BottomTab = createBottomTabNavigator()
 
@@ -66,11 +63,7 @@ const BottomTabNavigator = (props) => {
   )
 }
 
-const mapDispatch = (dispatch) => ({
-  getMessages: () => getMessages(),
-})
-
-export default connect(null, mapDispatch)(BottomTabNavigator)
+export default BottomTabNavigator
 
 const getTabBarVisible = (route) => {
   const routeName = route.state

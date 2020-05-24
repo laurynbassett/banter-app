@@ -50,7 +50,6 @@ export const fetchEarlierMessages = () => (dispatch, getState) => {
 }
 
 const addMessage = (message, messageId) => (dispatch, getState) => {
-  console.log('ADD MESSAGE', message)
   // format a message object compatible with GiftedChat, message text not added yet
   const newMessage = {
     _id: messageId,
@@ -87,7 +86,6 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
           FileSystem.documentDirectory + message.audio.name
         ).then((audioObj) => {
           newMessage.audio = audioObj.uri
-          console.log('URI', audioObj.uri)
           newMessage.transcript = message.audio.transcript
           dispatch(appendMessage(newMessage))
         })
@@ -138,7 +136,6 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
               FileSystem.documentDirectory + message.audio.name
             ).then((audioObj) => {
               newMessage.audio = audioObj.uri
-              console.log('URI', audioObj.uri)
               newMessage.transcript = message.audio.transcript
               dispatch(appendMessage(newMessage))
             })
@@ -154,7 +151,6 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
         FileSystem.documentDirectory + message.audio.name
       ).then((audioObj) => {
         newMessage.audio = audioObj.uri
-        console.log('URI', audioObj.uri)
         newMessage.transcript = message.audio.transcript
         dispatch(appendMessage(newMessage))
       })

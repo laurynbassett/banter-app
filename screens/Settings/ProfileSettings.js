@@ -4,6 +4,7 @@ import {ScrollView} from 'react-native-gesture-handler'
 import {putUserName} from '../../store'
 import {Button, ListItem} from 'react-native-elements'
 import {connect} from 'react-redux'
+import {Colors} from '../../constants'
 
 export class ProfileSettings extends React.Component {
   constructor(props) {
@@ -53,7 +54,7 @@ export class ProfileSettings extends React.Component {
           }}
           large
           style={styles.button}
-          buttonStyle={{backgroundColor: '#388eff'}}
+          buttonStyle={styles.buttonBackground}
         />
       </ScrollView>
     )
@@ -63,7 +64,7 @@ export class ProfileSettings extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
   },
   title: {
     fontWeight: '500',
@@ -73,12 +74,15 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     borderBottomWidth: 1,
     textAlign: 'left',
   },
   button: {
     paddingTop: 20,
+  },
+  buttonBackground: {
+    backgroundColor: Colors.tintColor,
   },
 })
 

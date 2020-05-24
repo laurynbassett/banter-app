@@ -4,6 +4,8 @@ import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons'
 import {Audio} from 'expo-av'
 import * as Permissions from 'expo-permissions'
 
+import {Colors} from '../constants'
+
 export function recordingActions(thisObj) {
   return (
     <View style={styles.inputLeft}>
@@ -14,7 +16,7 @@ export function recordingActions(thisObj) {
         <MaterialCommunityIcons
           name="microphone"
           size={28}
-          color={thisObj.state.isRecording ? 'red' : '#7a7a7a'}
+          color={thisObj.state.isRecording ? 'red' : Colors.btnGray}
           style={styles.microphone}
         />
       </TouchableOpacity>
@@ -85,7 +87,7 @@ async function startRecording(thisObj) {
     // Sets a cb to be called regularly w/ the status of the recording
     recording.setOnRecordingStatusUpdate(thisObj.updateRecordingStatus)
     // set recording in constructor
-    thisObj.state.recording = recording
+    thisObj.setState({recording})
     // begin recording
     await thisObj.state.recording.startAsync()
 

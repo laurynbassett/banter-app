@@ -1,12 +1,5 @@
 import React, {Component} from 'react'
-import {
-  Platform,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {GiftedChat, MessageText} from 'react-native-gifted-chat'
 import {connect} from 'react-redux'
 import {Audio} from 'expo-av'
@@ -28,6 +21,7 @@ import {
   stopRecording,
   recordingActions,
 } from '../utils'
+import {Colors} from '../constants'
 
 class SingleChat extends Component {
   constructor(props) {
@@ -88,22 +82,22 @@ class SingleChat extends Component {
 
   // custom text bubble for audio files
   renderMessageAudio(params) {
-    console.log('AUDDIO', params)
     // TODO: get isCurrentPlaying to work for all audio files (currently only working for first)
-    if (params.currentMessage.audio) {
-      const {_id, transcript, user} = params.currentMessage
-      const isSender = this.props.uid === user._id
+    const {currentMessage} = params
+    if (currentMessage.audio) {
+      const isSender = this.props.uid === currentMessage.user._id
       const text = isSender ? styles.audioTextRight : styles.audioTextLeft
 
       return (
         <View style={styles.audioContainer}>
-          {playbackIcon(this, params.currentMessage, isSender)}
-          {params.currentMessage.transcript !== 'Transcription unavailable' && (
-            <View style={styles.audioTextContainer}>
-              {!isSender && renderTranslation(params, this)}
-              <Text style={text}>{params.currentMessage.original}</Text>
-            </View>
-          )}
+          {playbackIcon(this, currentMessage, isSender)}
+          {!isSender &&
+            currentMessage.transcript !== 'Transcription unavailable' && (
+              <View style={styles.audioTextContainer}>
+                {renderTranslation(params, this)}
+                <Text style={text}>{currentMessage.original}</Text>
+              </View>
+            )}
         </View>
       )
     }
@@ -112,7 +106,6 @@ class SingleChat extends Component {
 
   // custom text bubble for messages w/ translation
   renderMessageText(params) {
-    console.log('RENDERING')
     return (
       <View>
         {this.state.originalsShown[params.currentMessage._id] && (
@@ -181,7 +174,6 @@ class SingleChat extends Component {
 
   // load playback instance
   async loadPlaybackInstance(currMessage) {
-    console.log('LOADING', currMessage)
     this.setState({isLoading: true})
     // if playback instance exists, unload and clear onPlaybackStatusUpdate
     if (this.state.playbackInstance !== null) {
@@ -318,7 +310,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
   },
   inputBar: {
     display: 'flex',
@@ -332,11 +324,11 @@ const styles = StyleSheet.create({
     height: 44,
   },
   inputRight: {
-    top: Layout.window.height * 0.78,
+    bottom: 10,
     left: Layout.window.width * 0.85,
     position: 'absolute',
     marginRight: 15,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   inputRightText: {
     color: '#0084ff',
@@ -346,7 +338,7 @@ const styles = StyleSheet.create({
 
   headerContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
     paddingLeft: 16,
     paddingRight: 16,
     paddingTop: 4,

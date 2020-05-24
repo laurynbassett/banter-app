@@ -32,7 +32,6 @@ export function getPlaybackTime(thisObj) {
 // play / pause playback for message audio
 async function handleToggleAudio(currMessage, thisObj) {
   const {isAudioPlaying, playbackInstance} = thisObj.state
-  console.log('this', currMessage)
   // if playback instance exists and is playing, pause it
   playbackInstance !== null
     ? isAudioPlaying

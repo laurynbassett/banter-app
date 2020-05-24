@@ -2,6 +2,7 @@ import * as React from 'react'
 import {StyleSheet, Text, View} from 'react-native'
 import {ScrollView} from 'react-native-gesture-handler'
 import {ListItem} from 'react-native-elements'
+import {Colors} from '../../constants'
 
 // let languageArr = Object.keys(languages)
 //   .map(function (key) {
@@ -62,7 +63,7 @@ export default class Notification extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
   },
   label: {
     paddingTop: 13,

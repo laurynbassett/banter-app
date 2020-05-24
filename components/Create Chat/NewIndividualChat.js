@@ -5,6 +5,7 @@ import {Entypo} from '@expo/vector-icons'
 import {connect} from 'react-redux'
 import {createSectionedData} from '../../utils'
 import {fetchCurrentChatId} from '../../store/chats'
+import {Colors} from '../../constants'
 
 export class NewIndividualChat extends Component {
   constructor() {
@@ -22,7 +23,8 @@ export class NewIndividualChat extends Component {
 
     // Overriding header buttons
     this.props.navigation.setOptions({
-      headerLeft: () => (
+      headerLeft: null,
+      headerRight: () => (
         <Button
           title="Cancel"
           onPress={() => this.props.navigation.navigate('Chat')}
@@ -45,12 +47,14 @@ export class NewIndividualChat extends Component {
       <View style={styles.container}>
         <ListItem
           title={'New Group'}
+          titleStyle={{color: Colors.tintColor}}
           leftIcon={() => <Entypo name="users" size={20} style={styles.icon} />}
           bottomDivider
           onPress={() => this.props.navigation.navigate('NewGroupChat')}
         />
         <ListItem
           title={'New Contact'}
+          titleStyle={{color: Colors.tintColor}}
           leftIcon={() => (
             <Entypo name="add-user" size={20} style={styles.icon} />
           )}
@@ -82,6 +86,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  icon: {
+    color: Colors.tintColor,
   },
   sectionHeader: {
     paddingTop: 2,

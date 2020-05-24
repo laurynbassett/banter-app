@@ -3,6 +3,7 @@ import {Button, StyleSheet, Text, TextInput, View} from 'react-native'
 import {connect} from 'react-redux'
 
 import {addNewContact, fetchUser} from '../store'
+import {Colors} from '../constants'
 
 const AddContact = (props) => {
   const [email, setEmail] = useState('')
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    color: '#388eff',
+    color: Colors.tintColor,
   },
   buttonTextWrapper: {
     marginTop: 15,

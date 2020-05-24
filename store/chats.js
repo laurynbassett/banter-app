@@ -39,6 +39,7 @@ export const fetchChats = () => async (dispatch) => {
           // add id to chat object
           let newChat = snapshot.val()
           newChat.id = snapshot.key
+
           // add new chat to state
           dispatch(addChat(newChat))
           // add listener for changes
