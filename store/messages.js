@@ -127,7 +127,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
               : false
 
           // add the translation to the new message
-          if (messageType === 'message') {
+          if (message.messageType === 'message') {
             newMessage.text = data.translations[0].translatedText
             dispatch(appendMessage(newMessage))
           } else {

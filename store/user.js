@@ -183,6 +183,7 @@ export const addNewContact = ({email}, navigation) => async (
 
     // if user exists, add to current user's contacts
     if (snapshot) {
+      console.log('SNAPSHOT', snapshot)
       let id = Object.keys(snapshot.val())[0]
       let contact = snapshot.val()[id]
       contact.id = id
