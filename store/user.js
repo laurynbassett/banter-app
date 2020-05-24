@@ -1,9 +1,7 @@
-import firebase, {auth, db} from '../Firebase'
+import firebase, {db} from '../Firebase'
 import {Notifications} from 'expo'
 import * as Permissions from 'expo-permissions'
 import Constants from 'expo-constants'
-import {fetchChats} from './chats'
-import {formatNameHelper} from '../utils'
 
 const usersRef = db.ref('users')
 
@@ -194,7 +192,11 @@ export const addNewContact = ({email}, navigation) => async (
         .then(() => {
           // add contact in redux store then navigate to all contacts screen
           dispatch(addContact(contact))
-          navigation.navigate('Contact')
+          navigation.navigate('Contacts', [
+            {
+              contacts: getState().user.contacts,
+            },
+          ])
         })
         .catch((error) => dispatch(addContactError(errMsg)))
     } else {

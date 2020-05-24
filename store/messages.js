@@ -171,7 +171,7 @@ export const postMessage = (text) => async (dispatch, getState) => {
       audio = '',
       messageType,
     } = text
-
+    console.log('TEXT', text)
     const members = getState().chats.currentChat.members
     members[uid] = displayName
 

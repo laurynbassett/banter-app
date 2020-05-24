@@ -22,7 +22,6 @@ class ContactListScreen extends Component {
     this.setState({data})
 
     this.blurUnsubscribe = this.props.navigation.addListener('blur', () => {
-      console.debug('didBlur')
       const data = createSectionedData(this.props.contacts)
       this.setState({data, search: ''})
     })
@@ -33,7 +32,8 @@ class ContactListScreen extends Component {
   }
 
   componentWillUnmount() {
-    this.blurUnsubscribe
+    console.log()
+    this.blurUnsubscribe()
   }
 
   checkItem(itemName, itemId) {
@@ -97,6 +97,12 @@ class ContactListScreen extends Component {
   }
 }
 
+const mapState = (state) => ({
+  contacts: state.user.contacts.sort((a, b) => (a.name > b.name ? 1 : -1)),
+})
+
+export default connect(mapState)(ContactListScreen)
+
 const styles = StyleSheet.create({
   sectionHeader: {
     paddingTop: 2,
@@ -121,9 +127,3 @@ const styles = StyleSheet.create({
   clearIconStyle: {margin: 20},
   // clearContainerStyle: {margin: -10},
 })
-
-const mapState = (state) => ({
-  contacts: state.user.contacts.sort((a, b) => (a.name > b.name ? 1 : -1)),
-})
-
-export default connect(mapState)(ContactListScreen)

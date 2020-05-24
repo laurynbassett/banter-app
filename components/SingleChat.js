@@ -335,7 +335,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 17,
   },
-
   headerContainer: {
     flexDirection: 'row',
     backgroundColor: Colors.lightGray,
@@ -359,7 +358,6 @@ const styles = StyleSheet.create({
   audioContainer: {
     flexDirection: 'column',
   },
-
   audioTextContainer: {
     paddingLeft: 10,
     paddingRight: 10,

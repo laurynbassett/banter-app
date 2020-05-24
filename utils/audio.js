@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
   audio: {
     alignSelf: 'center',
     marginTop: 10,
-    marginLeft: 10,
     backgroundColor: 'transparent',
   },
   audioTimeLeft: {
