@@ -17,13 +17,9 @@ class ContactListScreen extends Component {
   }
 
   componentDidMount() {
-    // Transforming contacts data into correct format for SectionList
-    const data = createSectionedData(this.props.contacts)
-    this.setState({data})
-
+    // reset search when not in focus
     this.blurUnsubscribe = this.props.navigation.addListener('blur', () => {
-      const data = createSectionedData(this.props.contacts)
-      this.setState({data, search: ''})
+      this.setState({search: ''})
     })
   }
 
@@ -32,7 +28,6 @@ class ContactListScreen extends Component {
   }
 
   componentWillUnmount() {
-    console.log()
     this.blurUnsubscribe()
   }
 
@@ -48,21 +43,18 @@ class ContactListScreen extends Component {
 
   updateSearch(search) {
     this.setState({search})
-    const contacts =
-      search.length > 0
-        ? this.props.contacts.filter((c) =>
-            c.name.toLowerCase().includes(search.toLowerCase())
-          )
-        : this.props.contacts
-
-    const data = createSectionedData(contacts)
-    this.setState({data})
   }
 
   render() {
     return (
       <SectionList
-        sections={this.state.data}
+        sections={createSectionedData(
+          this.state.search.length > 0
+            ? this.props.contacts.filter((c) =>
+                c.name.toLowerCase().includes(this.state.search.toLowerCase())
+              )
+            : this.props.contacts
+        )}
         ListHeaderComponent={() => (
           <SearchBar
             ref={(search) => (this.search = search)}
