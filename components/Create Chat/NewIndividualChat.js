@@ -4,6 +4,7 @@ import {ListItem} from 'react-native-elements'
 import {Entypo} from '@expo/vector-icons'
 import {connect} from 'react-redux'
 import {createSectionedData} from '../../utils'
+import {fetchCurrentChatId} from '../../store/chats'
 
 export class NewIndividualChat extends Component {
   constructor() {
@@ -11,6 +12,7 @@ export class NewIndividualChat extends Component {
     this.state = {
       data: [],
     }
+    this.handleContactSelection = this.handleContactSelection.bind(this)
   }
 
   componentDidMount() {
@@ -29,7 +31,14 @@ export class NewIndividualChat extends Component {
     })
   }
 
-  handleContactSelection() {}
+  async handleContactSelection(contactId, contactName) {
+    // set current chatroom in redux
+    await this.props.fetchCurrentChatId(
+      {uid: this.props.uid, userName: this.props.userName},
+      this.props.navigation,
+      [{contactId, contactName}]
+    )
+  }
 
   render() {
     return (
@@ -51,7 +60,13 @@ export class NewIndividualChat extends Component {
 
         <SectionList
           sections={this.state.data}
-          renderItem={({item}) => <ListItem title={item.name} bottomDivider />}
+          renderItem={({item}) => (
+            <ListItem
+              title={item.name}
+              bottomDivider
+              onPress={() => this.handleContactSelection(item.id, item.name)}
+            />
+          )}
           renderSectionHeader={({section}) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
           )}
@@ -81,6 +96,13 @@ const styles = StyleSheet.create({
 
 const mapState = (state) => ({
   contacts: state.user.contacts,
+  uid: state.firebase.auth.uid,
+  userName: state.firebase.auth.displayName,
 })
 
-export default connect(mapState)(NewIndividualChat)
+const mapDispatch = (dispatch) => ({
+  fetchCurrentChatId: (user, navigation, contacts) =>
+    dispatch(fetchCurrentChatId(user, navigation, contacts)),
+})
+
+export default connect(mapState, mapDispatch)(NewIndividualChat)

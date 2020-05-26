@@ -23,3 +23,32 @@ export function memberImgHelper(membersArr, contacts) {
     return arr
   }, [])
 }
+
+export function containsAll(arrayOfMembers, groupChatContacts) {
+  const successArray = arrayOfMembers.map((member) => {
+    if (groupChatContacts.includes(member)) {
+      return true
+    } else {
+      return false
+    }
+  })
+
+  if (
+    successArray.includes(false) ||
+    arrayOfMembers.length !== groupChatContacts.length
+  ) {
+    return false
+  } else {
+    return true
+  }
+}
+
+export function createMemberString(membersNameArray) {
+  if (membersNameArray.length === 2) {
+    return `${membersNameArray[0]} & ${membersNameArray[0]}`
+  } else {
+    return `${membersNameArray[0]}, ${membersNameArray[1]} & ${
+      membersNameArray.length - 2
+    } others`
+  }
+}

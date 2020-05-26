@@ -7,7 +7,13 @@ export {
 } from './audio'
 export {createSectionedData, findIndices} from './contactsList'
 export {default as formatNameHelper} from './formatName'
-export {memberNameHelper, memberImgHelper} from './members'
+export {
+  memberNameHelper,
+  memberImgHelper,
+  containsAll,
+  createMemberString,
+} from './members'
+
 export {
   handleRecordPressed,
   handleToggleRecording,

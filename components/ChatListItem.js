@@ -1,7 +1,5 @@
 import React from 'react'
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-
-import {auth} from '../Firebase'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import AvatarIcon from './AvatarIcon'
 import {memberNameHelper} from '../utils'
 
@@ -16,10 +14,12 @@ export default function ChatListItem(props) {
     // set current chatroom in redux
     props.setCurrentChat(chatId)
     // navigate to single chat page
-    props.navigation.navigate('SingleChat', {
-      contactId: props.id,
-      name: props.name,
-    })
+    props.navigation.navigate('SingleChat', [
+      {
+        contactId: props.id,
+        contactName: props.name,
+      },
+    ])
   }
 
   return (
