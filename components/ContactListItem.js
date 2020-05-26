@@ -1,8 +1,10 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Image, StyleSheet, Text, TouchableHighlight, View} from 'react-native'
+import {StyleSheet, Text, TouchableHighlight, View} from 'react-native'
+
 import {fetchCurrentChatId} from '../store'
-import AvatarIcon from './AvatarIcon'
+import {ContactListAvatar} from '../utils'
+import {Colors} from '../constants'
 
 const ContactListItem = (props) => {
   const goToSingleChat = async () => {
@@ -14,18 +16,10 @@ const ContactListItem = (props) => {
       [{contactId: props.id, contactName: props.name}]
     )
   }
-
   return (
     <TouchableHighlight onPress={goToSingleChat}>
       <View style={styles.container}>
-        {props.imageUrl ? (
-          <Image
-            source={{uri: props.imageUrl || defaultUrl}}
-            style={styles.image}
-          />
-        ) : (
-          <AvatarIcon style={styles.image} name={props.name} />
-        )}
+        <ContactListAvatar imageUrl={props.imageUrl} name={props.name} />
         <View style={styles.contactWrapper}>
           <View style={styles.contactNameWrapper}>
             <Text style={styles.contactName}>{props.name}</Text>
@@ -60,20 +54,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderColor: '#b7b7b7',
+    borderColor: Colors.medGray,
     backgroundColor: '#fff',
   },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 100,
-  },
-  contactNameWrapper: {
+  contactWrapper: {
     marginLeft: 10,
   },
-  contactWrapper: {
+  contactNameWrapper: {
     marginLeft: 10,
   },
   contactName: {

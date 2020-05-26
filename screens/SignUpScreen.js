@@ -1,20 +1,22 @@
 import React, {Component} from 'react'
 import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  View,
   Dimensions,
-  Platform,
   KeyboardAvoidingView,
   Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native'
 import {connect} from 'react-redux'
+import RNPickerSelect from 'react-native-picker-select'
+
 import {signUpWithEP} from '../store/auth'
 import {registerForPushNotificationsAsync} from '../store/user'
 import languages from '../languages.json'
-import RNPickerSelect from 'react-native-picker-select'
+import {Colors} from '../constants'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')
@@ -61,7 +63,6 @@ class SignUpScreen extends Component {
             resizeMode="center"
           />
         </View>
-
         <TextInput
           style={styles.firstName}
           type="First Name"
@@ -154,7 +155,8 @@ const {width: WIDTH} = Dimensions.get('window')
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3c8cfc',
+    // backgroundColor: '#3c8cfc',
+    backgroundColor: Colors.tintColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
     backgroundColor: 'white',
@@ -173,7 +175,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderWidth: 0.5,
-    borderColor: '#3c8cfc',
+    // borderColor: '#3c8cfc',
+    borderColor: Colors.tintColor,
     height: 50,
     width: 220,
     borderRadius: 5,
@@ -181,7 +184,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#3c8cfc',
+    // color: '#3c8cfc',
+    color: Colors.tintColor,
     fontSize: 16,
     textAlign: 'center',
   },
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
     marginBottom: 0,
@@ -207,7 +211,7 @@ const pickerSelectStyles = StyleSheet.create({
     paddingTop: 13,
     paddingHorizontal: 15,
     paddingBottom: 12,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     backgroundColor: 'white',
     color: 'black',

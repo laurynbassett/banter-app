@@ -3,6 +3,7 @@ import {createStackNavigator} from '@react-navigation/stack'
 import SettingsScreen from '../screens/Settings/SettingsScreen'
 import ProfileSettings from '../screens/Settings/ProfileSettings'
 import Notification from '../screens/Settings/NotificationSettings'
+
 const Stack = createStackNavigator()
 
 export default function SettingsNavigator() {

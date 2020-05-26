@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 import * as React from 'react'
 import {createStackNavigator} from '@react-navigation/stack'
-import {ChatListScreen, SingleChatScreen} from '../screens'
+import {SingleChatScreen} from '../screens'
 import {
   ChatListHeaderRight,
   SingleChatHeaderLeft,
@@ -9,6 +9,7 @@ import {
   NewIndividualChat,
   NewGroupChat,
 } from '../components'
+import ChatTabNavigator from './ChatTabNavigator'
 
 const Stack = createStackNavigator()
 
@@ -20,7 +21,7 @@ export default function ChatNavigator({navigation, route}) {
     >
       <Stack.Screen
         name="Chat"
-        component={ChatListScreen}
+        component={ChatTabNavigator}
         options={({navigation}) => ({
           title: 'All Chats',
           headerRight: () => <ChatListHeaderRight navigation={navigation} />,

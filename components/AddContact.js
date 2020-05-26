@@ -3,6 +3,7 @@ import {Button, StyleSheet, Text, TextInput, View} from 'react-native'
 import {connect} from 'react-redux'
 
 import {addNewContact, fetchUser} from '../store'
+import {Colors} from '../constants'
 
 const AddContact = (props) => {
   const [email, setEmail] = useState('')
@@ -65,6 +66,7 @@ const styles = StyleSheet.create({
   },
   form: {
     justifyContent: 'center',
+    marginTop: 15,
   },
   input: {
     margin: 10,
@@ -78,9 +80,10 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
+    color: Colors.tintColor,
   },
   buttonTextWrapper: {
-    marginTop: 20,
+    marginTop: 15,
     alignItems: 'center',
   },
 })

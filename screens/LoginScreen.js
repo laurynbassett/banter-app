@@ -12,6 +12,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler'
 import {connect} from 'react-redux'
 import {loginWithEP, loginWithGoogle} from '../store/auth'
 import {registerForPushNotificationsAsync} from '../store/user'
+import {Colors} from '../constants'
 
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
@@ -124,6 +125,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#3c8cfc',
+    // backgroundColor: Colors.tintColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
     backgroundColor: 'white',
@@ -142,7 +144,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderWidth: 0.5,
-    borderColor: '#3c8cfc',
+    // borderColor: '#3c8cfc',
+    borderColor: Colors.tintColor,
     height: 50,
     width: 220,
     borderRadius: 5,
@@ -150,7 +153,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#3c8cfc',
+    // color: '#3c8cfc',
+    color: Colors.tintColor,
     fontSize: 16,
     textAlign: 'center',
   },
@@ -159,7 +163,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderWidth: 0.5,
-    borderColor: '#3c8cfc',
+    // borderColor: '#3c8cfc',
+    borderColor: Colors.tintColor,
     height: 50,
     width: 220,
     borderRadius: 5,
@@ -174,7 +179,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginRight: 20,
     fontSize: 16,
-    color: '#3c8cfc',
+    // color: '#3c8cfc',
+    color: Colors.tintColor,
     paddingLeft: 8,
   },
 })

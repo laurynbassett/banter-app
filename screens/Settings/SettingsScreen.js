@@ -4,10 +4,11 @@ import {TouchableOpacity} from 'react-native-gesture-handler'
 import languages from '../../languages.json'
 import {ScrollView} from 'react-native-gesture-handler'
 import {ListItem} from 'react-native-elements'
-import firebase from 'firebase/app'
-import {fetchUser, putLang} from '../../store/user'
 import {connect} from 'react-redux'
 import RNPickerSelect from 'react-native-picker-select'
+import firebase from 'firebase/app'
+import {fetchUser, putLang} from '../../store/user'
+import {Colors} from '../../constants'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')
@@ -52,6 +53,7 @@ export class SettingsScreen extends React.Component {
               user: this.props.user,
             })
           }
+          containerStyle={styles.listItem}
         />
 
         <ListItem
@@ -64,6 +66,7 @@ export class SettingsScreen extends React.Component {
               user: this.props.user,
             })
           }
+          containerStyle={styles.listItem}
         />
 
         <Text style={styles.label}>Default Language</Text>
@@ -118,14 +121,19 @@ const {width: WIDTH} = Dimensions.get('window')
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   inputBox: {
     width: '85%',
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderBottomWidth: 1,
     textAlign: 'left',
   },
@@ -151,6 +159,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     textAlign: 'center',
+  },
+  buttonBackground: {
+    backgroundColor: Colors.tintColor,
   },
 })
 
