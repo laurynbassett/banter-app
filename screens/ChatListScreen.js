@@ -1,6 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {FlatList} from 'react-native'
+import {FlatList, StyleSheet} from 'react-native'
 import {ChatListItem} from '../components'
 import {
   fetchChats,
@@ -21,6 +21,7 @@ class ChatListScreen extends React.Component {
   render() {
     return (
       <FlatList
+        style={styles.container}
         data={this.props.chats}
         renderItem={({item}) => (
           <ChatListItem
@@ -48,5 +49,7 @@ const mapDispatch = (dispatch) => ({
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
   requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 })
+
+const styles = StyleSheet.create({container: {backgroundColor: 'white'}})
 
 export default connect(mapState, mapDispatch)(ChatListScreen)

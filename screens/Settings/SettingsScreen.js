@@ -1,8 +1,9 @@
 import * as React from 'react'
-import {Text, StyleSheet, Linking} from 'react-native'
+import {Text, StyleSheet, Dimensions} from 'react-native'
+import {TouchableOpacity} from 'react-native-gesture-handler'
 import languages from '../../languages.json'
 import {ScrollView} from 'react-native-gesture-handler'
-import {Button, ListItem} from 'react-native-elements'
+import {ListItem} from 'react-native-elements'
 import firebase from 'firebase/app'
 import {fetchUser, putLang} from '../../store/user'
 import {connect} from 'react-redux'
@@ -89,27 +90,30 @@ export class SettingsScreen extends React.Component {
           hideIcon={true}
         />
 
-        <Button
+        <TouchableOpacity
           title="Log Out"
           onPress={() => {
             firebase.auth().signOut()
           }}
           large
           style={styles.button}
-        />
+        >
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
 
-        <Button
+        {/* <Button
           title="Settings"
           onPress={() => {
             Linking.openURL('app-settings:')
           }}
           large
           style={styles.button}
-        />
+        /> */}
       </ScrollView>
     )
   }
 }
+const {width: WIDTH} = Dimensions.get('window')
 
 const styles = StyleSheet.create({
   container: {
@@ -132,7 +136,21 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
   button: {
-    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 20,
+    // paddingTop: 10,
+    backgroundColor: '#3c8cfc',
+    borderWidth: 0.5,
+    borderColor: '#3c8cfc',
+    height: 40,
+    width: WIDTH,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
 })
 

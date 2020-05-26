@@ -53,6 +53,7 @@ class LoginScreen extends Component {
           placeholder="Email"
           autoCapitalize="none"
           onChangeText={(email) => this.setState({email})}
+          autoCorrect={false}
         />
         <TextInput
           style={styles.inputBox}
@@ -61,6 +62,8 @@ class LoginScreen extends Component {
           autoCapitalize="none"
           onChangeText={(password) => this.setState({password})}
           placeholder="Password"
+          autoCorrect={false}
+          secureTextEntry={true}
         />
 
         <TouchableOpacity

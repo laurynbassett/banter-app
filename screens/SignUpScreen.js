@@ -68,6 +68,7 @@ class SignUpScreen extends Component {
           value={firstName}
           placeholder="First Name"
           onChangeText={(firstName) => this.setState({firstName})}
+          autoCorrect={false}
         />
 
         <TextInput
@@ -76,6 +77,7 @@ class SignUpScreen extends Component {
           value={lastName}
           placeholder="Last Name"
           onChangeText={(lastName) => this.setState({lastName})}
+          autoCorrect={false}
         />
 
         <RNPickerSelect
@@ -107,6 +109,7 @@ class SignUpScreen extends Component {
           placeholder="Email"
           autoCapitalize="none"
           onChangeText={(email) => this.setState({email})}
+          autoCorrect={false}
         />
         <TextInput
           style={styles.inputBox}
@@ -115,6 +118,8 @@ class SignUpScreen extends Component {
           placeholder="Password"
           autoCapitalize="none"
           onChangeText={(password) => this.setState({password})}
+          autoCorrect={false}
+          secureTextEntry={true}
         />
         <TouchableOpacity
           style={styles.button}
