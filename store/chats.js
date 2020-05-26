@@ -114,6 +114,8 @@ export const createCurrentChatId = () => async (dispatch) => {
 // ADD MEMBERS TO CURRENT CHAT
 export const addNewMembers = (chatId, members) => async () => {
   try {
+    console.log('ADDMEMS', members)
+
     db.ref(`chats/${chatId}`).child('members').set(members)
   } catch (err) {
     console.log('Error adding new members: ', err)
@@ -147,6 +149,7 @@ const chatsReducer = (state = defaultChats, action) => {
         currentChat: state.chats.find((chat) => chat.id === action.chatId),
       }
     case SET_CURRENT_CHAT_PROPS:
+      console.log('CURR', state.currentChat)
       return {
         ...state,
         currentChat: Object.assign({}, state.currentChat, action.chat),

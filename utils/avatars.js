@@ -4,6 +4,7 @@ import {StyleSheet, View} from 'react-native'
 import {AvatarIcon} from '../components'
 
 export const ChatListAvatar = (props) => {
+  console.log('PROPS', props)
   const avatarContainer =
     props.members.length > 1
       ? styles.groupChatImgContainer
