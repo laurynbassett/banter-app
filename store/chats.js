@@ -20,7 +20,6 @@ export const setCurrentChatProps = (chat) => ({
   type: SET_CURRENT_CHAT_PROPS,
   chat,
 })
-// const addMembers = (members) => ({type: ADD_MEMBERS, members})
 // for setting current chat header bar
 export const setMembers = (members) => ({type: SET_MEMBERS, members})
 
@@ -39,6 +38,7 @@ export const fetchChats = () => async (dispatch) => {
           // add id to chat object
           let newChat = snapshot.val()
           newChat.id = snapshot.key
+
           // add new chat to state
           dispatch(addChat(newChat))
           // add listener for changes

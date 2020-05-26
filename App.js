@@ -1,6 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {Provider} from 'react-redux'
-import {Platform, StatusBar, StyleSheet, View, Vibration} from 'react-native'
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  View,
+  Vibration,
+  YellowBox,
+} from 'react-native'
 import {SplashScreen, Notifications} from 'expo'
 import * as Font from 'expo-font'
 import {Ionicons} from '@expo/vector-icons'
@@ -28,6 +35,8 @@ export default function App(props) {
   const [initialNavigationState, setInitialNavigationState] = useState()
   const containerRef = useRef()
   const {getInitialState} = useLinking(containerRef)
+  console.disableYellowBox = true
+  console.reportErrorsAsExceptions = false
 
   // Load any resources or data that we need prior to rendering the app
   useEffect(() => {

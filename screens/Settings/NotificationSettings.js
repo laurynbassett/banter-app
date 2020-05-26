@@ -3,6 +3,8 @@ import {StyleSheet, Text, View} from 'react-native'
 import {ScrollView} from 'react-native-gesture-handler'
 import {ListItem} from 'react-native-elements'
 
+import {Colors} from '../../constants'
+
 // let languageArr = Object.keys(languages)
 //   .map(function (key) {
 //     return languages[key];
@@ -33,12 +35,14 @@ export default class Notification extends React.Component {
                 this.setState({pushNotify: value})
               },
             }}
+            containerStyle={styles.listItem}
           />
           <ListItem
             title={'Sound'}
             bottomDivider
             rightSubtitle={this.state.sound}
             chevron
+            containerStyle={styles.listItem}
           />
         </View>
         <View>
@@ -52,6 +56,7 @@ export default class Notification extends React.Component {
                 this.setState({preview: value})
               },
             }}
+            containerStyle={styles.listItem}
           />
         </View>
       </ScrollView>
@@ -62,7 +67,12 @@ export default class Notification extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   label: {
     paddingTop: 13,

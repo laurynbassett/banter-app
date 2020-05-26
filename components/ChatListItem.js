@@ -1,15 +1,18 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import AvatarIcon from './AvatarIcon'
-import {memberNameHelper} from '../utils'
+
+import {memberNameHelper, memberImgHelper, ChatListAvatar} from '../utils'
+import {Colors} from '../constants'
 
 export default function ChatListItem(props) {
   let members = props.item.members
   delete members[props.userId]
 
   members = memberNameHelper(Object.values(members))
-  const avatarName = members[0]
-
+  const avatarImgs = memberImgHelper(
+    Object.keys(props.item.members),
+    props.contacts
+  ).slice(0, 2)
   const goToSingleChat = (chatId) => {
     // set current chatroom in redux
     props.setCurrentChat(chatId)
@@ -21,20 +24,17 @@ export default function ChatListItem(props) {
       },
     ])
   }
-
   return (
     <TouchableOpacity onPress={() => goToSingleChat(props.item.id)}>
       <View style={styles.itemView}>
-        {props.imageUrl ? (
-          <AvatarIcon src={props.imageUrl} style={styles.image} />
-        ) : (
-          <AvatarIcon style={styles.image} name={avatarName} />
-        )}
+        <ChatListAvatar avatarImgs={avatarImgs} members={members} />
         <View style={styles.detailsWrapper}>
           <View style={styles.chatNameWrapper}>
             <Text style={styles.chatName}>
               {members.length > 1
-                ? `${members[0]} & ${members.length - 1} others`
+                ? members.length > 2
+                  ? `${members[0]} & ${members.length - 1} others`
+                  : `${members[0]} & ${members.length - 1} other`
                 : members}
             </Text>
           </View>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 15,
     borderBottomWidth: 1,
-    borderColor: '#b7b7b7',
+    borderColor: Colors.medGray,
     backgroundColor: '#fff',
   },
   chatName: {
@@ -63,11 +63,6 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 17,
     color: '#aaa',
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 100,
   },
   detailsWrapper: {
     marginLeft: 10,

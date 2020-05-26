@@ -1,8 +1,7 @@
-import {Ionicons} from '@expo/vector-icons'
-// import Icon from 'react-native-vector-icons/Ionicons';
 import * as React from 'react'
+import {Ionicons} from '@expo/vector-icons'
 
-import Colors from '../constants/Colors'
+import {Colors} from '../constants'
 
 export default function TabBarIcon(props) {
   return (

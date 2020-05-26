@@ -4,6 +4,7 @@ import {ScrollView} from 'react-native-gesture-handler'
 import {putUserName} from '../../store'
 import {Button, ListItem} from 'react-native-elements'
 import {connect} from 'react-redux'
+import {Colors} from '../../constants'
 
 export class ProfileSettings extends React.Component {
   constructor(props) {
@@ -33,6 +34,7 @@ export class ProfileSettings extends React.Component {
             value: this.state.firstName,
             onChangeText: (firstName) => this.setState({firstName}),
           }}
+          containerStyle={styles.listItem}
         />
 
         <ListItem
@@ -43,6 +45,7 @@ export class ProfileSettings extends React.Component {
             value: this.state.lastName,
             onChangeText: (lastName) => this.setState({lastName}),
           }}
+          containerStyle={styles.listItem}
         />
 
         <Button
@@ -53,6 +56,7 @@ export class ProfileSettings extends React.Component {
           }}
           large
           style={styles.button}
+          buttonStyle={styles.buttonBackground}
         />
       </ScrollView>
     )
@@ -62,22 +66,30 @@ export class ProfileSettings extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   inputBox: {
     width: '85%',
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderBottomWidth: 1,
     textAlign: 'left',
   },
   button: {
-    paddingTop: 10,
+    paddingTop: 20,
+  },
+  buttonBackground: {
+    backgroundColor: Colors.tintColor,
   },
 })
 

@@ -1,12 +1,55 @@
+import React from 'react'
+import {StyleSheet, TouchableOpacity, View} from 'react-native'
+import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons'
 import {Audio} from 'expo-av'
+import * as Permissions from 'expo-permissions'
+
+import {Colors} from '../constants'
+
+export function recordingActions(thisObj) {
+  return (
+    <View style={styles.inputLeft}>
+      <TouchableOpacity
+        onPress={() => handleRecordPressed(thisObj)}
+        hitSlop={styles.hitSlop}
+      >
+        <MaterialCommunityIcons
+          name="microphone"
+          size={28}
+          color={thisObj.state.isRecording ? 'red' : Colors.btnGray}
+          style={styles.microphone}
+        />
+      </TouchableOpacity>
+      {thisObj.state.recording && (
+        <TouchableOpacity
+          onPress={() => handleToggleRecording(thisObj)}
+          hitSlop={styles.hitSlop}
+        >
+          <Ionicons
+            name={thisObj.state.isRecordingPlaying ? 'ios-pause' : 'ios-play'}
+            size={28}
+            color="#7a7a7a"
+            style={styles.playPause}
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+  )
+}
+
+// permission for microphone use
+export async function getPermissions(thisObj) {
+  const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
+  thisObj.setState({
+    audioPermission: response.status === 'granted',
+  })
+}
 
 // play / pause playback for recording
 export async function handleToggleRecording(thisObj) {
-  console.log('STATE', thisObj.state)
   const {recording, sound, isRecordingPlaying} = thisObj.state
   if (recording != null) {
     isRecordingPlaying ? await sound.pauseAsync() : await sound.playAsync()
-    thisObj.setState({isRecordingPlaying: !isRecordingPlaying})
   }
 }
 
@@ -28,6 +71,7 @@ async function startRecording(thisObj) {
       thisObj.state.sound.setOnPlaybackStatusUpdate(null)
       thisObj.state.sound = null
     }
+
     // customizes audio experience on iOS and Android
     await setAudioMode({allowsRecordingIOS: true})
 
@@ -39,13 +83,11 @@ async function startRecording(thisObj) {
     // create new Audio instance
     const recording = new Audio.Recording()
     // loads the recorder into memory and prepares it for recording
-    await recording.prepareToRecordAsync(
-      JSON.parse(JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY))
-    )
+    await recording.prepareToRecordAsync(recordingOptions)
     // Sets a cb to be called regularly w/ the status of the recording
     recording.setOnRecordingStatusUpdate(thisObj.updateRecordingStatus)
     // set recording in constructor
-    thisObj.state.recording = recording
+    thisObj.setState({recording})
     // begin recording
     await thisObj.state.recording.startAsync()
 
@@ -78,7 +120,7 @@ export async function stopRecording(thisObj) {
         {isLooping: false},
         thisObj.updateSoundStatus
       )
-      thisObj.state.sound = sound
+      thisObj.setState({sound})
     }
     thisObj.setState({
       isLoading: false,
@@ -104,3 +146,44 @@ async function setAudioMode({allowsRecordingIOS}) {
     console.log('Error setting audio mode: ', err)
   }
 }
+
+const recordingOptions = {
+  android: {
+    extension: '.m4a',
+    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+    sampleRate: 44100,
+    numberOfChannels: 2,
+    bitRate: 128000,
+  },
+  ios: {
+    extension: '.wav',
+    audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+    sampleRate: 44100,
+    numberOfChannels: 1,
+    bitRate: 128000,
+    linearPCMBitDepth: 16,
+    linearPCMIsBigEndian: false,
+    linearPCMIsFloat: false,
+  },
+}
+
+const styles = StyleSheet.create({
+  hitSlop: {
+    top: 30,
+    bottom: 30,
+    left: 10,
+    right: 10,
+  },
+  inputLeft: {
+    flexDirection: 'row',
+    marginLeft: 15,
+  },
+  microphone: {
+    marginBottom: 8,
+  },
+  playPause: {
+    marginLeft: 15,
+    marginBottom: 10,
+  },
+})

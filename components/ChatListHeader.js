@@ -1,7 +1,6 @@
 import React from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {Entypo} from '@expo/vector-icons'
-import Layout from '../constants/Layout'
 
 //TODO: Remove ChatListHeader
 export const ChatListHeader = () => {
@@ -21,7 +20,7 @@ export const ChatListHeader = () => {
 
 export const ChatListHeaderRight = (props) => {
   return (
-    <View style={styles.left}>
+    <View>
       <TouchableOpacity
         onPress={() => props.navigation.navigate('NewIndividualChat')}
       >
@@ -32,20 +31,6 @@ export const ChatListHeaderRight = (props) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  center: {
-    alignContent: 'center',
-    alignSelf: 'center',
-    marginLeft: Layout.window.width * 0.25,
-    marginRight: Layout.window.width * 0.25,
-  },
-  right: {
-    alignContent: 'flex-end',
-    alignSelf: 'flex-end',
-  },
   icon: {
     marginRight: 20,
   },

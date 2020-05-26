@@ -1,12 +1,14 @@
 import * as React from 'react'
-import {Text, StyleSheet, Linking} from 'react-native'
+import {Text, StyleSheet, Dimensions} from 'react-native'
+import {TouchableOpacity} from 'react-native-gesture-handler'
 import languages from '../../languages.json'
 import {ScrollView} from 'react-native-gesture-handler'
-import {Button, ListItem} from 'react-native-elements'
-import firebase from 'firebase/app'
-import {fetchUser, putLang} from '../../store/user'
+import {ListItem} from 'react-native-elements'
 import {connect} from 'react-redux'
 import RNPickerSelect from 'react-native-picker-select'
+import firebase from 'firebase/app'
+import {fetchUser, putLang} from '../../store/user'
+import {Colors} from '../../constants'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')
@@ -51,6 +53,7 @@ export class SettingsScreen extends React.Component {
               user: this.props.user,
             })
           }
+          containerStyle={styles.listItem}
         />
 
         <ListItem
@@ -63,6 +66,7 @@ export class SettingsScreen extends React.Component {
               user: this.props.user,
             })
           }
+          containerStyle={styles.listItem}
         />
 
         <Text style={styles.label}>Default Language</Text>
@@ -89,39 +93,47 @@ export class SettingsScreen extends React.Component {
           hideIcon={true}
         />
 
-        <Button
+        <TouchableOpacity
           title="Log Out"
           onPress={() => {
             firebase.auth().signOut()
           }}
           large
           style={styles.button}
-        />
+        >
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
 
-        <Button
+        {/* <Button
           title="Settings"
           onPress={() => {
             Linking.openURL('app-settings:')
           }}
           large
           style={styles.button}
-        />
+        /> */}
       </ScrollView>
     )
   }
 }
+const {width: WIDTH} = Dimensions.get('window')
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: Colors.lightGray,
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
   inputBox: {
     width: '85%',
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderBottomWidth: 1,
     textAlign: 'left',
   },
@@ -132,7 +144,24 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
   button: {
-    paddingTop: 10,
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 20,
+    // paddingTop: 10,
+    backgroundColor: '#3c8cfc',
+    borderWidth: 0.5,
+    borderColor: '#3c8cfc',
+    height: 40,
+    width: WIDTH,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  buttonBackground: {
+    backgroundColor: Colors.tintColor,
   },
 })
 

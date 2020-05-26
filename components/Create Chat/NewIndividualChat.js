@@ -3,8 +3,11 @@ import {StyleSheet, Text, Button, SectionList, View} from 'react-native'
 import {ListItem} from 'react-native-elements'
 import {Entypo} from '@expo/vector-icons'
 import {connect} from 'react-redux'
+import {NavigationActions} from 'react-navigation'
+
 import {createSectionedData} from '../../utils'
 import {fetchCurrentChatId} from '../../store/chats'
+import {Colors} from '../../constants'
 
 export class NewIndividualChat extends Component {
   constructor() {
@@ -22,7 +25,8 @@ export class NewIndividualChat extends Component {
 
     // Overriding header buttons
     this.props.navigation.setOptions({
-      headerLeft: () => (
+      headerLeft: null,
+      headerRight: () => (
         <Button
           title="Cancel"
           onPress={() => this.props.navigation.navigate('Chat')}
@@ -45,17 +49,29 @@ export class NewIndividualChat extends Component {
       <View style={styles.container}>
         <ListItem
           title={'New Group'}
+          titleStyle={{color: Colors.tintColor}}
           leftIcon={() => <Entypo name="users" size={20} style={styles.icon} />}
           bottomDivider
           onPress={() => this.props.navigation.navigate('NewGroupChat')}
+          containerStyle={styles.listItem}
         />
         <ListItem
           title={'New Contact'}
+          titleStyle={{color: Colors.tintColor}}
           leftIcon={() => (
             <Entypo name="add-user" size={20} style={styles.icon} />
           )}
           bottomDivider
-          onPress={() => console.log('pressed')}
+          onPress={() =>
+            this.props.navigation.navigate(
+              'Contacts',
+              {},
+              NavigationActions.navigate({
+                routeName: 'AddContact',
+              })
+            )
+          }
+          containerStyle={styles.listItem}
         />
 
         <SectionList
@@ -65,6 +81,7 @@ export class NewIndividualChat extends Component {
               title={item.name}
               bottomDivider
               onPress={() => this.handleContactSelection(item.id, item.name)}
+              containerStyle={styles.listItem}
             />
           )}
           renderSectionHeader={({section}) => (
@@ -83,6 +100,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
+  icon: {
+    color: Colors.tintColor,
+  },
   sectionHeader: {
     paddingTop: 2,
     paddingLeft: 10,
@@ -91,6 +111,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     backgroundColor: 'rgba(247,247,247,1.0)',
+  },
+  listItem: {
+    borderBottomWidth: 1,
+    borderColor: Colors.medGray,
+    backgroundColor: '#fff',
   },
 })
 

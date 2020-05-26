@@ -1,9 +1,8 @@
-import firebase, {auth, db} from '../Firebase'
 import {Notifications} from 'expo'
 import * as Permissions from 'expo-permissions'
 import Constants from 'expo-constants'
-import {fetchChats} from './chats'
-import {formatNameHelper} from '../utils'
+
+import firebase, {db} from '../Firebase'
 
 const usersRef = db.ref('users')
 
@@ -194,7 +193,11 @@ export const addNewContact = ({email}, navigation) => async (
         .then(() => {
           // add contact in redux store then navigate to all contacts screen
           dispatch(addContact(contact))
-          navigation.navigate('Contact')
+          navigation.navigate('Contact', [
+            {
+              contacts: getState().user.contacts,
+            },
+          ])
         })
         .catch((error) => dispatch(addContactError(errMsg)))
     } else {
@@ -295,7 +298,6 @@ const userReducer = (state = defaultUser, action) => {
     case UPDATE_LANG:
       return {...state, language: action.lang}
     case GET_CONTACTS:
-      // console.log("IN GET CONTACTS", state);
       return {...state, contacts: action.contacts}
     case ADD_CONTACT:
       return {

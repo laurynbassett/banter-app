@@ -1,5 +1,6 @@
-import {Audio} from 'expo-av'
-import * as Permissions from 'expo-permissions'
+import React from 'react'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {AntDesign} from '@expo/vector-icons'
 
 // format audio time
 export function getMillis(millis) {
@@ -12,14 +13,6 @@ export function getMillis(millis) {
     return str
   }
   return `${pad(mins)}:${pad(secs)}`
-}
-
-// permission for microphone use
-export async function getPermissions(thisObj) {
-  const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING)
-  thisObj.setState({
-    audioPermission: response.status === 'granted',
-  })
 }
 
 // get time for playback
@@ -37,7 +30,7 @@ export function getPlaybackTime(thisObj) {
 }
 
 // play / pause playback for message audio
-export async function handleToggleAudio(props, thisObj) {
+async function handleToggleAudio(currMessage, thisObj) {
   const {isAudioPlaying, playbackInstance} = thisObj.state
   // if playback instance exists and is playing, pause it
   playbackInstance !== null
@@ -45,5 +38,68 @@ export async function handleToggleAudio(props, thisObj) {
       ? await playbackInstance.pauseAsync()
       : await playbackInstance.playAsync()
     : // if no playback instance, load selected audio
-      thisObj.loadPlaybackInstance(props)
+      thisObj.loadPlaybackInstance(currMessage)
 }
+
+export function playbackIcon(thisObj, currentMessage, isSender) {
+  const time = isSender ? styles.audioTimeRight : styles.audioTimeLeft
+  const color = isSender ? '#ffffff' : '#0084ff'
+  return (
+    <View style={styles.audioFileContainer}>
+      <TouchableOpacity
+        onPress={() => {
+          thisObj.setState({currentAudio: currentMessage._id})
+          handleToggleAudio(currentMessage, thisObj)
+        }}
+        hitSlop={styles.hitSlop}
+      >
+        <AntDesign
+          name={
+            thisObj.state.currentAudio === currentMessage._id &&
+            thisObj.state.isAudioPlaying
+              ? 'pausecircleo'
+              : 'playcircleo'
+          }
+          size={35}
+          color={color}
+          style={styles.audio}
+        />
+      </TouchableOpacity>
+      {thisObj.state.currentAudio === currentMessage._id && (
+        <Text style={time}>{getPlaybackTime(thisObj)}</Text>
+      )}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  audioFileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    width: 150,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  audio: {
+    alignSelf: 'center',
+    marginTop: 10,
+    backgroundColor: 'transparent',
+  },
+  audioTimeLeft: {
+    marginTop: 10,
+    marginLeft: 10,
+    color: 'black',
+  },
+  audioTimeRight: {
+    marginTop: 10,
+    marginLeft: 10,
+    color: '#ffffff',
+  },
+  hitSlop: {
+    top: 30,
+    bottom: 30,
+    left: 10,
+    right: 10,
+  },
+})

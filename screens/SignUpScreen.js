@@ -1,19 +1,22 @@
 import React, {Component} from 'react'
 import {
+  Dimensions,
+  KeyboardAvoidingView,
+  Image,
+  Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
   View,
-  Dimensions,
-  Platform,
-  KeyboardAvoidingView,
 } from 'react-native'
 import {connect} from 'react-redux'
+import RNPickerSelect from 'react-native-picker-select'
+
 import {signUpWithEP} from '../store/auth'
 import {registerForPushNotificationsAsync} from '../store/user'
 import languages from '../languages.json'
-import RNPickerSelect from 'react-native-picker-select'
+import {Colors} from '../constants'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')
@@ -54,12 +57,19 @@ class SignUpScreen extends Component {
         behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
+        <View style={styles.image}>
+          <Image
+            source={require('../assets/images/login_logo.png')}
+            resizeMode="center"
+          />
+        </View>
         <TextInput
           style={styles.firstName}
           type="First Name"
           value={firstName}
           placeholder="First Name"
           onChangeText={(firstName) => this.setState({firstName})}
+          autoCorrect={false}
         />
 
         <TextInput
@@ -68,6 +78,7 @@ class SignUpScreen extends Component {
           value={lastName}
           placeholder="Last Name"
           onChangeText={(lastName) => this.setState({lastName})}
+          autoCorrect={false}
         />
 
         <RNPickerSelect
@@ -99,6 +110,7 @@ class SignUpScreen extends Component {
           placeholder="Email"
           autoCapitalize="none"
           onChangeText={(email) => this.setState({email})}
+          autoCorrect={false}
         />
         <TextInput
           style={styles.inputBox}
@@ -107,6 +119,8 @@ class SignUpScreen extends Component {
           placeholder="Password"
           autoCapitalize="none"
           onChangeText={(password) => this.setState({password})}
+          autoCorrect={false}
+          secureTextEntry={true}
         />
         <TouchableOpacity
           style={styles.button}
@@ -141,7 +155,8 @@ const {width: WIDTH} = Dimensions.get('window')
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    // backgroundColor: '#3c8cfc',
+    backgroundColor: Colors.tintColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -150,20 +165,27 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
+    backgroundColor: 'white',
   },
   button: {
-    width: WIDTH - 55,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    // borderColor: '#3c8cfc',
+    borderColor: Colors.tintColor,
     height: 50,
-    backgroundColor: '#0D9BFE',
-    borderRadius: 25,
+    width: 220,
+    borderRadius: 5,
     marginTop: 20,
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
+    // color: '#3c8cfc',
+    color: Colors.tintColor,
     fontSize: 16,
     textAlign: 'center',
   },
@@ -172,10 +194,11 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
     marginBottom: 0,
+    backgroundColor: 'white',
   },
 })
 
@@ -188,7 +211,7 @@ const pickerSelectStyles = StyleSheet.create({
     paddingTop: 13,
     paddingHorizontal: 15,
     paddingBottom: 12,
-    borderColor: '#d3d3d3',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     backgroundColor: 'white',
     color: 'black',
