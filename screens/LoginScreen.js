@@ -1,5 +1,13 @@
 import React, {Component} from 'react'
-import {StyleSheet, TextInput, View, Text, Dimensions} from 'react-native'
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  Text,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+} from 'react-native'
 import {TouchableOpacity} from 'react-native-gesture-handler'
 import {connect} from 'react-redux'
 import {loginWithEP, loginWithGoogle} from '../store/auth'
@@ -31,7 +39,13 @@ class LoginScreen extends Component {
   render() {
     const {email, password} = this.state
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView style={styles.container}>
+        <View style={styles.image}>
+          <Image
+            source={require('../assets/images/login_logo.png')}
+            resizeMode="center"
+          />
+        </View>
         <TextInput
           style={styles.inputBox}
           type="email"
@@ -81,7 +95,7 @@ class LoginScreen extends Component {
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
     )
   }
 }
@@ -91,7 +105,7 @@ const {width: WIDTH} = Dimensions.get('window')
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#3c8cfc',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -103,17 +117,18 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     borderWidth: 1,
     textAlign: 'left',
+    backgroundColor: 'white',
   },
   button: {
     width: WIDTH - 55,
     height: 45,
-    backgroundColor: '#0D9BFE',
+    backgroundColor: 'white',
     borderRadius: 25,
     marginTop: 20,
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: '#3c8cfc',
     fontSize: 16,
     textAlign: 'center',
   },
