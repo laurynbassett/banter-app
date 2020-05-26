@@ -1,13 +1,14 @@
 import React, {Component} from 'react'
 import {
+  Dimensions,
+  KeyboardAvoidingView,
+  Image,
+  Platform,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
   View,
-  Dimensions,
-  Platform,
-  KeyboardAvoidingView,
 } from 'react-native'
 import {connect} from 'react-redux'
 import RNPickerSelect from 'react-native-picker-select'
@@ -56,6 +57,12 @@ class SignUpScreen extends Component {
         behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
+        <View style={styles.image}>
+          <Image
+            source={require('../assets/images/login_logo.png')}
+            resizeMode="center"
+          />
+        </View>
         <TextInput
           style={styles.firstName}
           type="First Name"
@@ -143,7 +150,7 @@ const {width: WIDTH} = Dimensions.get('window')
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#3c8cfc',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -155,17 +162,22 @@ const styles = StyleSheet.create({
     borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
+    backgroundColor: 'white',
   },
   button: {
-    width: WIDTH - 55,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderWidth: 0.5,
+    borderColor: '#3c8cfc',
     height: 50,
-    backgroundColor: '#0D9BFE',
-    borderRadius: 25,
+    width: 220,
+    borderRadius: 5,
     marginTop: 20,
     justifyContent: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: '#3c8cfc',
     fontSize: 16,
     textAlign: 'center',
   },
@@ -178,6 +190,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     textAlign: 'left',
     marginBottom: 0,
+    backgroundColor: 'white',
   },
 })
 

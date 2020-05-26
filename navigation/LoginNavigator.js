@@ -5,7 +5,12 @@ const Stack = createStackNavigator()
 
 export default function LoginNavigator() {
   return (
-    <Stack.Navigator initialRouteName="LoginScreen">
+    <Stack.Navigator
+      initialRouteName="LoginScreen"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Stack.Screen
         name="LoginScreen"
         component={LoginScreen}
