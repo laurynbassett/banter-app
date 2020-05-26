@@ -121,7 +121,7 @@ const {width: WIDTH} = Dimensions.get('window')
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3c8cfc',
+    backgroundColor: Colors.tintColor,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderWidth: 0.5,
-    borderColor: '#3c8cfc',
+    borderColor: Colors.tintColor,
     height: 50,
     width: 220,
     borderRadius: 5,
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#3c8cfc',
+    color: Colors.tintColor,
     fontSize: 16,
     textAlign: 'center',
   },
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
     borderWidth: 0.5,
-    borderColor: '#3c8cfc',
+    borderColor: Colors.tintColor,
     height: 50,
     width: 220,
     borderRadius: 5,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginRight: 20,
     fontSize: 16,
-    color: '#3c8cfc',
+    color: Colors.tintColor,
     paddingLeft: 8,
   },
 })
