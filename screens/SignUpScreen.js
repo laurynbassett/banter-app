@@ -15,6 +15,7 @@ import RNPickerSelect from 'react-native-picker-select'
 import {signUpWithEP} from '../store/auth'
 import {registerForPushNotificationsAsync} from '../store/user'
 import languages from '../languages.json'
+import {Colors} from '../constants'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
   },
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
     marginBottom: 0,
@@ -189,7 +190,7 @@ const pickerSelectStyles = StyleSheet.create({
     paddingTop: 13,
     paddingHorizontal: 15,
     paddingBottom: 12,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     backgroundColor: 'white',
     color: 'black',

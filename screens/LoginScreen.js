@@ -4,6 +4,7 @@ import {TouchableOpacity} from 'react-native-gesture-handler'
 import {connect} from 'react-redux'
 import {loginWithEP, loginWithGoogle} from '../store/auth'
 import {registerForPushNotificationsAsync} from '../store/user'
+import {Colors} from '../constants'
 
 // Google Auth Credits: https://github.com/nathvarun/Expo-Google-Login-Firebase/tree/master
 // including firebase in import: https://stackoverflow.com/questions/39204923/undefined-is-not-an-object-firebase-auth-facebookauthprovider-credential
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 15,
     fontSize: 16,
-    borderColor: '#f7f7f7',
+    borderColor: Colors.medGray,
     borderWidth: 1,
     textAlign: 'left',
   },
