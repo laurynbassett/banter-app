@@ -186,12 +186,15 @@ export const postMessage = (text) => async (dispatch, getState) => {
     let chatId = currChatId
     // if chatId doesn't exist, create id, new chatroom and add members
     if (!chatId) {
+      // TODO: fix sender key-value
       chatId = await dispatch(createCurrentChatId())
+
       await dispatch(addNewChatroom(chatId, uid))
       contacts.forEach(
         async (contact) =>
           await dispatch(addNewChatroom(chatId, contact.contactId))
       )
+      members[uid] = displayName
       await dispatch(addNewMembers(chatId, members))
     }
 
