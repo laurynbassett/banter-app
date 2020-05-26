@@ -1,7 +1,8 @@
-import firebase, {db} from '../Firebase'
 import {Notifications} from 'expo'
 import * as Permissions from 'expo-permissions'
 import Constants from 'expo-constants'
+
+import firebase, {db} from '../Firebase'
 
 const usersRef = db.ref('users')
 
@@ -297,7 +298,6 @@ const userReducer = (state = defaultUser, action) => {
     case UPDATE_LANG:
       return {...state, language: action.lang}
     case GET_CONTACTS:
-      // console.log("IN GET CONTACTS", state);
       return {...state, contacts: action.contacts}
     case ADD_CONTACT:
       return {

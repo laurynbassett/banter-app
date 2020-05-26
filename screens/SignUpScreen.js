@@ -10,10 +10,11 @@ import {
   KeyboardAvoidingView,
 } from 'react-native'
 import {connect} from 'react-redux'
+import RNPickerSelect from 'react-native-picker-select'
+
 import {signUpWithEP} from '../store/auth'
 import {registerForPushNotificationsAsync} from '../store/user'
 import languages from '../languages.json'
-import RNPickerSelect from 'react-native-picker-select'
 
 let languageArr = Object.keys(languages)
   .filter((k) => k !== 'auto')

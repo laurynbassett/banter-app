@@ -1,12 +1,13 @@
 import * as React from 'react'
 import {Text, StyleSheet, Linking} from 'react-native'
-import languages from '../../languages.json'
+import {connect} from 'react-redux'
 import {ScrollView} from 'react-native-gesture-handler'
 import {Button, ListItem} from 'react-native-elements'
-import firebase from 'firebase/app'
-import {fetchUser, putLang} from '../../store/user'
-import {connect} from 'react-redux'
 import RNPickerSelect from 'react-native-picker-select'
+import firebase from 'firebase/app'
+
+import {fetchUser, putLang} from '../../store/user'
+import languages from '../../languages.json'
 import {Colors} from '../../constants'
 
 let languageArr = Object.keys(languages)

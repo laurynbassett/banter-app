@@ -113,14 +113,14 @@ export async function stopRecording(thisObj) {
     if (thisObj.state.recording) {
       const audioUrl = thisObj.state.recording.getURI()
       thisObj.state.recording.setOnRecordingStatusUpdate(null)
-      thisObj.setState({audioUrl, recording: null})
+      thisObj.setState({audioUrl})
 
       // creates and loads a new sound object to play back the recording
       const {sound} = await thisObj.state.recording.createNewLoadedSoundAsync(
         {isLooping: false},
         thisObj.updateSoundStatus
       )
-      thisObj.state.sound = sound
+      thisObj.setState({sound})
     }
     thisObj.setState({
       isLoading: false,

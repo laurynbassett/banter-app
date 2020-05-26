@@ -1,6 +1,5 @@
 export default function formatText(props) {
   const {currentChat, displayName, route, uid} = props
-  console.log('CURRCHAT', currentChat)
   const contacts =
     route.params.contacts ||
     Object.entries(currentChat.members).map((e) => ({

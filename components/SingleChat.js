@@ -89,15 +89,17 @@ class SingleChat extends Component {
       const text = isSender ? styles.audioTextRight : styles.audioTextLeft
 
       return (
-        <View style={styles.audioContainer}>
+        <View style={styles.messageContainer}>
           {playbackIcon(this, currentMessage, isSender)}
+          {this.state.originalsShown[currentMessage._id] && (
+            <Text style={styles.originalMessage}>
+              {currentMessage.original.replace('&#39;', "'")}
+            </Text>
+          )}
           {!isSender &&
-            currentMessage.transcript !== 'Transcription unavailable' && (
-              <View style={styles.audioTextContainer}>
-                {renderTranslation(params, this)}
-                <Text style={text}>{currentMessage.original}</Text>
-              </View>
-            )}
+            currentMessage.transcript !== 'Transcription unavailable' &&
+            renderTranslation(params, this)}
+          <Text style={text}>{currentMessage.translation}</Text>
         </View>
       )
     }
@@ -107,7 +109,7 @@ class SingleChat extends Component {
   // custom text bubble for messages w/ translation
   renderMessageText(params) {
     return (
-      <View>
+      <View style={styles.messageContainer}>
         {this.state.originalsShown[params.currentMessage._id] && (
           <Text style={styles.originalMessage}>
             {params.currentMessage.original.replace('&#39;', "'")}
@@ -302,12 +304,8 @@ const styles = StyleSheet.create({
   originalMessage: {
     color: 'black',
     fontSize: 14,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 1,
+    padding: 10,
   },
-
   container: {
     flex: 1,
     backgroundColor: Colors.lightGray,
@@ -355,14 +353,9 @@ const styles = StyleSheet.create({
     left: 10,
     right: 10,
   },
-  audioContainer: {
+  messageContainer: {
     flexDirection: 'column',
-  },
-  audioTextContainer: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
+    padding: 10,
   },
   audioTextLeft: {
     color: 'black',
@@ -373,6 +366,7 @@ const styles = StyleSheet.create({
   audioTextRight: {
     color: '#ffffff',
     fontSize: 16,
+    paddingTop: 10,
     paddingLeft: 10,
     paddingRight: 10,
   },

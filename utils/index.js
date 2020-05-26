@@ -9,7 +9,6 @@ export {
   containsAll,
   createMemberString,
 } from './members'
-
 export {
   getPermissions,
   handleRecordPressed,

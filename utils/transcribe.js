@@ -1,7 +1,4 @@
-import * as FileSystem from 'expo-file-system'
-import {CLOUD_FUNCTION_URL} from 'react-native-dotenv'
 import {functions} from '../Firebase'
-// import * as Speech from '@google-cloud/speech'
 
 async function getTranscription(file) {
   try {

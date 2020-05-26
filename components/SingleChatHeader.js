@@ -2,15 +2,10 @@ import React from 'react'
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {connect} from 'react-redux'
 import {Ionicons} from '@expo/vector-icons'
+
 import {Colors} from '../constants'
-import AvatarIcon from './AvatarIcon'
 import {getMessages, setCurrentChat} from '../store'
-import {
-  createMemberString,
-  memberImgHelper,
-  memberNameHelper,
-  SingleChatAvatar,
-} from '../utils'
+import {memberImgHelper, SingleChatAvatar} from '../utils'
 
 // SINGLE CHAT HEADER LEFT
 const UnconnectedSingleChatHeaderLeft = (props) => {
@@ -67,11 +62,12 @@ const SingleChatHeaderCenter = (props) => {
 
 const mapState = (state) => {
   const chat = state.chats.currentChat
-  const getMemberNames =
-    chat && chat.members ? memberNameHelper(Object.values(chat.members)) : []
+  let members = chat && chat.members ? chat.members : []
+  delete members[state.user.id]
+  const getMemberNames = chat && chat.members ? Object.values(members) : []
   const getMemberImgs =
     chat && chat.members
-      ? memberImgHelper(Object.keys(chat.members), state.user.contacts)
+      ? memberImgHelper(Object.keys(members), state.user.contacts)
       : []
   return {
     memberNames: getMemberNames,

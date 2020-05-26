@@ -1,5 +1,5 @@
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs'
 import * as React from 'react'
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs'
 
 import {ChatListScreen} from '../screens'
 

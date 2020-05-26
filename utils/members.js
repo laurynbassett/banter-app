@@ -5,7 +5,7 @@ export function memberNameHelper(membersArr) {
 }
 
 export function memberIdHelper(membersArr, contacts) {
-	return membersArr.filter(id => id !== auth.currentUser.uid);
+  return membersArr.filter((id) => id !== auth.currentUser.uid)
 }
 
 export function memberImgHelper(membersArr, contacts) {

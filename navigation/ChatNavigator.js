@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 import * as React from 'react'
 import {createStackNavigator} from '@react-navigation/stack'
-import {ChatListScreen, SingleChatScreen} from '../screens'
+import {SingleChatScreen} from '../screens'
 import {
   ChatListHeaderRight,
   SingleChatHeaderLeft,

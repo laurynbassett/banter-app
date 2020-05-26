@@ -58,11 +58,13 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
       name: message.senderName,
     },
     createdAt: message.timestamp,
-    original: message.translations ? message.translations.original : '',
+    original: message.translations
+      ? message.translations.original.charAt(0).toUpperCase() +
+        message.translations.original.slice(1)
+      : '',
     messageType: message.messageType,
   }
   const userLanguage = getState().user.language
-  // case: audio file
 
   // if the message was sent by the user it will not be translated
   if (message.senderId !== getState().firebase.auth.uid) {
@@ -70,6 +72,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
       message.messageType === 'message'
         ? message.message
         : message.audio.transcript
+
     // check if translation to user's language exists
     if (message.translations[userLanguage]) {
       newMessage.translatedFrom =
@@ -87,6 +90,7 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
         ).then((audioObj) => {
           newMessage.audio = audioObj.uri
           newMessage.transcript = message.audio.transcript
+          newMessage.translation = message.translations[userLanguage]
           dispatch(appendMessage(newMessage))
         })
       }
@@ -137,13 +141,13 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
             ).then((audioObj) => {
               newMessage.audio = audioObj.uri
               newMessage.transcript = message.audio.transcript
+              newMessage.translation = message.translations[userLanguage]
               dispatch(appendMessage(newMessage))
             })
           }
         })
     }
   } else {
-    newMessage.text = message.translations.original
     // case: audio file
     if (newMessage.messageType === 'audio') {
       FileSystem.downloadAsync(
@@ -152,9 +156,14 @@ const addMessage = (message, messageId) => (dispatch, getState) => {
       ).then((audioObj) => {
         newMessage.audio = audioObj.uri
         newMessage.transcript = message.audio.transcript
+        newMessage.translation = message.translations.original
         dispatch(appendMessage(newMessage))
       })
-    } else dispatch(appendMessage(newMessage))
+      // case: message file
+    } else {
+      newMessage.text = message.translations.original
+      dispatch(appendMessage(newMessage))
+    }
   }
 }
 
@@ -171,7 +180,6 @@ export const postMessage = (text) => async (dispatch, getState) => {
       audio = '',
       messageType,
     } = text
-    console.log('TEXT', text)
     const members = getState().chats.currentChat.members
     members[uid] = displayName
 
@@ -213,11 +221,14 @@ export const postMessage = (text) => async (dispatch, getState) => {
             messageType === 'message'
               ? message
               : audio.transcript !== 'Transcription unavailable'
-              ? audio.transcript
+              ? audio.transcript.charAt(0).toUpperCase() +
+                audio.transcript.slice(1)
               : 'Voice note',
         }
         if (messageType === 'audio') {
           newMessage.audio = audio
+        } else {
+          newMessage.message = message
         }
 
         // update messages node
