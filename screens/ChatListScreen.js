@@ -21,7 +21,6 @@ class ChatListScreen extends React.Component {
   render() {
     return (
       <FlatList
-        style={styles.container}
         data={this.props.chats}
         renderItem={({item}) => (
           <ChatListItem
@@ -49,7 +48,5 @@ const mapDispatch = (dispatch) => ({
   setCurrentChat: (chatId) => dispatch(setCurrentChat(chatId)),
   requestPushNotification: () => dispatch(registerForPushNotificationsAsync()),
 })
-
-const styles = StyleSheet.create({container: {backgroundColor: 'white'}})
 
 export default connect(mapState, mapDispatch)(ChatListScreen)
