@@ -20,7 +20,7 @@ To manage our state throughout the app's various screens, we used Redux, which h
 
 _Splash Screen_
 
-![Splash Screen]('/assets/images/splash.png')
+<img src="/assets/images/splash.png" width='200' height="400" />
 
 _Add Contact Screen_
 
