@@ -1,22 +1,16 @@
-import {auth, db} from '../Firebase'
+import { auth, db } from '../Firebase'
 import * as Google from 'expo-google-app-auth'
-import {GOOGLE_IOS_CLIENT_ID} from 'react-native-dotenv'
+import { GOOGLE_IOS_CLIENT_ID } from 'react-native-dotenv'
 import firebase from 'firebase/app'
 
 const SET_USER_LOGIN = 'SET_USER_LOGIN'
 
-const setUserLogin = (isLoggedIn) => ({type: SET_USER_LOGIN, isLoggedIn})
+const setUserLogin = isLoggedIn => ({ type: SET_USER_LOGIN, isLoggedIn })
 
-export const signUpWithEP = (
-  email,
-  password,
-  firstName,
-  lastName,
-  language
-) => {
-  return async (dispatch) => {
+export const signUpWithEP = (email, password, firstName, lastName, language) => {
+  return async dispatch => {
     try {
-      const {user} = await auth.createUserWithEmailAndPassword(email, password)
+      const { user } = await auth.createUserWithEmailAndPassword(email, password)
 
       if (user) {
         // console.log("NEW USER CREATED: ", email, password, user);
@@ -25,7 +19,7 @@ export const signUpWithEP = (
           name: `${firstName} ${lastName}`,
           language: language,
           created_at: Date.now(),
-          notifications: {token: null, status: 'undetermined'},
+          notifications: { token: null, status: 'undetermined' }
         })
       }
       await auth.signInWithEmailAndPassword(email, password)
@@ -40,10 +34,11 @@ export const signUpWithEP = (
 
 // Email Password Login
 export const loginWithEP = (email, password) => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
+      console.log('auth', auth)
       await auth.signInWithEmailAndPassword(email, password)
-      dispatch(setUserLogin({isLoggedIn: true}))
+      dispatch(setUserLogin({ isLoggedIn: true }))
     } catch (err) {
       const errMessage = err.message
       console.log('Login Error: ', errMessage)
@@ -52,11 +47,11 @@ export const loginWithEP = (email, password) => {
 }
 
 export const loginWithGoogle = () => {
-  return async (dispatch) => {
+  return async dispatch => {
     try {
       const result = await Google.logInAsync({
         iosClientId: GOOGLE_IOS_CLIENT_ID,
-        scopes: ['profile', 'email'],
+        scopes: [ 'profile', 'email' ]
       })
 
       if (result.type === 'success') {
@@ -65,53 +60,44 @@ export const loginWithGoogle = () => {
       }
     } catch (e) {
       console.log('LoginScreen.js.js 30 | Error with login', e)
-      return {error: true}
+      return { error: true }
     }
   }
 }
 
-const onSignIn = (googleUser) => {
+const onSignIn = googleUser => {
   console.log('Google Auth Response', googleUser)
   // We need to register an Observer on Firebase Auth to make sure auth is initialized.
-  var unsubscribe = firebase.auth().onAuthStateChanged(function (firebaseUser) {
+  var unsubscribe = firebase.auth().onAuthStateChanged(function(firebaseUser) {
     unsubscribe()
     // Check if we are already signed-in Firebase with the correct user.
     if (!isUserEqual(googleUser, firebaseUser)) {
       // Build Firebase credential with the Google ID token.
-      var credential = firebase.auth.GoogleAuthProvider.credential(
-        googleUser.idToken,
-        googleUser.accessToken
-      )
+      var credential = firebase.auth.GoogleAuthProvider.credential(googleUser.idToken, googleUser.accessToken)
       // Sign in with credential from the Google user.
       firebase
         .auth()
         .signInWithCredential(credential)
-        .then(function (result) {
+        .then(function(result) {
           console.log('user signed in ')
           if (result.additionalUserInfo.isNewUser) {
-            firebase
-              .database()
-              .ref('/users/' + result.user.uid)
-              .set({
-                email: result.user.email.toLowerCase(),
-                name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
-                created_at: Date.now(),
-                notifications: {token: null, status: 'undetermined'},
-                language: 'English',
-              })
+            firebase.database().ref('/users/' + result.user.uid).set({
+              email: result.user.email.toLowerCase(),
+              name: `${result.additionalUserInfo.profile.given_name} ${result.additionalUserInfo.profile.family_name}`,
+              created_at: Date.now(),
+              notifications: { token: null, status: 'undetermined' },
+              language: 'English'
+            })
             // .then(function (snapshot) {
             //   console.log("Snapshot", snapshot);
             // });
           } else {
-            firebase
-              .database()
-              .ref('/users/' + result.user.uid)
-              .update({
-                last_logged_in: Date.now(),
-              })
+            firebase.database().ref('/users/' + result.user.uid).update({
+              last_logged_in: Date.now()
+            })
           }
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // Handle Errors here.
           var errorCode = error.code
           var errorMessage = error.message
@@ -135,8 +121,7 @@ const isUserEqual = (googleUser, firebaseUser) => {
     var providerData = firebaseUser.providerData
     for (var i = 0; i < providerData.length; i++) {
       if (
-        providerData[i].providerId ===
-          firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+        providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
         providerData[i].uid === googleUser.getBasicProfile().getId()
       ) {
         // We don't need to reauth the Firebase connection.
