@@ -20,7 +20,7 @@ To manage our state throughout the app's various screens, we used Redux, which h
 
 _Splash Screen_
 
-<img src="/assets/images/banter-splashscreen-option-3.png" width='200' height="400" />
+<img src="/assets/images/banter-splash.png" width='200' height="400" />
 
 _Add Contact Screen_
 
