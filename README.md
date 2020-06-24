@@ -1,4 +1,4 @@
-# Graze
+# Banter
 
 _Instagram Clone Mobile App_
 
@@ -24,15 +24,19 @@ _Splash Screen_
 
 _Add Contact Screen_
 
-<img src="https://media.giphy.com/media/jpKRgTgkIbPVoRUSqB/giphy.gif" width='200' height="400" />
+<img src="https://media.giphy.com/media/jpKRgTgkIbPVoRUSqB/giphy.gif" width="200" height="400" />
 
 _Contacts Screen_
 
-<img src="https://media.giphy.com/media/St3KZzQHQHsGzOFfDk/giphy.gif" width='200' height="400" />
+<img src="https://media.giphy.com/media/St3KZzQHQHsGzOFfDk/giphy.gif" width="200" height="400" />
+
+_1 to 1 Chat_
+
+<img src="https://media.giphy.com/media/S8Nz5FPiy927fq3dlx/giphy.gif" width="420" height="400" />
 
 _Voice Note_
 
-<img src="https://media.giphy.com/media/fq7WPaD9mG1xVIZHHE/giphy.gif" width='200' height="400" />
+<img src="https://media.giphy.com/media/fq7WPaD9mG1xVIZHHE/giphy.gif" width="200" height="400" />
 
 ---
 
