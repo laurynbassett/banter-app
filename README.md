@@ -24,17 +24,15 @@ _Splash Screen_
 
 _Add Contact Screen_
 
-<img src="assets/images/add-contact.gif" width='200' height="400" />
+<img src="https://media.giphy.com/media/jpKRgTgkIbPVoRUSqB/giphy.gif" width='200' height="400" />
 
 _Contacts Screen_
 
-<img src="/assets/images/contacts.gif" width='200' height="400" />
+<img src="https://media.giphy.com/media/St3KZzQHQHsGzOFfDk/giphy.gif" width='200' height="400" />
 
 _Voice Note_
 
-![Voice Note](assets/images/voice-note.gif)
-
-<!-- <img src="./assets/images/voice-note.gif" width='200' height="400" /> -->
+<img src="https://media.giphy.com/media/fq7WPaD9mG1xVIZHHE/giphy.gif" width='200' height="400" />
 
 ---
 
