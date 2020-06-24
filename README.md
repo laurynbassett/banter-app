@@ -20,19 +20,19 @@ To manage our state throughout the app's various screens, we used Redux, which h
 
 _Splash Screen_
 
-<img src="/assets/images/splash.png" width='200' height="400" />
+<img src="assets/images/splash.png" width='200' height="400" />
 
 _Add Contact Screen_
 
-<img src="/assets/images/add-contact.gif" width='200' height="400" />
+<img src="assets/images/add-contact.gif" width='200' height="400" />
 
 _Contacts Screen_
 
-<img src="/assets/images/contacts.gif" width='200' height="400" />
+<img src="assets/images/contacts.gif" width='200' height="400" />
 
 _Voice Note_
 
-<img src="/assets/images/voice-note.gif" width='200' height="400" />
+<img src="assets/images/voice-note.gif" width='200' height="400" />
 
 ---
 
