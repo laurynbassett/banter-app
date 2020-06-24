@@ -32,7 +32,9 @@ _Contacts Screen_
 
 _Voice Note_
 
-<img src="./assets/images/voice-note.gif" width='200' height="400" />
+![Voice Note]('/assets/images/voice-note.gif')
+
+<!-- <img src="./assets/images/voice-note.gif" width='200' height="400" /> -->
 
 ---
 
